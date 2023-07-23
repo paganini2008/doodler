@@ -1,0 +1,265 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.doodler</groupId>
+    <artifactId>doodler-framework-dependencies</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+        <springboot.version>2.4.13</springboot.version>
+        <fastjson.version>1.2.74</fastjson.version>
+        <guava.version>31.1-jre</guava.version>
+        <io.doodler.version>1.0.0-SNAPSHOT</io.doodler.version>
+        <swagger.fox.version>2.9.2</swagger.fox.version>
+        <io.swagger>1.5.21</io.swagger>
+    </properties>
+
+    <modules>
+        <module>doodler-data</module>
+        <module>doodler-redis</module>
+        <module>doodler-jdbc</module>
+        <module>doodler-mybatis</module>
+        <module>doodler-i18n</module>
+        <module>doodler-id</module>
+        <module>doodler-security</module>
+        <module>doodler-swagger</module>
+        <module>doodler-feign</module>
+        <module>doodler-webmvc</module>
+        <module>doodler-messager</module>
+        <module>doodler-validation</module>
+        <module>doodler-ip</module>
+		<module>doodler-websocket</module>
+		<module>doodler-amqp</module>
+		<module>doodler-upms</module>
+		<module>doodler-discovery</module>
+		<module>doodler-cluster</module>
+    </modules>
+
+    <dependencyManagement>
+
+        <dependencies>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${springboot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-data</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-redis</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-mybatis</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-i18n</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-id</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-email</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-security</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-swagger</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-feign</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-webmvc</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-validation</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-jdbc</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-ip</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-messager</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+			
+			<dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-websocket</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+			
+			<dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-amqp</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-upms</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+			
+			<dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-discovery</artifactId>
+                <version>${io.doodler.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-dbutils</groupId>
+            <artifactId>commons-dbutils</artifactId>
+            <version>1.7</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.4.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${fastjson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-actuator-autoconfigure</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <attach>true</attach>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    
+</project>

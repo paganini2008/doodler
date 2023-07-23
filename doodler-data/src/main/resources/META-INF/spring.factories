@@ -1,0 +1,5 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+   io.doodler.common.context.ApplicationContextUtils,\
+   io.doodler.common.context.HttpRequestContextHolder,\
+   io.doodler.common.context.InstanceId,\
+   io.doodler.common.utils.RestTemplateConfig

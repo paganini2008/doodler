@@ -1,0 +1,5 @@
+io.doodler.feign.RestClientCandidatesAutoConfiguration=\
+  io.doodler.ip.RemoteGeoLocationService
+  
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  io.doodler.ip.GeoCachedKeyGenerator
