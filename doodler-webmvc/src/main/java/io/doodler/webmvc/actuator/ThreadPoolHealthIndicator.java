@@ -1,16 +1,19 @@
 package io.doodler.webmvc.actuator;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health.Builder;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
+
+import io.doodler.common.utils.MapUtils;
 
 /**
  * @Description: ThreadPoolHealthIndicator
@@ -18,23 +21,27 @@ import org.springframework.stereotype.Component;
  * @Date: 27/01/2023
  * @Version 1.0.0
  */
+@ConditionalOnProperty(name = "management.health.threadPool.enabled", havingValue = "true", matchIfMissing = true)
 @Component
 public class ThreadPoolHealthIndicator extends AbstractHealthIndicator {
 
-	@Lazy
+    @Lazy
     @Autowired
     private ThreadPoolTaskExecutor taskExecutor;
 
     @Lazy
-    @Autowired
+    @Autowired(required = false)
     private ThreadPoolTaskScheduler taskScheduler;
 
     @Override
     protected void doHealthCheck(Builder builder) throws Exception {
         builder.up()
-                .withDetail("taskExecutor", getTaskExecutorInfoMap())
-                .withDetail("taskScheduler", getTaskSchedulerInfoMap())
-                .build();
+                .withDetail("taskExecutor", getTaskExecutorInfoMap());
+        Map<String, Object> infoMap = getTaskSchedulerInfoMap();
+        if (MapUtils.isNotEmpty(infoMap)) {
+            builder.withDetail("taskScheduler", infoMap);
+        }
+        builder.build();
     }
 
     private Map<String, Object> getTaskExecutorInfoMap() {
@@ -63,6 +70,9 @@ public class ThreadPoolHealthIndicator extends AbstractHealthIndicator {
     }
 
     private Map<String, Object> getTaskSchedulerInfoMap() {
+        if (taskScheduler == null) {
+            return Collections.emptyMap();
+        }
         int corePoolSize = taskScheduler.getScheduledThreadPoolExecutor().getCorePoolSize();
         int poolSize = taskScheduler.getPoolSize();
         int maxPoolSize = taskScheduler.getScheduledThreadPoolExecutor().getMaximumPoolSize();

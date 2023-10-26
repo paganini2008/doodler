@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 public interface WebResponsePreHandler {
 
     default boolean supports(Class<?> resultClass, HttpServletRequest request, HttpServletResponse response) {
-        return true;
+        return (request != null && response != null);
     }
 
     Object beforeBodyWrite(Object body, HttpServletRequest request, HttpServletResponse response);

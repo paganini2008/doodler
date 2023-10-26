@@ -50,13 +50,13 @@ public class PubSubRedisTemplate extends RedisTemplate<String, Object> {
 
     public void convertAndUnicast(String channel, Object message, long delay, TimeUnit timeUnit) {
         String key = keyFor(channel);
-        opsForList().leftPush(key + "__", new RedisMessageEntity(channel, PubSubMode.UNICAST, message));
+        opsForList().leftPush("tmp:" + key, new RedisMessageEntity(channel, PubSubMode.UNICAST, message));
         opsForValue().set(key, new RedisMessageEntity(channel, PubSubMode.UNICAST, null), delay, timeUnit);
     }
 
     public void convertAndMulticast(String channel, Object message, long delay, TimeUnit timeUnit) {
         String key = keyFor(channel);
-        opsForValue().set(key + "__", new RedisMessageEntity(channel, PubSubMode.MULTICAST, message));
+        opsForValue().set("tmp:" + key, new RedisMessageEntity(channel, PubSubMode.MULTICAST, message));
         opsForValue().set(key, new RedisMessageEntity(channel, PubSubMode.MULTICAST, null), delay, timeUnit);
     }
 }

@@ -1,0 +1,125 @@
+package io.doodler.quartz.executor;
+
+import io.doodler.common.ApiResult;
+import io.doodler.common.utils.ExceptionUtils;
+import io.doodler.common.utils.MapUtils;
+import io.doodler.discovery.ApplicationInfoHolder;
+import io.doodler.discovery.LoadBalancedRestTemplate;
+import io.doodler.quartz.scheduler.JobSchedulingException;
+
+import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
+
+/**
+ * @Description: JobService
+ * @Author: Fred Feng
+ * @Date: 14/06/2023
+ * @Version 1.0.0
+ */
+@Slf4j
+@RequiredArgsConstructor
+public class JobService {
+
+    private final JobBeanFactory jobBeanFactory;
+    private final ApplicationInfoHolder applicationInfoHolder;
+    private final LoadBalancedRestTemplate restTemplate;
+
+    @Value("${discovery.client.ping.usePublicIp:false}")
+    private boolean usePublicIp;
+
+    private final List<JobExecutionListener> listeners = new CopyOnWriteArrayList<>();
+
+    @Async
+    public void startJob(RpcJobBean rpcJobBean) {
+        if (log.isTraceEnabled()) {
+            log.trace("Start to run job: {}", rpcJobBean.getJobSignature());
+        }
+        listeners.forEach(l -> l.onStart(rpcJobBean));
+
+        JobSignature jobSignature = rpcJobBean.getJobSignature();
+        Object targetBean = jobBeanFactory.getBean(jobSignature.getClassName());
+        Object result = null;
+        boolean success = false;
+        Throwable error = null;
+        try {
+            if (StringUtils.isNotBlank(jobSignature.getInitialParameter())) {
+                result = MethodUtils.invokeMethod(targetBean, true, jobSignature.getMethod(),
+                        jobSignature.getInitialParameter());
+            } else {
+                result = MethodUtils.invokeMethod(targetBean, true, jobSignature.getMethod());
+            }
+            success = true;
+        } catch (Exception e) {
+            error = e;
+            throw new JobSchedulingException(e.getMessage(), e);
+        } finally {
+            if (success) {
+                String callbackMethod = jobSignature.getMethod() + "Callback";
+                try {
+                    MethodUtils.invokeMethod(targetBean, true, callbackMethod, result);
+                } catch (NoSuchMethodException ignored) {
+                	
+                } catch (Exception e) {
+                    if (log.isErrorEnabled()) {
+                        log.error(e.getMessage(), e);
+                    }
+                }
+            }
+            Throwable errorRef;
+            if (error instanceof InvocationTargetException) {
+                errorRef = ((InvocationTargetException) error).getTargetException();
+            } else {
+                errorRef = error;
+            }
+            listeners.forEach(l -> l.onEnd(rpcJobBean, errorRef));
+            endJob(rpcJobBean, errorRef);
+        }
+    }
+
+    private void endJob(RpcJobBean rpcJobBean, Throwable error) {
+        URI uri = URI.create(String.format("http://%s/job/end",
+                rpcJobBean.getJobScheduler().getApplicationName()));
+        RpcJobBean newRpcJobBean = new RpcJobBean(rpcJobBean.getGuid(), rpcJobBean.getJobSignature());
+        newRpcJobBean.setJobExecutor(applicationInfoHolder.get());
+        newRpcJobBean.setErrors(error != null ? ExceptionUtils.toArray(error) : null);
+        ResponseEntity<ApiResult<String>> responseEntity = null;
+        try {
+            responseEntity = restTemplate.exchange(uri, HttpMethod.POST,
+                    new HttpEntity<Object>(newRpcJobBean), new ParameterizedTypeReference<ApiResult<String>>() {
+                    });
+        } catch (RuntimeException e) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
+        if (responseEntity != null && responseEntity.getStatusCode() == HttpStatus.OK) {
+            if (log.isTraceEnabled()) {
+                log.trace("End job: {}", rpcJobBean.getJobSignature());
+            }
+        }
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void onApplicationEvent(ApplicationReadyEvent event) {
+        Map<String, JobExecutionListener> map = event.getApplicationContext().getBeansOfType(JobExecutionListener.class);
+        if (MapUtils.isNotEmpty(map)) {
+            listeners.addAll(map.values());
+        }
+    }
+}

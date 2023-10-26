@@ -4,15 +4,14 @@ import static io.doodler.security.SecurityConstants.AUTHORIZATION_TYPE_BASIC;
 import static io.doodler.security.SecurityConstants.AUTHORIZATION_TYPE_BEARER;
 import static io.doodler.security.SecurityConstants.LOGIN_KEY;
 import static io.doodler.security.SecurityConstants.REMEMBER_ME_KEY;
+import static io.doodler.security.SecurityConstants.TOKEN_KEY;
 
 import java.io.IOException;
 import java.util.List;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisOperations;
@@ -87,8 +86,8 @@ public class MixedAuthenticationFilter extends BasicAuthenticationFilter {
                 final String token = resolveToken(authorization);
                 IdentifiableUserDetails user = tokenStrategy.decode(authorization);
                 if (tokenStrategy.validate(authorization)) {
-
-                    AuthenticationInfo authInfo = (AuthenticationInfo) redisOperations.opsForValue().get(token);
+                    String key = String.format(TOKEN_KEY, user.getPlatform(), token);
+                    AuthenticationInfo authInfo = (AuthenticationInfo) redisOperations.opsForValue().get(key);
                     if (authInfo == null) {
                         throw new BizException(ErrorCodes.JWT_TOKEN_EXPIRATION, HttpStatus.UNAUTHORIZED);
                     }
@@ -106,17 +105,21 @@ public class MixedAuthenticationFilter extends BasicAuthenticationFilter {
                             }
                         }
                         userDetailsChecker.check(user);
-                        InternalAuthenticationToken authentication = new InternalAuthenticationToken(user,
+                        InternalAuthenticationToken authentication = new InternalAuthenticationToken(
+                                user,
                                 user.getUsername(),
                                 user.getPlatform(),
-                                false, 
+                                false,
                                 user.getAuthorities());
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
                 } else {
                     String key = String.format(LOGIN_KEY, user.getPlatform(), user.getUsername());
-                    redisOperations.delete(token);
                     redisOperations.delete(key);
+
+                    key = String.format(TOKEN_KEY, user.getPlatform(), token);
+                    redisOperations.delete(key);
+
                     throw new BizException(ErrorCodes.JWT_TOKEN_EXPIRATION, HttpStatus.UNAUTHORIZED);
                 }
             } catch (RuntimeException e) {
@@ -130,12 +133,16 @@ public class MixedAuthenticationFilter extends BasicAuthenticationFilter {
     }
 
     private String resolveToken(String authorization) {
-        if (authorization.startsWith(AUTHORIZATION_TYPE_BEARER)) {
-            return authorization.substring(7);
+        try {
+            if (authorization.startsWith(AUTHORIZATION_TYPE_BEARER)) {
+                return authorization.substring(7);
+            }
+            if (authorization.startsWith(AUTHORIZATION_TYPE_BASIC)) {
+                return authorization.substring(6);
+            }
+            return authorization;
+        } catch (RuntimeException e) {
+            throw new BizException(ErrorCodes.JWT_TOKEN_BAD_FORMAT, HttpStatus.UNAUTHORIZED);
         }
-        if (authorization.startsWith(AUTHORIZATION_TYPE_BASIC)) {
-            return authorization.substring(6);
-        }
-        return authorization;
     }
 }

@@ -54,7 +54,7 @@ public class StandardClient implements Client {
 		String reconstructedUrl = loadBalancerClient.reconstructURI(instance, originalUri).toString();
 		Request newRequest = buildRequest(request, reconstructedUrl, instance);
 		if (log.isTraceEnabled()) {
-			log.trace("Rewrite new request: {}", newRequest);
+			log.trace("Rewrite new request to: {}", newRequest);
 		}
 		return target.execute(newRequest, options);
 	}

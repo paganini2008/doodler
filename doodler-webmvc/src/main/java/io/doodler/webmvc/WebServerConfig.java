@@ -1,12 +1,16 @@
 package io.doodler.webmvc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.Servlet;
 
 import org.slf4j.Marker;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,13 +24,13 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.doodler.common.context.ConditionalOnNotApplication;
 import io.doodler.common.context.FormattedMessageLocalization;
 import io.doodler.common.context.MessageLocalization;
 import io.doodler.common.utils.JacksonUtils;
 import io.doodler.common.utils.Markers;
-import io.doodler.i18n.I18nMessageLocalization;
-import io.doodler.i18n.IRemoteI18nService;
+import io.doodler.webmvc.WebServerConfig.WebRequestLoggingProperties;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @Description: WebServerConfig
@@ -34,12 +38,13 @@ import io.doodler.i18n.IRemoteI18nService;
  * @Date: 08/02/2023
  * @Version 1.0.0
  */
+@EnableConfigurationProperties(WebRequestLoggingProperties.class)
 @Configuration(proxyBeanMethods = false)
 public class WebServerConfig {
 
     @Value("${spring.mvc.servlet.path}")
     private String servletContextPath;
-    
+
     @Value("${spring.application.name}")
     private String applicationName;
 
@@ -54,7 +59,7 @@ public class WebServerConfig {
     @Primary
     @Bean
     public ObjectMapper objectMapper() {
-        return JacksonUtils.getGenericObjectMapper();
+        return JacksonUtils.getObjectMapperForWebMvc();
     }
 
     @Bean
@@ -76,39 +81,22 @@ public class WebServerConfig {
         multipartResolver.setMaxUploadSize(DataSize.ofMegabytes(100).toBytes());
         return multipartResolver;
     }
-    
-    @Profile({"dev","test","prod"})
+
+    @Profile({"dev", "test", "prod"})
     @Bean
-    public WebRequestStdout webRequestStdout() {
-    	return new WebRequestStdout(globalMarker());
+    public WebRequestStdout webRequestStdout(WebRequestLoggingProperties webRequestLoggingProperties) {
+        return new WebRequestStdout(webRequestLoggingProperties, globalMarker());
     }
-    
+
     @Bean
     public Marker globalMarker() {
-    	return Markers.forName(applicationName);
+        return Markers.forName(applicationName);
     }
 
-    /**
-     * @Description: I18nMessageConfig
-     * @Author: Fred Feng
-     * @Date: 31/12/2022
-     * @Version 1.0.0
-     */
-    @ConditionalOnNotApplication(applicationNames = {"crypto-common-service"})
-    @Configuration(proxyBeanMethods = false)
-    public static class I18nMessageConfig {
-
-        @ConditionalOnMissingClass("io.doodler.i18n.IRemoteI18nService")
-        @Bean
-        public MessageLocalization messageLocalization() {
-            return new FormattedMessageLocalization();
-        }
-
-        @ConditionalOnClass(IRemoteI18nService.class)
-        @Bean
-        public MessageLocalization i18nMessageLocalization(IRemoteI18nService remoteI18nService) {
-            return new I18nMessageLocalization(remoteI18nService);
-        }
+    @ConditionalOnMissingBean
+    @Bean
+    public MessageLocalization messageLocalization() {
+        return new FormattedMessageLocalization();
     }
 
     /**
@@ -130,5 +118,13 @@ public class WebServerConfig {
         public WebResponsePreHandler traceableWebResponsePreHandler() {
             return new TraceableWebResponsePreHandler();
         }
+    }
+
+    @ConfigurationProperties("web.request.logging")
+    public static class WebRequestLoggingProperties {
+
+        @Setter
+        @Getter
+        private List<String> paths = new ArrayList<>();
     }
 }

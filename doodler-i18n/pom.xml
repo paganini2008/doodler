@@ -17,6 +17,7 @@
         <dependency>
             <groupId>io.doodler</groupId>
             <artifactId>doodler-feign</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

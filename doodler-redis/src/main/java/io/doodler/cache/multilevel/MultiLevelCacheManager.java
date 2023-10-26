@@ -1,7 +1,7 @@
 package io.doodler.cache.multilevel;
 
 import io.doodler.cache.CacheKeyManager;
-import io.doodler.cache.EnhancedCache;
+import io.doodler.cache.EnhancedCaching;
 import io.doodler.cache.filter.CacheMethodFilter;
 import io.doodler.cache.spec.CacheSpecifications;
 import io.doodler.common.utils.MatchMode;
@@ -43,7 +43,7 @@ public class MultiLevelCacheManager extends AbstractCacheManager implements Cach
         Cache cache = super.getCache(cacheName);
         if (cache != null) {
             return cacheMethodFilter != null && cacheSpecifications.isOwner(cacheName) ?
-                    EnhancedCache.createProxy(cacheName, cache, cacheMethodFilter) : cache;
+                    EnhancedCaching.createProxy(cacheName, cache, cacheMethodFilter) : cache;
         }
         return null;
     }

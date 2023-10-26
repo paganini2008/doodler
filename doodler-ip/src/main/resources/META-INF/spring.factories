@@ -1,5 +1,5 @@
-io.doodler.feign.RestClientCandidatesAutoConfiguration=\
-  io.doodler.ip.RemoteGeoLocationService
+com.elraytech.maxibet.common.feign.RestClientCandidatesAutoConfiguration=\
+  com.elraytech.maxibet.common.ip.RemoteGeoLocationService
   
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  io.doodler.ip.GeoCachedKeyGenerator
+  com.elraytech.maxibet.common.ip.GeoCachedKeyGenerator

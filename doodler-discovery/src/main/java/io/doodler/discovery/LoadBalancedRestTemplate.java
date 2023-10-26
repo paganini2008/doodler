@@ -1,7 +1,8 @@
 package io.doodler.discovery;
 
+import java.io.IOException;
 import java.net.URI;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -14,7 +15,6 @@ import org.springframework.web.client.RestTemplate;
 
 import io.doodler.feign.LoadBalancerClient;
 import io.doodler.feign.ServiceInstance;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: LoadBalancedRestTemplate
@@ -37,9 +37,9 @@ public class LoadBalancedRestTemplate extends RestTemplate {
                               ResponseExtractor<T> responseExtractor)
             throws RestClientException {
         String serviceId = originalUri.getHost();
-		if(!loadBalancerClient.contains(serviceId)) {
-			return super.doExecute(originalUri, method, requestCallback, responseExtractor);
-		}
+        if (!loadBalancerClient.contains(serviceId)) {
+            return super.doExecute(originalUri, method, requestCallback, responseExtractor);
+        }
         Assert.state(serviceId != null, "Request URI does not contain a valid hostname: " + originalUri);
         ServiceInstance instance = loadBalancerClient.choose(serviceId, null);
         if (instance == null) {
@@ -50,6 +50,11 @@ public class LoadBalancedRestTemplate extends RestTemplate {
             throw HttpServerErrorException.create(HttpStatus.SERVICE_UNAVAILABLE, message, null, null, null);
         }
         URI reconstructedUri = loadBalancerClient.reconstructURI(instance, originalUri);
-        return super.doExecute(reconstructedUri, method, requestCallback, responseExtractor);
+        try {
+            return super.doExecute(reconstructedUri, method, requestCallback, responseExtractor);
+        } catch (RestClientException e) {
+            throw new ServiceResourceAccessException(serviceId, reconstructedUri, e.getMessage(),
+                    (IOException) e.getCause());
+        }
     }
 }

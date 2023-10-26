@@ -12,11 +12,11 @@ import java.util.Map;
 public class NoOpRestClientInvokerAspect implements RestClientInvokerAspect {
 
 	@Override
-	public void beforeInvoke(Method method, Object[] args, Map<String, Object> attributes) {
+	public void beforeInvoke(Class<?> apiInterfaceClass, Method method, Object[] args, Map<String, Object> attributes) {
 	}
 
 	@Override
-	public void afterInvoke(Method method, Object[] args, Map<String, Object> attributes, Throwable t) {
+	public void afterInvoke(Class<?> apiInterfaceClass, Method method, Object[] args, Map<String, Object> attributes, Throwable t) {
 	}
 
 }

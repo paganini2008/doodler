@@ -37,24 +37,30 @@ public class MutableObservable {
         obs.addObserver(ob);
     }
 
-    public void notifyObservers(Object arg) {
-        notifyObservers("default", arg);
+    public boolean notifyObservers(Object arg) {
+        return notifyObservers("default", arg);
     }
 
-    public void notifyObservers(String channel, Object arg) {
+    public boolean notifyObservers(String channel, Object arg) {
         Observable obs = channels.get(channel);
         if (obs != null && obs.countObservers() > 0) {
             obs.notifyObservers(arg);
+            return true;
         }
+        return false;
     }
 
-    public void notifyObservers(String channel, MatchMode matchMode, Object arg) {
-        channels.entrySet().stream().filter(e -> matchMode.matches(channel, e.getKey())).forEach(e -> {
-            Observable obs = e.getValue();
-            if (obs != null && obs.countObservers() > 0) {
-                obs.notifyObservers(arg);
-            }
-        });
+    public boolean notifyObservers(String channel, MatchMode matchMode, Object arg) {
+        if (channels.entrySet().stream().anyMatch(e -> matchMode.matches(channel, e.getKey()))) {
+            channels.entrySet().stream().filter(e -> matchMode.matches(channel, e.getKey())).forEach(e -> {
+                Observable obs = e.getValue();
+                if (obs != null && obs.countObservers() > 0) {
+                    obs.notifyObservers(arg);
+                }
+            });
+            return true;
+        }
+        return false;
     }
 
     public int countOfChannels() {

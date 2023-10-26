@@ -25,7 +25,7 @@ import io.doodler.redis.RedisSerializerUtils;
 @Configuration(proxyBeanMethods = false)
 public class RedisPubSubConfig {
 
-    @Value("${spring.application.redis.pubsub.channel:}")
+    @Value("${spring.application.redis.pubsub.channel:maxibet}")
     private String pubsubChannel;
 
     @Value("${spring.application.redis.pubsub.keyNamespace:pubsub}")

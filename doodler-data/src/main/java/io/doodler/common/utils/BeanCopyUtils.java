@@ -88,15 +88,15 @@ public class BeanCopyUtils {
                     continue;
                 }
             }
-            Class<?> targetType = destinationMap.get(propertyName).getPropertyType();
+            Class<?> targetPropertyType = destinationMap.get(propertyName).getPropertyType();
             try {
-                propertyValue = targetType.cast(propertyValue);
+                propertyValue = targetPropertyType.cast(propertyValue);
             } catch (RuntimeException e) {
                 if (conversionService != null) {
-                    Class<?> sourceType = originalMap.get(propertyName).getPropertyType();
-                    if (conversionService.canConvert(sourceType, targetType)) {
+                    Class<?> sourcePropertyType = originalMap.get(propertyName).getPropertyType();
+                    if (conversionService.canConvert(sourcePropertyType, targetPropertyType)) {
                         try {
-                            propertyValue = conversionService.convert(propertyValue, targetType);
+                            propertyValue = conversionService.convert(propertyValue, targetPropertyType);
                         } catch (RuntimeException ignored) {
                             propertyValue = null;
                         }

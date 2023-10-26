@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  io.doodler.mybatis.config.MybatisPlusConfig\
+  com.elraytech.maxibet.common.mybatis.config.MybatisPlusConfig\

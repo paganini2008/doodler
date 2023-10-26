@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.lang.Nullable;
 import org.springframework.util.ErrorHandler;
 
 import io.doodler.common.context.ManagedBeanLifeCycle;
@@ -39,14 +40,19 @@ public abstract class SimpleTimer implements Runnable, ManagedBeanLifeCycle {
 
     private ScheduledExecutorService executor;
     private ScheduledFuture<?> future;
-    private ErrorHandler errorHandler;
-    private boolean runNow;
+    private @Nullable ErrorHandler errorHandler;
+    private boolean runImmediatedly;
+    private boolean autoClose;
 
-    public void setRunNow(boolean runNow) {
-		this.runNow = runNow;
-	}
+    public void setRunImmediatedly(boolean runImmediatedly) {
+        this.runImmediatedly = runImmediatedly;
+    }
 
-	public void setErrorHandler(ErrorHandler errorHandler) {
+    public void setExecutor(ScheduledExecutorService executor) {
+        this.executor = executor;
+    }
+
+    public void setErrorHandler(ErrorHandler errorHandler) {
         this.errorHandler = errorHandler;
     }
 
@@ -57,12 +63,17 @@ public abstract class SimpleTimer implements Runnable, ManagedBeanLifeCycle {
         if (future == null) {
             if (executor == null || ExecutorUtils.isShutdown(executor)) {
                 this.executor = Executors.newSingleThreadScheduledExecutor();
+                this.autoClose = true;
             }
             this.future = executor.scheduleWithFixedDelay(this, initialDelay, period, timeUnit);
             this.running.set(true);
+            if (log.isInfoEnabled()) {
+                log.info("Periodically run {} with parameters: {}, {}, {}", getClass().getSimpleName(), initialDelay,
+                        period, timeUnit);
+            }
         }
-        if(runNow) {
-        	run();
+        if (runImmediatedly) {
+            run();
         }
     }
 
@@ -71,19 +82,23 @@ public abstract class SimpleTimer implements Runnable, ManagedBeanLifeCycle {
     }
 
     public void stop() {
+        if (!isRunning()) {
+            throw new IllegalStateException("Timer has been stoped.");
+        }
         if (future != null) {
             future.cancel(true);
             future = null;
 
             running.set(false);
         }
-        ExecutorUtils.gracefulShutdown(executor, 60000L);
+        if(autoClose) {
+            ExecutorUtils.gracefulShutdown(executor, 60000L);
+        }
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
         start();
-        log.info("Start timer for '{}'", getClass());
     }
 
     @Override
@@ -92,16 +107,21 @@ public abstract class SimpleTimer implements Runnable, ManagedBeanLifeCycle {
     }
 
     @Override
-    public void run() {
+    public final void run() {
+        if (!isRunning()) {
+            return;
+        }
         boolean result = false;
+        Exception reason = null;
         try {
             result = change();
         } catch (Exception e) {
-        	result = handleError(e);
+            result = handleError(e);
+            reason = e;
         } finally {
             if (!result) {
                 stop();
-                handleCancellation();
+                handleCancellation(reason);
             }
         }
     }
@@ -117,7 +137,7 @@ public abstract class SimpleTimer implements Runnable, ManagedBeanLifeCycle {
         return true;
     }
 
-    protected void handleCancellation() {
+    protected void handleCancellation(@Nullable Exception reason) {
     }
 
     public abstract boolean change() throws Exception;

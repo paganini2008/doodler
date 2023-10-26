@@ -44,7 +44,7 @@ public class CatalogMetaData implements TiedMetaData {
 
         visitor.visit(this);
 
-        Exporter.Configuration configuration = visitor.getConfiguration();
+        Exporter.ExportConfiguration configuration = visitor.getConfiguration();
         if (configuration.getDbType().isSchemaSupported()) {
             List<Map<String, Object>> schemaInfos = getMetaDataOperations().getSchemaInfos(getMetaData(), catalogName);
             for (Map<String, Object> schemaInfo : schemaInfos) {

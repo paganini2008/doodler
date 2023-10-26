@@ -19,16 +19,16 @@ import io.doodler.jdbc.impexp.DdlScripter.Table;
  */
 public class DefaultMetaDataVisitor implements MetaDataVisitor {
 
-    private final Exporter.Configuration configuration;
+    private final Exporter.ExportConfiguration configuration;
     private final DdlScripter ddlScripter;
 
-    public DefaultMetaDataVisitor(Exporter.Configuration configuration, DdlScripter ddlScripter) {
+    public DefaultMetaDataVisitor(Exporter.ExportConfiguration configuration, DdlScripter ddlScripter) {
         this.configuration = configuration;
         this.ddlScripter = ddlScripter;
     }
 
     @Override
-    public Exporter.Configuration getConfiguration() {
+    public Exporter.ExportConfiguration getConfiguration() {
         return configuration;
     }
 

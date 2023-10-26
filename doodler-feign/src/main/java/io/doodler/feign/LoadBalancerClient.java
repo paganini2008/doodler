@@ -20,7 +20,11 @@ public interface LoadBalancerClient {
 	
 	boolean contains(String serviceId);
 	
+	ServiceInstance chooseFirst(String serviceId);
+	
 	ServiceInstance choose(String serviceId, @Nullable Request request);
+	
+	@Nullable ServiceInstance currentSelected(String serviceId);
 
 	URI reconstructURI(ServiceInstance instance, URI originalUri);
 

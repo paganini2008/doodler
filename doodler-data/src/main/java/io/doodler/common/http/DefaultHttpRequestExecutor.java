@@ -2,19 +2,23 @@ package io.doodler.common.http;
 
 import static io.doodler.common.http.HttpRequest.CURRENT_HTTP_REQUEST;
 
-import io.doodler.common.utils.LruMap;
-import io.doodler.common.utils.MultiMappedMap;
 import java.net.URI;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.RetryListener;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.retry.support.RetryTemplateBuilder;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
+import io.doodler.common.utils.LruMap;
+import io.doodler.common.utils.MultiMapMap;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: DefaultHttpRequestExecutor
@@ -22,13 +26,14 @@ import org.springframework.web.client.RestTemplate;
  * @Date: 20/07/2023
  * @Version 1.0.0
  */
+@Slf4j
 public class DefaultHttpRequestExecutor implements HttpRequestExecutor {
 
-    private static final MultiMappedMap<String, String, RetryTemplate> retryTemplateCache = new MultiMappedMap<>(() -> {
+    private static final MultiMapMap<String, String, RetryTemplate> retryTemplateCache = new MultiMapMap<>(() -> {
         return new LruMap<String, RetryTemplate>(256);
     });
 
-    private static final MultiMappedMap<String, String, Semaphore> semaphoreCache = new MultiMappedMap<>(() -> {
+    private static final MultiMapMap<String, String, Semaphore> semaphoreCache = new MultiMapMap<>(() -> {
         return new ConcurrentHashMap<String, Semaphore>();
     });
 
@@ -140,7 +145,15 @@ public class DefaultHttpRequestExecutor implements HttpRequestExecutor {
                 responseEntity = getEntity(httpRequest, typeReference);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-            } finally {
+            }catch (Exception e) {
+				if(e instanceof RestClientException) {
+					throw (RestClientException)e;
+				}else {
+					if(log.isErrorEnabled()) {
+						log.error(e.getMessage(),e);
+					}
+				}
+			} finally {
                 lock.release();
             }
         }
@@ -167,7 +180,15 @@ public class DefaultHttpRequestExecutor implements HttpRequestExecutor {
 
     private final RetryListenerContainer retryListenerContainer = new RetryListenerContainer();
 
-    public RetryListenerContainer getRetryListenerContainer() {
-        return retryListenerContainer;
-    }
+	@Override
+	public void addRetryListener(RetryListener listener) {
+		retryListenerContainer.addListener(listener);
+	}
+
+	@Override
+	public void addApiRetryListener(ApiRetryListener listener) {
+		retryListenerContainer.addListener(listener);
+	}
+
+
 }

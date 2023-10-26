@@ -31,7 +31,6 @@ import io.doodler.common.context.HttpRequestContextHolder;
 import io.doodler.common.context.MessageLocalization;
 import io.doodler.common.context.Span;
 import io.doodler.common.utils.LangUtils;
-import io.doodler.feign.RestClientException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -55,12 +54,6 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = e.getErrorCode();
         if (log.isErrorEnabled() && errorCode.isFatal()) {
             log.error(e.getMessage(), e);
-
-            if (e instanceof RestClientException) {
-                RestClientException restClientEx = (RestClientException) e;
-                log.error("[RestClientError] request: {}, response: {}", restClientEx.getRequest().toString(),
-                        restClientEx.getResponse() != null ? restClientEx.getResponse().toString() : "<None>");
-            }
         }
 
         ApiResult<Object> result = ApiResult.failed(getErrorMessage(errorCode, LangUtils.toObjectArray(e.getArg())),

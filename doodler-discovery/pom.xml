@@ -38,7 +38,24 @@
         
         <dependency>
             <groupId>io.doodler</groupId>
+            <artifactId>doodler-id</artifactId>
+        </dependency>
+        
+       <dependency>
+            <groupId>io.doodler</groupId>
             <artifactId>doodler-feign</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-spring</artifactId>
             <scope>provided</scope>
         </dependency>
 

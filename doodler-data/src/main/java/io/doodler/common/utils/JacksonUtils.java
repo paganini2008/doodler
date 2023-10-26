@@ -1,24 +1,5 @@
 package io.doodler.common.utils;
 
-import static io.doodler.common.Constants.DEFAULT_DATE_PATTERN;
-import static io.doodler.common.Constants.ISO8601_DATE_TIME_PATTERN;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Writer;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
@@ -34,6 +15,24 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
+import static io.doodler.common.Constants.DEFAULT_DATE_PATTERN;
+import static io.doodler.common.Constants.ISO8601_DATE_TIME_PATTERN;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+
 /**
  * @Description: JacksonUtils
  * @Author: Fred Feng
@@ -45,25 +44,29 @@ public abstract class JacksonUtils {
     private static final ObjectMapper mapper;
 
     static {
-        mapper = new ObjectMapper()
-                .enable(SerializationFeature.INDENT_OUTPUT)
+        mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .setDateFormat(new SimpleDateFormat(ISO8601_DATE_TIME_PATTERN))
-                .registerModule(getGenericJavaTimeModule())
+                .registerModule(getJavaTimeModuleForWebMvc())
                 .findAndRegisterModules();
     }
 
-    public static ObjectMapper getGenericObjectMapper() {
-        return Jackson2ObjectMapperBuilder.json()
-                .dateFormat(new SimpleDateFormat(ISO8601_DATE_TIME_PATTERN))
+    public static ObjectMapper getObjectMapperForWebMvc() {
+        return Jackson2ObjectMapperBuilder.json().dateFormat(new SimpleDateFormat(ISO8601_DATE_TIME_PATTERN))
                 .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .postConfigurer(om -> om.registerModule(getGenericJavaTimeModule()).findAndRegisterModules())
-                .build();
+                .postConfigurer(om -> om.registerModule(getJavaTimeModuleForWebMvc()).findAndRegisterModules()).build();
     }
 
-    public static SimpleModule getGenericJavaTimeModule() {
+    public static ObjectMapper getObjectMapperForFeignClient() {
+        return Jackson2ObjectMapperBuilder.json().dateFormat(new SimpleDateFormat(ISO8601_DATE_TIME_PATTERN))
+                .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .postConfigurer(
+                        om -> om.registerModule(getJavaTimeModuleForFeignClient()).findAndRegisterModules()).build();
+    }
+
+    public static SimpleModule getJavaTimeModuleForWebMvc() {
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addSerializer(LocalDateTime.class,
                 new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(ISO8601_DATE_TIME_PATTERN)));
@@ -73,10 +76,24 @@ public abstract class JacksonUtils {
                 new LocalDateSerializer(DateTimeFormatter.ofPattern(DEFAULT_DATE_PATTERN)));
         simpleModule.addDeserializer(LocalDate.class,
                 new LocalDateDeserializer(DateTimeFormatter.ofPattern(DEFAULT_DATE_PATTERN)));
-        // All long values convert to string value for frontend
+        
+        // Notice: Long/BigDecimal/Double type will be converted to string type for frontend
         simpleModule.addSerializer(Long.class, ToStringSerializer.instance);
         simpleModule.addSerializer(BigDecimal.class, new BigDecimalToStringSerializer(10));
         simpleModule.addSerializer(Double.class, new DoubleToStringSerializer(10));
+        return simpleModule;
+    }
+
+    public static SimpleModule getJavaTimeModuleForFeignClient() {
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addSerializer(LocalDateTime.class,
+                new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(ISO8601_DATE_TIME_PATTERN)));
+        simpleModule.addDeserializer(LocalDateTime.class, new MutableLocalDateTimeDeserializer(
+                new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(ISO8601_DATE_TIME_PATTERN))));
+        simpleModule.addSerializer(LocalDate.class,
+                new LocalDateSerializer(DateTimeFormatter.ofPattern(DEFAULT_DATE_PATTERN)));
+        simpleModule.addDeserializer(LocalDate.class,
+                new LocalDateDeserializer(DateTimeFormatter.ofPattern(DEFAULT_DATE_PATTERN)));
         return simpleModule;
     }
 

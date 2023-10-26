@@ -1,7 +1,6 @@
 package io.doodler.cache;
 
 /**
- * 
  * @Description: CacheKey
  * @Author: Fred Feng
  * @Date: 09/02/2023
@@ -10,5 +9,4 @@ package io.doodler.cache;
 public interface CacheKey {
 
 	String getKey();
-	
 }

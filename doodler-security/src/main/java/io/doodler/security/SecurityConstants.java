@@ -18,6 +18,7 @@ public abstract class SecurityConstants {
     public static final String AUTHORIZATION_TYPE_BEARER = "Bearer";
     public static final String AUTHORIZATION_TYPE_BASIC = "Basic";
     public static final String ENCRYPTION_TYPE_NOOP = "noop";
+    public static final String TOKEN_KEY = "jwt:%s:%s";
     public static final String LOGIN_KEY = "login:%s:%s";
     public static final String PLATFORM_WEBSITE = "website";
     public static final String PLATFORM_ADMIN = "admin";

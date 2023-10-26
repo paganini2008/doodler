@@ -2,6 +2,7 @@ package io.doodler.webmvc;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,7 @@ public class HttpRequestInfoWebResponsePreHandler implements WebResponsePreHandl
 
     @Override
     public boolean supports(Class<?> resultClass, HttpServletRequest request, HttpServletResponse response) {
-        return resultClass.equals(ApiResult.class);
+        return resultClass.equals(ApiResult.class) && (request != null && response != null);
     }
 
     @Override

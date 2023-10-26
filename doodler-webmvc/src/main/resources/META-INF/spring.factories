@@ -1,5 +1,6 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  io.doodler.webmvc.BasicWebMvcConfig
+  com.elraytech.maxibet.common.webmvc.BasicWebMvcConfig
   
 org.springframework.boot.env.EnvironmentPostProcessor=\
-  io.doodler.webmvc.RandomServerPortConfigurator
+  com.elraytech.maxibet.common.webmvc.RandomServerPortConfigurator,\
+  com.elraytech.maxibet.common.webmvc.actuator.AdminClientEnvironmentPostProcessor

@@ -1,5 +1,6 @@
 package io.doodler.common.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
@@ -57,5 +58,10 @@ public enum PaymentStatus implements EnumConstant {
             default:
                 return false;
         }
+    }
+    
+    @JsonCreator
+    public static PaymentStatus getBy(String value) {
+    	return EnumUtils.valueOf(PaymentStatus.class, value);
     }
 }

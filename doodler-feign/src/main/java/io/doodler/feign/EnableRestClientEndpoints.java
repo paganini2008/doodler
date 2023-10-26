@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.springframework.context.annotation.Import;
 
-import io.doodler.feign.statistic.RestClientStatisticAutoConfiguration;
+import io.doodler.feign.statistics.RestClientStatisticAutoConfiguration;
 
 /**
  * @Description: EnableRestClientEndpoints

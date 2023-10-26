@@ -16,6 +16,7 @@ import lombok.ToString;
 public class AffectedApplicationInfo {
 
     private AffectedType affectedType;
+    
     private ApplicationInfo applicationInfo;
 
     public static enum AffectedType {

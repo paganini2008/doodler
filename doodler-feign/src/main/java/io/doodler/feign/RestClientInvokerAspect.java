@@ -11,11 +11,11 @@ import java.util.Map;
  */
 public interface RestClientInvokerAspect {
 	
-	default boolean supports(Method method, Object[] args, Map<String, Object> attributes) {
+	default boolean supports(Class<?> apiInterfaceClass, Method method, Object[] args, Map<String, Object> attributes) {
 		return true;
 	}
 
-    void beforeInvoke(Method method, Object[] args, Map<String, Object> attributes);
+    void beforeInvoke(Class<?> apiInterfaceClass, Method method, Object[] args, Map<String, Object> attributes);
 
-    void afterInvoke(Method method, Object[] args, Map<String, Object> attributes, Throwable cause);
+    void afterInvoke(Class<?> apiInterfaceClass, Method method, Object[] args, Map<String, Object> attributes, Throwable cause);
 }

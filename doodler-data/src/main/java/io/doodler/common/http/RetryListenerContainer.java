@@ -66,9 +66,11 @@ public class RetryListenerContainer implements RetryListener {
 
     @Override
     public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback, Throwable e) {
-        if (log.isErrorEnabled()) {
-            log.error(e.getMessage(), e);
-        }
+    	if(e!=null) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+    	}
     }
 
     @Override

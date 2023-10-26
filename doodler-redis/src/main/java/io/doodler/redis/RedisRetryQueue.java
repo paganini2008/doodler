@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.data.redis.core.RedisTemplate;
 
-import io.doodler.common.utils.RetryQueue;
+import io.doodler.common.retry.RetryQueue;
 import lombok.RequiredArgsConstructor;
 
 /**

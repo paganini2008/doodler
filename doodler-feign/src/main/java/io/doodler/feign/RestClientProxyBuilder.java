@@ -9,10 +9,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import org.springframework.http.MediaType;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import feign.Client;
 import feign.Feign;
 import feign.FeignException;
@@ -25,13 +21,8 @@ import feign.codec.DecodeException;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
-import feign.codec.StringDecoder;
-import feign.form.FormEncoder;
-import feign.jackson.JacksonDecoder;
-import feign.jackson.JacksonEncoder;
 import feign.okhttp.OkHttpClient;
 import feign.slf4j.Slf4jLogger;
-import io.doodler.common.utils.JacksonUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -60,22 +51,15 @@ public class RestClientProxyBuilder<T> {
     private Retryer retryer;
     private List<RequestInterceptor> interceptors = Collections.emptyList();
     private Consumer<Feign.Builder> configurer;
-    private ObjectMapper objectMapper = JacksonUtils.getGenericObjectMapper();
     private RestClientInterceptorContainer interceptorContainer = new RestClientInterceptorContainer();
 
     RestClientProxyBuilder(Class<T> apiInterfaceClass) {
         this.apiInterfaceClass = apiInterfaceClass;
         this.client = new OkHttpClient();
         
-        MultipleTypeEncoder encoder = new MultipleTypeEncoder();
-        encoder.setDefaultEncoder(new JacksonEncoder(objectMapper));
-        encoder.addEncoder(MediaType.APPLICATION_FORM_URLENCODED, new FormEncoder());
-        this.encoder = encoder;
-        
-        MultipleTypeDecoder decoder = new MultipleTypeDecoder();
-        decoder.setDefaultDecoder(new JacksonDecoder(objectMapper));
-        decoder.addDecoder(String.class, new StringDecoder());
-        this.decoder = new InternalDecoder(decoder);
+        GenericEncoderDecoderFactory encoderDecoderFactory = new GenericEncoderDecoderFactory();
+        this.encoder = encoderDecoderFactory.getEncoder();
+        this.decoder = new InternalDecoder(encoderDecoderFactory.getDecoder());
 
         this.errorDecoder = new GlobalErrorDecoder(interceptorContainer);
         this.logger = new Slf4jLogger(DEFAULT_LOGGER_NAME);

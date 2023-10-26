@@ -10,11 +10,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import feign.Client;
-import io.doodler.feign.actuator.RestClientInfoEndpoint;
-import io.doodler.feign.actuator.ServiceInstanceEndpoint;
+import io.doodler.feign.actuator.LoadBalancerClientEndpoint;
+import io.doodler.feign.actuator.RestClientMetadataEndpoint;
 import io.doodler.feign.logger.ElkLoggerAdapter;
 
 /**
@@ -24,7 +22,9 @@ import io.doodler.feign.logger.ElkLoggerAdapter;
  * @Version 1.0.0
  */
 @Configuration(proxyBeanMethods = false)
-@Import({RestClientInfoEndpoint.class, ServiceInstanceEndpoint.class})
+@Import({RestClientMetadataEndpoint.class, 
+	     LoadBalancerClientEndpoint.class,
+	     RestClientExceptionHandler.class})
 @EnableConfigurationProperties({RestClientProperties.class})
 public class RestClientCandidatesAutoConfiguration {
 
@@ -32,6 +32,12 @@ public class RestClientCandidatesAutoConfiguration {
     @Bean
     public OkHttpClientFactory okHttpClient(RestClientProperties restClientProperties) {
         return new OkHttpClientFactory(restClientProperties);
+    }
+    
+    @ConditionalOnMissingBean
+    @Bean
+    public EncoderDecoderFactory encoderDecoderFactory() {
+    	return new GenericEncoderDecoderFactory();
     }
 
     @Bean
@@ -43,13 +49,18 @@ public class RestClientCandidatesAutoConfiguration {
     public RequestInterceptorContainer requestInterceptorContainer() {
     	return new RequestInterceptorContainer();
     }
+    
+    @Bean
+    public RetryFailureHandlerContainer retryFailureHandlerContainer() {
+    	return new RetryFailureHandlerContainer();
+    }
 
     @Bean
-    public RestClientInfoCollector RestClientInfoCollector(RestClientProperties config) {
-        return new RestClientInfoCollector(config);
+    public RestClientMetadataCollector RestClientInfoCollector(RestClientProperties config) {
+        return new RestClientMetadataCollector(config);
     }
     
-    @ConditionalOnMissingClass("io.doodler.discovery.feign.DiscoveryClientLoadBalancerClient")
+    @ConditionalOnMissingClass("com.elraytech.maxibet.common.discovery.feign.DiscoveryClientLoadBalancerClient")
     @Bean
     public LoadBalancerClient loadBalancerClient(RestClientProperties config) {
     	DefaultLoadBalancerClient loadBalancerClient = new DefaultLoadBalancerClient();
@@ -59,13 +70,18 @@ public class RestClientCandidatesAutoConfiguration {
 
     @Bean
     public RestClientCustomizer defaultRestClientCustomizer(Client httpClient,
+    		                                                EncoderDecoderFactory encoderDecoderFactory,
     		                                                LoadBalancerClient loadBalancerClient,
                                                             RestClientProperties restClientProperties,
-                                                            ObjectMapper objectMapper,
-                                                            RequestInterceptorContainer mappedRequestInterceptorContainer,
-                                                            RestClientInterceptorContainer restClientInterceptorContainer) {
-        return new DefaultRestClientCustomizer(new StandardClient(httpClient, loadBalancerClient), restClientProperties, objectMapper,
-        		mappedRequestInterceptorContainer, restClientInterceptorContainer);
+                                                            RequestInterceptorContainer requestInterceptorContainer,
+                                                            RestClientInterceptorContainer restClientInterceptorContainer,
+                                                            RetryFailureHandlerContainer retryFailureHandlerContainer) {
+        return new DefaultRestClientCustomizer(new StandardClient(httpClient, loadBalancerClient),
+        		encoderDecoderFactory, 
+        		restClientProperties,
+        		requestInterceptorContainer, 
+        		restClientInterceptorContainer,
+        		retryFailureHandlerContainer);
     }
 
     @Bean

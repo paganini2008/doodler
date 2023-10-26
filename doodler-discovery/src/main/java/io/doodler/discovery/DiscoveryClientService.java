@@ -1,7 +1,9 @@
 package io.doodler.discovery;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 
 /**
  * @Description: DiscoveryClientService
@@ -10,8 +12,17 @@ import java.util.Set;
  * @Version 1.0.0
  */
 public interface DiscoveryClientService {
+	
+	default Collection<String> getApplicationNames(){
+		return Collections.unmodifiableCollection(getApplicationInfos().keySet());
+	}
 
-    Set<ApplicationInfo> getApplicationInfos(String applicationName);
-    
-    Map<String, Set<ApplicationInfo>> getApplicationInfos();
+    default Optional<ApplicationInfo> getApplicationInfo(String applicationName, String host, int port) {
+        return getApplicationInfos(applicationName).stream().filter(
+                info -> info.getHost().equals(host) && info.getPort() == port).findFirst();
+    }
+
+    Collection<ApplicationInfo> getApplicationInfos(String applicationName);
+
+    Map<String, Collection<ApplicationInfo>> getApplicationInfos();
 }

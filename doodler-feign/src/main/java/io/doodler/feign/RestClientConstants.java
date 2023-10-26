@@ -10,5 +10,7 @@ public interface RestClientConstants {
 
 	String REQUEST_HEADER_TIMESTAMP = "timestamp";
 
-	String DEFAULT_LOGGER_NAME = "io.doodler.feign.RestClient";
+	String DEFAULT_LOGGER_NAME = "com.elraytech.maxibet.common.feign.RestClient";
+	
+	long DEFAULT_MAXIMUM_RESPONSE_TIME = 3L * 1000;
 }

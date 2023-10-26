@@ -23,13 +23,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DefaultRestClientInvokerBean<API> implements RestClientInvokerBean<API> {
 
+	private final Class<API> apiInterfaceClass;
     private final API instance;
     private final List<RestClientInvokerAspect> restClientInvokerAspects;
     private final Supplier<FallbackFactory<API>> fallbackFactorySupplier;
 
-    DefaultRestClientInvokerBean(API instance,
-                                       List<RestClientInvokerAspect> restClientInvokerAspects,
-                                       Supplier<FallbackFactory<API>> fallbackFactorySupplier) {
+    DefaultRestClientInvokerBean(Class<API> apiInterfaceClass,
+    		                     API instance,
+                                 List<RestClientInvokerAspect> restClientInvokerAspects,
+                                 Supplier<FallbackFactory<API>> fallbackFactorySupplier) {
+    	this.apiInterfaceClass = apiInterfaceClass;
         this.instance = instance;
         this.restClientInvokerAspects = restClientInvokerAspects;
         this.fallbackFactorySupplier = fallbackFactorySupplier;
@@ -44,8 +47,8 @@ public class DefaultRestClientInvokerBean<API> implements RestClientInvokerBean<
         RequestContextHolder.currentContext().setArgs(args);
         try {
             restClientInvokerAspects.forEach(a ->{
-            	if(a.supports(method, args, attributes)) {
-            		a.beforeInvoke(method, args, attributes);
+            	if(a.supports(apiInterfaceClass,method, args, attributes)) {
+            		a.beforeInvoke(apiInterfaceClass,method, args, attributes);
             	}
             });
             return method.invoke(instance, args);
@@ -87,8 +90,8 @@ public class DefaultRestClientInvokerBean<API> implements RestClientInvokerBean<
         } finally {
             Throwable copy = cause;
             restClientInvokerAspects.forEach(a -> {
-            	if(a.supports(method, args, attributes)) {
-            		a.afterInvoke(method, args, attributes, copy);
+            	if(a.supports(apiInterfaceClass,method, args, attributes)) {
+            		a.afterInvoke(apiInterfaceClass, method, args, attributes, copy);
             	}
             });
             RequestContextHolder.clear();

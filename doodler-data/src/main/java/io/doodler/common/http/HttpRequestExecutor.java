@@ -2,6 +2,7 @@ package io.doodler.common.http;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.RetryListener;
 
 /**
  * @Description: HttpRequestExecutor
@@ -11,7 +12,9 @@ import org.springframework.http.ResponseEntity;
  */
 public interface HttpRequestExecutor {
 	
-	RetryListenerContainer getRetryListenerContainer();
+	void addRetryListener(RetryListener listener);
+	
+	void addApiRetryListener(ApiRetryListener listener);
 
     <T> ResponseEntity<T> perform(HttpRequest httpRequest, Class<T> responseType);
 

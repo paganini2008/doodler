@@ -56,7 +56,7 @@ public class RedisMessageEventPublisher implements ApplicationEventPublisherAwar
         if (!expiredKey.startsWith(keyNamespace)) {
             return;
         }
-        String key = expiredKey + "__";
+        String key = "tmp:" + expiredKey;
         DataType dataType = redisTemplate.type(key);
         if (dataType == null) {
             return;
@@ -64,11 +64,10 @@ public class RedisMessageEventPublisher implements ApplicationEventPublisherAwar
         RedisMessageEntity messageEntity = null;
         if (dataType == DataType.LIST) {
             messageEntity = (RedisMessageEntity) redisTemplate.opsForList().leftPop(key);
-        } else if (dataType == DataType.STRING) {
+        } else if (dataType == DataType.NONE || dataType == DataType.STRING) {
             messageEntity = (RedisMessageEntity) redisTemplate.opsForValue().get(key);
             redisTemplate.delete(key);
         }
-
         if (messageEntity != null) {
             applicationEventPublisher.publishEvent(
                     new RedisMessageEvent(this, messageEntity.getChannel(), messageEntity.getMessage()));

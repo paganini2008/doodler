@@ -1,5 +1,6 @@
 package io.doodler.common.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
@@ -64,5 +65,10 @@ public enum TransType implements EnumConstant {
             default:
                 return false;
         }
+    }
+    
+    @JsonCreator
+    public static TransType getBy(String value) {
+    	return EnumUtils.valueOf(TransType.class, value);
     }
 }

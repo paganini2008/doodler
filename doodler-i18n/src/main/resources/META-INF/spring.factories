@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  io.doodler.i18n.I18nAutoConfiguration
+  com.elraytech.maxibet.common.i18n.I18nAutoConfiguration

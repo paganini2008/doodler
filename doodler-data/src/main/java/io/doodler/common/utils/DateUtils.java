@@ -4,7 +4,9 @@ import java.text.ParseException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
@@ -23,6 +25,39 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class DateUtils {
+
+    public Date toDate(LocalDate date) {
+        return toDate(date, null);
+    }
+
+    public Date toDate(LocalDate date, Date defaultValue) {
+        if (date != null) {
+            return Date.from(date.atTime(LocalTime.of(0, 0, 0)).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        return defaultValue;
+    }
+
+    public Date toDate(LocalDateTime date) {
+        return toDate(date, null);
+    }
+
+    public Date toDate(LocalDateTime date, Date defaultValue) {
+        if (date != null) {
+            return Date.from(date.atZone(ZoneId.systemDefault()).toInstant());
+        }
+        return defaultValue;
+    }
+    
+    public Date toUTCDate(LocalDateTime date) {
+    	return toUTCDate(date, null);
+    }
+    
+    public Date toUTCDate(LocalDateTime date, Date defaultValue) {
+        if (date != null) {
+            return Date.from(date.atOffset(ZoneOffset.UTC).toInstant());
+        }
+        return defaultValue;
+    }
 
     public Date toDate(String str) {
         try {
@@ -59,6 +94,17 @@ public class DateUtils {
         return LocalDateTime.parse(str, DateTimeFormatter.ofPattern(datePattern));
     }
 
+    public LocalDateTime toLocalDateTime(Date date) {
+        return toLocalDateTime(date, null);
+    }
+
+    public LocalDateTime toLocalDateTime(Date date, LocalDateTime defaultValue) {
+        if (date != null) {
+            return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        }
+        return defaultValue;
+    }
+
     public Iterator<Date> dateIterator(Date from, int amount, int calendarField, Date to) {
         return new DateIterator(from, amount, calendarField, to);
     }
@@ -91,7 +137,7 @@ public class DateUtils {
 
         @Override
         public boolean hasNext() {
-            return calendar.getTime().compareTo(to) <= 0;
+            return calendar.getTime().compareTo(to) < 0;
         }
 
         @Override
@@ -118,7 +164,7 @@ public class DateUtils {
 
         @Override
         public boolean hasNext() {
-            return startDate.compareTo(endDate) <= 0;
+            return startDate.compareTo(endDate) < 0;
         }
 
         @Override
@@ -145,7 +191,7 @@ public class DateUtils {
 
         @Override
         public boolean hasNext() {
-            return startTime.compareTo(endTime) <= 0;
+            return startTime.compareTo(endTime) < 0;
         }
 
         @Override

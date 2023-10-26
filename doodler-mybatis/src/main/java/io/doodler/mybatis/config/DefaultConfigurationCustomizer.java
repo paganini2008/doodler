@@ -12,9 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 
+import io.doodler.common.enums.BonusType;
+import io.doodler.common.enums.PaymentSource;
+import io.doodler.common.enums.PaymentStatus;
+import io.doodler.common.enums.TransType;
 import io.doodler.mybatis.SimpleEnumTypeHandler;
-import io.doodler.mybatis.utils.SqlTraceInterceptor;
+import io.doodler.mybatis.statistics.MyBatisStatisticsService;
+import io.doodler.mybatis.statistics.SqlTraceInterceptor;
 import io.doodler.mybatis.utils.TimestampLocalDateTimeTypeHandler;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @Description: DefaultConfigurationCustomizer
@@ -22,11 +28,15 @@ import io.doodler.mybatis.utils.TimestampLocalDateTimeTypeHandler;
  * @Date: 06/01/2023
  * @Version 1.0.0
  */
+@RequiredArgsConstructor
 public class DefaultConfigurationCustomizer implements ConfigurationCustomizer {
 	
 	@Autowired
+	private MyBatisStatisticsService myBatisStatisticsService;
+	
+	@Autowired
 	private Marker marker;
-
+	
     @Override
     public void customize(MybatisConfiguration configuration) {
         configuration.setDefaultEnumTypeHandler(SimpleEnumTypeHandler.class);
@@ -40,9 +50,13 @@ public class DefaultConfigurationCustomizer implements ConfigurationCustomizer {
 
     protected void registerTypeHandler(TypeHandlerRegistry typeHandlerRegistry) {
         typeHandlerRegistry.register(Timestamp.class, TimestampLocalDateTimeTypeHandler.class);
+        typeHandlerRegistry.register(BonusType.class, new SimpleEnumTypeHandler<>(BonusType.class));
+        typeHandlerRegistry.register(PaymentSource.class, new SimpleEnumTypeHandler<>(PaymentSource.class));
+        typeHandlerRegistry.register(PaymentStatus.class, new SimpleEnumTypeHandler<>(PaymentStatus.class));
+        typeHandlerRegistry.register(TransType.class, new SimpleEnumTypeHandler<>(TransType.class));
     }
 
     protected void addInterceptor(List<Interceptor> interceptors) {
-    	interceptors.add(new SqlTraceInterceptor(marker));
+    	interceptors.add(new SqlTraceInterceptor(myBatisStatisticsService, marker));
     }
 }

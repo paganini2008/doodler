@@ -9,10 +9,9 @@ import static io.doodler.common.Constants.REQUEST_HEADER_TRACE_ID;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
@@ -20,7 +19,6 @@ import org.springframework.http.HttpHeaders;
 import io.doodler.common.ApiResult;
 import io.doodler.common.context.HttpRequestContextHolder;
 import io.doodler.common.context.Span;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: TraceableWebResponsePreHandler
@@ -36,11 +34,12 @@ public class TraceableWebResponsePreHandler implements WebResponsePreHandler, Or
 
     @Override
     public boolean supports(Class<?> resultClass, HttpServletRequest request, HttpServletResponse response) {
-        return resultClass.equals(ApiResult.class) && shouldApply(request, response);
+        return resultClass.equals(ApiResult.class) && (request != null && response != null) &&
+                shouldApply(request, response);
     }
 
     protected boolean shouldApply(HttpServletRequest request, HttpServletResponse response) {
-        return specialUrls.stream().noneMatch(url -> request.getRequestURI().contains(url));
+        return specialUrls.stream().noneMatch(url -> request.getRequestURI().endsWith(url));
     }
 
     @Override

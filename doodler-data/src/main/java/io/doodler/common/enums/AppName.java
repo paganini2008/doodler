@@ -11,23 +11,25 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum AppName implements EnumConstant {
 
-	AGGREGATION("crypto-aggregation-service", "aggregation"),
-    PAYMENT("crypto-payment-service", "payment"),
-    GAMING("crypto-gaming-service", "gaming"),
-    USER("crypto-user-service", "user"),
-    GAME("crypto-game-service", "game"),
-    UPMS("crypto-upms-service", "upms"),
-    COMMON("crypto-common-service", "common"),
-    NEWSLETTER("crypto-newsletter-service", "newsletter"),
-    PROMOTION("crypto-promotion-service", "promotion"),
-	CHAT("crypto-chat-service", "chat");
+    AGGREGATION("crypto-aggregation-service", "aggregation", "/agg"),
+    PAYMENT("crypto-payment-service", "payment", "/pm"),
+    GAMING("crypto-gaming-service", "gaming", "/gd"),
+    USER("crypto-user-service", "user", "/website"),
+    GAME("crypto-game-service", "game", "/gm"),
+    UPMS("crypto-upms-service", "upms", "/upms"),
+    COMMON("crypto-common-service", "common", "/common"),
+    NEWSLETTER("crypto-newsletter-service", "newsletter", "/news"),
+    PROMOTION("crypto-promotion-service", "promotion", "/po"),
+    CHAT("crypto-chat-service", "chat", "/chat");
 
     private final String fullName;
     private final String shortName;
+    private final String contextPath;
 
-    private AppName(String fullName, String shortName) {
+    private AppName(String fullName, String shortName, String contextPath) {
         this.fullName = fullName;
         this.shortName = shortName;
+        this.contextPath = contextPath;
     }
 
     @Override
@@ -49,11 +51,15 @@ public enum AppName implements EnumConstant {
         return shortName;
     }
 
+    public String getContextPath() {
+        return contextPath;
+    }
+
     @Override
     public String toString() {
         return this.fullName;
     }
-    
+
     @JsonCreator
     public static AppName get(String value) {
         return EnumUtils.valueOf(AppName.class, value);

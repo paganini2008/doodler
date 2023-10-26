@@ -43,11 +43,15 @@ public class SchemaMetaData implements TiedMetaData {
 
         visitor.visit(this);
 
-        Exporter.Configuration configuration = visitor.getConfiguration();
+        Exporter.ExportConfiguration configuration = visitor.getConfiguration();
         List<Map<String, Object>> tableInfos = getMetaDataOperations().getTableInfos(getMetaData(), getCatalogName(),
                 schemaName);
         for (Map<String, Object> tableInfo : tableInfos) {
             String tableName = (String) tableInfo.get("TABLE_NAME");
+            if (StringUtils.isNotBlank(configuration.getIncludedTableNamePattern()) &&
+                    !tableName.matches(configuration.getIncludedTableNamePattern())) {
+                continue;
+            } 
             if (ArrayUtils.isEmpty(configuration.getIncludedTableNames())
                     || ArrayUtils.contains(configuration.getIncludedTableNames(), tableName)) {
                 tableMetaDatas.add(new TableMetaData(tableName, tableInfo, this));
@@ -72,15 +76,15 @@ public class SchemaMetaData implements TiedMetaData {
     }
 
     @Override
-	public <T extends TiedMetaData> T unwrap(Class<T> clz) {
-    	try {
-    	return clz.cast(tiedMetaData);
-    	}catch (RuntimeException e) {
-			return tiedMetaData.unwrap(clz);
-		}
-	}
+    public <T extends TiedMetaData> T unwrap(Class<T> clz) {
+        try {
+            return clz.cast(tiedMetaData);
+        } catch (RuntimeException e) {
+            return tiedMetaData.unwrap(clz);
+        }
+    }
 
-	public List<TableMetaData> getTableMetaDatas() {
+    public List<TableMetaData> getTableMetaDatas() {
         return tableMetaDatas;
     }
 

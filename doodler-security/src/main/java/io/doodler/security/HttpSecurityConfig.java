@@ -1,7 +1,5 @@
 package io.doodler.security;
 
-import static io.doodler.security.SecurityConstants.ROLE_SUPER_AMDIN;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -122,12 +120,12 @@ public class HttpSecurityConfig {
 //                .hasAuthority(ROLE_SUPER_AMDIN)
                 .antMatchers("/monitor/**")
                 .permitAll()
-                .mvcMatchers("/actuator/prometheus")
-                .servletPath(servletContextPath)
-                .permitAll()
                 .mvcMatchers("/actuator/**")
                 .servletPath(servletContextPath)
-                .hasAuthority(ROLE_SUPER_AMDIN)
+                .permitAll()
+//                .mvcMatchers("/actuator/**")
+//                .servletPath(servletContextPath)
+//                .hasAuthority(ROLE_SUPER_AMDIN)
                 .anyRequest()
                 .authenticated()
                 .and()

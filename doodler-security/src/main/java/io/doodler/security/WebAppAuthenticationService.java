@@ -2,6 +2,7 @@ package io.doodler.security;
 
 import static io.doodler.security.SecurityConstants.LOGIN_KEY;
 import static io.doodler.security.SecurityConstants.REMEMBER_ME_KEY;
+import static io.doodler.security.SecurityConstants.TOKEN_KEY;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.RedisKeyExpiredEvent;
 import org.springframework.data.redis.core.RedisOperations;
@@ -69,7 +70,8 @@ public class WebAppAuthenticationService implements AuthenticationService {
                     SecurityUtils.getGrantedAuthorities(user.getAuthorities()));
             authInfo.setFirstLogin(user.isFirstLogin());
             authInfo.setAttributes(user.getAttributes());
-            redisOperations.opsForValue().set(token, authInfo, expiration, TimeUnit.SECONDS);
+            key = String.format(TOKEN_KEY, user.getPlatform(), token);
+            redisOperations.opsForValue().set(key, authInfo, expiration, TimeUnit.SECONDS);
             authenticationAspects.forEach(a -> a.onSuccess(authenticationToken, user, request, response));
             if (securityClientProperties.isShowAuthorizationType()) {
                 return user.getAuthorizationType() + " " + token;
@@ -104,7 +106,8 @@ public class WebAppAuthenticationService implements AuthenticationService {
                     SecurityUtils.getGrantedAuthorities(user.getAuthorities()));
             authInfo.setFirstLogin(user.isFirstLogin());
             authInfo.setAttributes(user.getAttributes());
-            redisOperations.opsForValue().set(token, authInfo, expiration,
+            key = String.format(TOKEN_KEY, user.getPlatform(), token);
+            redisOperations.opsForValue().set(key, authInfo, expiration,
                     TimeUnit.SECONDS);
             request.setAttribute(REMEMBER_ME_KEY, "true");
             rememberMeServices.loginSuccess(request, response, authentication);
@@ -153,10 +156,11 @@ public class WebAppAuthenticationService implements AuthenticationService {
         String key = String.format(LOGIN_KEY, user.getPlatform(), user.getUsername());
         if (redisOperations.hasKey(key)) {
             String oldToken = (String) redisOperations.opsForValue().get(key);
-            if (StringUtils.isNotBlank(oldToken)) {
-                redisOperations.delete(oldToken);
-            }
             redisOperations.delete(key);
+            if (StringUtils.isNotBlank(oldToken)) {
+            	key = String.format(TOKEN_KEY, user.getPlatform(), oldToken);
+                redisOperations.delete(key);
+            }
             if (WebUtils.hasCookie(REMEMBER_ME_KEY)) {
                 ((PlatformTokenBasedRememberMeServices) rememberMeServices).cleanCookies(request, response);
             }
@@ -165,8 +169,8 @@ public class WebAppAuthenticationService implements AuthenticationService {
         return false;
     }
 
-    @EventListener({ContextRefreshedEvent.class})
-    public void registerAuthenticationAspects(ContextRefreshedEvent e) {
+    @EventListener({ApplicationReadyEvent.class})
+    public void registerAuthenticationAspects(ApplicationReadyEvent e) {
         Map<String, AuthenticationAspect> beanMap = e.getApplicationContext().getBeansOfType(AuthenticationAspect.class);
         if (MapUtils.isNotEmpty(beanMap)) {
             authenticationAspects.addAll(beanMap.values());

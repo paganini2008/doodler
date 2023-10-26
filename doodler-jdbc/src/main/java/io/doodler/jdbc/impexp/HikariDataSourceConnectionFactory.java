@@ -1,12 +1,12 @@
 package io.doodler.jdbc.impexp;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import io.doodler.jdbc.ConnectionFactory;
-
-import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * @Description: HikariDataSourceConnectionFactory
@@ -45,6 +45,7 @@ public class HikariDataSourceConnectionFactory implements ConnectionFactory {
         config.setIdleTimeout(60 * 1000);
         config.setValidationTimeout(3000);
         config.setReadOnly(false);
+        config.setAutoCommit(true);
         config.setConnectionTestQuery("SELECT 1");
         config.setConnectionTimeout(60 * 1000);
         return new HikariDataSource(config);

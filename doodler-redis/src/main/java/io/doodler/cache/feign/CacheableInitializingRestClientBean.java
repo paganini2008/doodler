@@ -1,19 +1,11 @@
 package io.doodler.cache.feign;
 
-import io.doodler.cache.CacheLifeCycleExtension;
-import io.doodler.cache.spec.CacheSpecifications;
-import io.doodler.common.annotations.Serializer;
-import io.doodler.common.annotations.Ttl;
-import io.doodler.feign.InitializingRestClientBean;
-import io.doodler.feign.RestClient;
-import io.doodler.redis.RedisSerializerUtils;
-
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import lombok.RequiredArgsConstructor;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +13,15 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.serializer.RedisSerializer;
+
+import io.doodler.cache.CacheLifeCycleExtension;
+import io.doodler.cache.spec.CacheSpecifications;
+import io.doodler.common.annotations.Serializer;
+import io.doodler.common.annotations.Ttl;
+import io.doodler.feign.InitializingRestClientBean;
+import io.doodler.feign.RestClient;
+import io.doodler.redis.RedisSerializerUtils;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @Description: CacheableInitializingRestClientBean
@@ -31,7 +32,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 @RequiredArgsConstructor
 public class CacheableInitializingRestClientBean implements InitializingRestClientBean {
 
-    private static final String THIRD_PARTY_SERVICE_ID = "third-party-service";
+    private static final String THIRD_PARTY_SERVICE_ID = "open-api";
     private final CacheSpecifications cacheSpecifications;
     private final CacheLifeCycleExtension cacheLifeCycleExtension;
 

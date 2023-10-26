@@ -1,5 +1,7 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-   io.doodler.common.context.ApplicationContextUtils,\
-   io.doodler.common.context.HttpRequestContextHolder,\
-   io.doodler.common.context.InstanceId,\
-   io.doodler.common.utils.RestTemplateConfig
+   com.elraytech.maxibet.common.context.ApplicationContextUtils,\
+   com.elraytech.maxibet.common.context.HttpRequestContextHolder,\
+   com.elraytech.maxibet.common.context.InstanceId,\
+   com.elraytech.maxibet.common.http.RestTemplateConfig,\
+   com.elraytech.maxibet.common.retry.RetryOperations
+   

@@ -14,6 +14,11 @@ import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 
+import io.doodler.mybatis.statistics.MyBatisMetricsCollector;
+import io.doodler.mybatis.statistics.MyBatisStatisticsEndpoint;
+import io.doodler.mybatis.statistics.MyBatisStatisticsService;
+import io.micrometer.core.instrument.MeterRegistry;
+
 @Configuration
 @MapperScan("com.elraytech.maxibet.**.mapper")
 public class MybatisPlusConfig {
@@ -34,6 +39,21 @@ public class MybatisPlusConfig {
     @Bean
     public MyMetaObjectHandler myMetaObjectHandler() {
         return new MyMetaObjectHandler();
+    }
+    
+    @Bean
+    public MyBatisStatisticsService myBatisStatisticsService() {
+    	return new MyBatisStatisticsService();
+    }
+    
+    @Bean
+    public MyBatisStatisticsEndpoint myBatisStatisticsEndpoint() {
+    	return new MyBatisStatisticsEndpoint();
+    }
+    
+    @Bean
+    public MyBatisMetricsCollector myBatisMetricsCollector(MeterRegistry meterRegistry,MyBatisStatisticsService myBatisStatisticsService) {
+    	return new MyBatisMetricsCollector(meterRegistry, myBatisStatisticsService);
     }
 
     static class MyMetaObjectHandler implements MetaObjectHandler {

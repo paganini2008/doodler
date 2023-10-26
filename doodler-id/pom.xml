@@ -13,10 +13,16 @@
     <packaging>jar</packaging>
 
     <dependencies>
+    
+    	<dependency>
+			<groupId>io.doodler</groupId>
+			<artifactId>doodler-data</artifactId>
+		</dependency>
 
         <dependency>
-            <groupId>io.doodler</groupId>
-            <artifactId>doodler-redis</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

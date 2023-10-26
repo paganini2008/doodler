@@ -111,7 +111,8 @@ public interface AuthenticationService {
      * @return
      */
     default IdentifiableUserDetails authenticate(String username, String password) {
-        return authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        return authenticate(SecurityConstants.SUPER_AMDIN.equals(username) ? new SuperAdminAuthenticationToken(password) :
+                new UsernamePasswordAuthenticationToken(username, password));
     }
 
     /**

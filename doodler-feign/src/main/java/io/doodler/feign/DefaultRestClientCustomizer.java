@@ -9,8 +9,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import feign.Client;
 import feign.Feign;
 import feign.Logger;
@@ -18,9 +16,8 @@ import feign.Request.Options;
 import feign.RequestInterceptor;
 import feign.Retryer;
 import feign.codec.Decoder;
+import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
-import feign.codec.StringDecoder;
-import feign.jackson.JacksonDecoder;
 import io.doodler.common.utils.Markers;
 import io.doodler.feign.logger.ElkLogger;
 import lombok.RequiredArgsConstructor;
@@ -35,10 +32,11 @@ import lombok.RequiredArgsConstructor;
 public class DefaultRestClientCustomizer implements RestClientCustomizer {
 
     private final Client httpClient;
+    private final EncoderDecoderFactory encoderDecoderFactory;
     private final RestClientProperties restClientProperties;
-    private final ObjectMapper objectMapper;
     private final RequestInterceptorContainer requestInterceptorContainer;
     private final RestClientInterceptorContainer restClientInterceptorContainer;
+    private final RetryFailureHandlerContainer retryFailureHandlerContainer;
 
     @Value("${spring.application.name}")
     private String applicationName;
@@ -49,6 +47,7 @@ public class DefaultRestClientCustomizer implements RestClientCustomizer {
         builder.client(getClient(serviceId, beanName, interfaceClass, attributes))
                 .logger(getLogger(serviceId, beanName, interfaceClass, attributes))
                 .logLevel(getLevel(serviceId, beanName, interfaceClass, attributes))
+                .encoder(getEncoder(serviceId, beanName, interfaceClass, attributes))
                 .decoder(getDecoder(serviceId, beanName, interfaceClass, attributes))
                 .errorDecoder(getErrorDecoder(serviceId, beanName, interfaceClass, attributes))
                 .options(getOptions(serviceId, beanName, interfaceClass, attributes))
@@ -70,12 +69,15 @@ public class DefaultRestClientCustomizer implements RestClientCustomizer {
                                Map<String, Object> attributes) {
 		return Logger.Level.FULL;
 	}
+    
+    protected Encoder getEncoder(String serviceId, String beanName, Class<?> interfaceClass,
+            Map<String, Object> attributes) {
+		return encoderDecoderFactory.getEncoder();
+	}
 
     protected Decoder getDecoder(String serviceId, String beanName, Class<?> interfaceClass,
                                  Map<String, Object> attributes) {
-        MultipleTypeDecoder decoder = new MultipleTypeDecoder();
-        decoder.setDefaultDecoder(new JacksonDecoder(objectMapper));
-        decoder.addDecoder(String.class, new StringDecoder());
+        Decoder decoder  = encoderDecoderFactory.getDecoder();
         return new CheckedResponseDecoder(decoder, restClientInterceptorContainer);
     }
 
@@ -101,7 +103,9 @@ public class DefaultRestClientCustomizer implements RestClientCustomizer {
         if (retries <= 0) {
             return Retryer.NEVER_RETRY;
         }
-        return new Retryer.Default(3000L, 15L * 1000, retries);
+        GenericRetryer retryer = new GenericRetryer(3000L, 15L * 1000, retries);
+        retryer.addRetryFailureHandler(retryFailureHandlerContainer);
+        return retryer;
     }
 
     protected List<RequestInterceptor> getInterceptors(String serviceId, String beanName, Class<?> interfaceClass,
@@ -113,4 +117,5 @@ public class DefaultRestClientCustomizer implements RestClientCustomizer {
         list.add(restClientInterceptorContainer);
         return list;
     }
+    
 }

@@ -128,6 +128,10 @@ public class HttpRequestContextHolder extends ApiRealmFilter {
     public static String getPath() {
         return get().getPath();
     }
+    
+    public static void set(HttpRequestInfo httpRequestInfo) {
+    	ttl.set(httpRequestInfo);
+    }
 
     public static void clear() {
         ttl.remove();

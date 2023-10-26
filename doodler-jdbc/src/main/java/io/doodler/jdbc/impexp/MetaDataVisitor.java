@@ -34,7 +34,7 @@ public interface MetaDataVisitor {
     
     void visit(PartitionExpressionMetaData metaData) throws SQLException;
 
-    Exporter.Configuration getConfiguration();
+    Exporter.ExportConfiguration getConfiguration();
 
     DdlScripter getDdlScripter();
 }

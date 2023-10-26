@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>io.doodler</groupId>
 			<artifactId>doodler-validation</artifactId>
-		</dependency> 
+		</dependency>
 		
 		<dependency>
 			<groupId>io.doodler</groupId>

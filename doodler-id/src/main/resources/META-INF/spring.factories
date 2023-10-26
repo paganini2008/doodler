@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  io.doodler.id.IdGeneratorConfig
+  com.elraytech.maxibet.common.id.IdGeneratorConfig

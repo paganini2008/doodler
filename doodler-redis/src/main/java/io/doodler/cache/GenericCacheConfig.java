@@ -1,30 +1,7 @@
 package io.doodler.cache;
 
-import io.doodler.cache.feign.CacheableInitializingRestClientBean;
-import io.doodler.cache.feign.RestClientKeyGenerator;
-import io.doodler.cache.filter.CacheHitStatisticalFilter;
-import io.doodler.cache.filter.CacheMethodFilter;
-import io.doodler.cache.filter.CacheMethodFilterChain;
-import io.doodler.cache.filter.CacheSynchronizationFilter;
-import io.doodler.cache.multilevel.MultiLevelCacheHitEndpoint;
-import io.doodler.cache.multilevel.MultiLevelCacheKeyRemovalListener;
-import io.doodler.cache.multilevel.MultiLevelCacheManager;
-import io.doodler.cache.multilevel.NoopMultiLevelCacheKeyRemovalListener;
-import io.doodler.cache.redis.EnhancedRedisCacheManager;
-import io.doodler.cache.redis.RedisCacheConfigUtils;
-import io.doodler.cache.redis.RedisCacheConfigurationHolder;
-import io.doodler.cache.redis.RedisCacheHitEndpoint;
-import io.doodler.cache.redis.RedisCacheKeyRemovalListenerContainer;
-import io.doodler.cache.redis.RedisCacheLoader;
-import io.doodler.cache.spec.CacheSpecifications;
-import io.doodler.cache.spec.CacheSpecificationsBeanPostProcessor;
-import io.doodler.common.context.InstanceId;
-import io.doodler.feign.RestClientCandidatesAutoConfiguration;
-import io.doodler.redis.RedisConfig;
-import io.doodler.redis.pubsub.RedisPubSubConfig;
-import io.doodler.redis.pubsub.RedisPubSubService;
-
 import java.util.Collections;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,6 +20,33 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+
+import io.doodler.cache.feign.CacheableInitializingRestClientBean;
+import io.doodler.cache.feign.RestClientKeyGenerator;
+import io.doodler.cache.filter.CacheMethodFilter;
+import io.doodler.cache.filter.CacheMethodFilterChain;
+import io.doodler.cache.filter.CacheSynchronizationFilter;
+import io.doodler.cache.multilevel.MultiLevelCacheKeyRemovalListener;
+import io.doodler.cache.multilevel.MultiLevelCacheManager;
+import io.doodler.cache.multilevel.MultiLevelCacheStatisticsEndpoint;
+import io.doodler.cache.multilevel.NoopMultiLevelCacheKeyRemovalListener;
+import io.doodler.cache.redis.EnhancedRedisCacheManager;
+import io.doodler.cache.redis.RedisCacheConfigUtils;
+import io.doodler.cache.redis.RedisCacheConfigurationHolder;
+import io.doodler.cache.redis.RedisCacheKeyRemovalListenerContainer;
+import io.doodler.cache.redis.RedisCacheLoader;
+import io.doodler.cache.redis.RedisCacheStatisticsEndpoint;
+import io.doodler.cache.redis.RedisCacheStatisticsMetricsCollector;
+import io.doodler.cache.spec.CacheSpecifications;
+import io.doodler.cache.spec.CacheSpecificationsBeanPostProcessor;
+import io.doodler.cache.statistics.CacheStatisticsFilter;
+import io.doodler.cache.statistics.CacheStatisticsService;
+import io.doodler.common.context.InstanceId;
+import io.doodler.feign.RestClientCandidatesAutoConfiguration;
+import io.doodler.redis.RedisConfig;
+import io.doodler.redis.pubsub.RedisPubSubConfig;
+import io.doodler.redis.pubsub.RedisPubSubService;
+import io.micrometer.core.instrument.MeterRegistry;
 
 /**
  * @Description: GenericCacheConfig
@@ -64,6 +68,11 @@ public class GenericCacheConfig {
     @Bean("restClientKeyGenerator")
     public KeyGenerator restClientKeyGenerator() {
         return new RestClientKeyGenerator();
+    }
+
+    @Bean
+    public CacheControl cacheControl() {
+        return new CacheControl();
     }
 
     @Bean
@@ -114,7 +123,7 @@ public class GenericCacheConfig {
     }
 
     @ConditionalOnProperty(name = "spring.cache.extension.type", havingValue = "redis", matchIfMissing = true)
-    @Import({RedisCacheHitEndpoint.class})
+    @Import({RedisCacheStatisticsEndpoint.class})
     @Configuration(proxyBeanMethods = false)
     public class RedisCacheConfig {
 
@@ -122,16 +131,18 @@ public class GenericCacheConfig {
         private String applicationName;
 
         @Bean
-        public CacheHitStatisticsCollector cacheHitStatisticsCollector() {
-            return new CacheHitStatisticsCollector();
+        public CacheStatisticsService cacheStatisticsService() {
+            return new CacheStatisticsService();
         }
 
         @Bean
-        public CacheMethodFilter cacheMethodFilter(InstanceId instanceId, RedisPubSubService redisPubSubService,
-                                                   CacheHitStatisticsCollector cacheHitStatisticsCollector) {
+        public CacheMethodFilter cacheMethodFilter(InstanceId instanceId,
+                                                   RedisPubSubService redisPubSubService,
+                                                   CacheStatisticsService cacheStatisticsService,
+                                                   CacheSpecifications cacheSpecifications) {
             return new CacheMethodFilterChain(
                     new CacheSynchronizationFilter(applicationName, instanceId, redisPubSubService))
-                    .andThen(new CacheHitStatisticalFilter(cacheHitStatisticsCollector));
+                    .andThen(new CacheStatisticsFilter(applicationName, cacheStatisticsService, cacheSpecifications));
         }
 
         @Bean
@@ -139,7 +150,8 @@ public class GenericCacheConfig {
                 RedisConnectionFactory redisConnectionFactory,
                 RedisCacheConfigurationHolder redisCacheConfigurationHolder,
                 CacheSpecifications cacheSpecifications,
-                CacheMethodFilter cacheMethodFilter) {
+                CacheMethodFilter cacheMethodFilter,
+                CacheControl cacheControl) {
             RedisCacheConfiguration defaultCacheConfiguration = RedisCacheConfigUtils
                     .getDefaultCacheConfiguration(applicationName);
             return new EnhancedRedisCacheManager(redisConnectionFactory,
@@ -148,12 +160,20 @@ public class GenericCacheConfig {
                     Collections.emptyMap(),
                     redisCacheConfigurationHolder,
                     cacheSpecifications,
-                    cacheMethodFilter);
+                    cacheMethodFilter,
+                    cacheControl);
+        }
+
+        @Bean
+        public RedisCacheStatisticsMetricsCollector redisCacheStatisticsMetricsCollector(MeterRegistry registry,
+                                                                                         CacheStatisticsService cacheStatisticsService,
+                                                                                         CacheSpecifications cacheSpecifications) {
+            return new RedisCacheStatisticsMetricsCollector(registry, cacheStatisticsService, cacheSpecifications);
         }
     }
 
     @ConditionalOnProperty(name = "spring.cache.extension.type", havingValue = "multilevel")
-    @Import({MultiLevelCacheHitEndpoint.class})
+    @Import({MultiLevelCacheStatisticsEndpoint.class})
     @Configuration(proxyBeanMethods = false)
     public class MultiLevelCacheConfig {
 
@@ -174,26 +194,28 @@ public class GenericCacheConfig {
             });
         }
 
-        @Bean("localCacheHitStatisticsCollector")
-        public CacheHitStatisticsCollector localCacheHitStatisticsCollector() {
-            return new CacheHitStatisticsCollector();
+        @Bean("localCacheStatisticsService")
+        public CacheStatisticsService localCacheStatisticsService() {
+            return new CacheStatisticsService();
         }
 
         @Bean("localCacheMethodFilter")
         public CacheMethodFilter localCacheMethodFilter(
-                @Qualifier("localCacheHitStatisticsCollector") CacheHitStatisticsCollector localHitStatisticsCollector) {
-            return new CacheHitStatisticalFilter(localHitStatisticsCollector);
+                @Qualifier("localCacheStatisticsService") CacheStatisticsService cacheStatisticsService,
+                CacheSpecifications cacheSpecifications) {
+            return new CacheStatisticsFilter(applicationName, cacheStatisticsService, cacheSpecifications);
         }
 
-        @Bean("remoteCacheHitStatisticsCollector")
-        public CacheHitStatisticsCollector remoteCacheHitStatisticsCollector() {
-            return new CacheHitStatisticsCollector();
+        @Bean("remoteCacheStatisticsService")
+        public CacheStatisticsService remoteCacheStatisticsService() {
+            return new CacheStatisticsService();
         }
 
         @Bean("remoteCacheMethodFilter")
         public CacheMethodFilter remoteCacheMethodFilter(
-                @Qualifier("remoteCacheHitStatisticsCollector") CacheHitStatisticsCollector remoteCacheHitStatisticsCollector) {
-            return new CacheHitStatisticalFilter(remoteCacheHitStatisticsCollector);
+                @Qualifier("remoteCacheStatisticsService") CacheStatisticsService cacheStatisticsService,
+                CacheSpecifications cacheSpecifications) {
+            return new CacheStatisticsFilter(applicationName, cacheStatisticsService, cacheSpecifications);
         }
 
         @Bean("multiLevelCacheMethodFilter")
@@ -209,10 +231,11 @@ public class GenericCacheConfig {
                 @Qualifier("localCacheMethodFilter") CacheMethodFilter localCacheMethodFilter,
                 @Qualifier("remoteCacheMethodFilter") CacheMethodFilter remoteCacheMethodFilter,
                 @Qualifier("multiLevelCacheMethodFilter") CacheMethodFilter multiLevelCacheMethodFilter,
+                CacheControl cacheControl,
                 MultiLevelCacheKeyRemovalListener multiLevelCacheKeyRemovalListener) {
 
             DefaultLocalCacheManager caffeineCacheManager = new DefaultLocalCacheManager(cacheSpecifications,
-                    localCacheMethodFilter);
+                    localCacheMethodFilter, cacheControl);
             caffeineCacheManager.addCacheKeyRemovalListener((cacheName, cacheKey, cacheValue) -> {
                 multiLevelCacheKeyRemovalListener.onRemovalLocalCacheKey(cacheName, cacheKey, cacheValue);
             });
@@ -225,7 +248,8 @@ public class GenericCacheConfig {
                     Collections.emptyMap(),
                     redisCacheConfigurationHolder,
                     cacheSpecifications,
-                    remoteCacheMethodFilter);
+                    remoteCacheMethodFilter,
+                    cacheControl);
             redisCacheManager.afterPropertiesSet();
 
             return new MultiLevelCacheManager(caffeineCacheManager, redisCacheManager,

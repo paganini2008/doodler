@@ -82,7 +82,7 @@ public class RestClientProxyFactoryBean<API> implements FactoryBean<API>,
                 builder -> restClientCustomizer.customize(builder, serviceId, beanName, apiInterfaceClass,
                         metaData)).build();
     	return (API) ApiProxyUtils.getProxyInstance(apiInterfaceClass,
-				new DefaultRestClientInvokerBean<API>(instance, restClientInvokerAspects, getFallbackFactorySupplier()));
+				new DefaultRestClientInvokerBean<API>(apiInterfaceClass, instance, restClientInvokerAspects, getFallbackFactorySupplier()));
     }
 
     private Supplier<FallbackFactory<API>> getFallbackFactorySupplier() {

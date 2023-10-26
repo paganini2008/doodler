@@ -24,7 +24,7 @@ public class ApiResultWebResponsePreHandler implements WebResponsePreHandler {
 
 	@Override
 	public boolean supports(Class<?> resultClass, HttpServletRequest request, HttpServletResponse response) {
-		return resultClass.equals(ApiResult.class);
+		return resultClass.equals(ApiResult.class) && (request != null && response != null);
 	}
 
 	@Override

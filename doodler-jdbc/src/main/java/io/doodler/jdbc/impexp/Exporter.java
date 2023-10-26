@@ -3,10 +3,7 @@ package io.doodler.jdbc.impexp;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -17,6 +14,10 @@ import io.doodler.jdbc.page.MapBasedPageReader;
 import io.doodler.jdbc.page.PageReader;
 import io.doodler.jdbc.page.PageRequest;
 import io.doodler.jdbc.page.PageResponse;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: Exporter
@@ -30,11 +31,12 @@ import io.doodler.jdbc.page.PageResponse;
 @ToString
 public class Exporter {
 
-    private Configuration configuration = new Configuration();
-    private ExportHandler exportHandler;
+	private final ExportHandler exportHandler;
+    private ExportConfiguration configuration = new ExportConfiguration();
     private MetaDataOperations metaDataOperations = new MetaDataOperations();
 
-    public Exporter() {
+    public Exporter(ExportHandler exportHandler) {
+    	this.exportHandler = exportHandler;
     }
 
     /**
@@ -46,7 +48,7 @@ public class Exporter {
     @Getter
     @Setter
     @ToString
-    public static class Configuration {
+    public static class ExportConfiguration {
 
         private int port;
         private String hostname;
@@ -58,6 +60,7 @@ public class Exporter {
         private String[] includedCatalogNames;
         private String[] includedSchemaNames;
         private String[] includedTableNames;
+        private String includedTableNamePattern;
         private String[] includedTableNamesForBackupingData;
         private boolean idReused = false;
         private boolean showCreateUserSql = true;
@@ -66,6 +69,7 @@ public class Exporter {
         private boolean tableRecreated = true;
         private boolean failFast = true;
         private boolean connectionPoolEnabled = true;
+        private int pageSize = 100;
         private Dialect dialect;
     }
 
@@ -184,18 +188,18 @@ public class Exporter {
                            ConnectionFactory connectionFactory) {
         String sql = tableMetaData.getDialect().getSelectTableStatement(catalogName, schemaName, tableName);
         PageReader<Map<String, Object>> pageReader = new MapBasedPageReader(connectionFactory, sql, -1);
-        PageResponse<Map<String, Object>> pageResponse = pageReader.list(PageRequest.of(1, 100));
+        PageResponse<Map<String, Object>> pageResponse = pageReader.list(PageRequest.of(1, configuration.getPageSize()));
         for (EachPage<Map<String, Object>> eachPage : pageResponse) {
             List<Map<String, Object>> content = eachPage.getContent();
             try {
                 exportHandler.exportData(catalogName, schemaName, tableName, tableMetaData, content, configuration.isIdReused());
             } catch (Exception e) {
                 if (configuration.isFailFast()) {
+                	throw new ImpExpException(e.getMessage(), e);
+                } else {
                     if (log.isErrorEnabled()) {
                         log.error(e.getMessage(), e);
                     }
-                } else {
-                    throw new ImpExpException(e.getMessage(), e);
                 }
             }
         }

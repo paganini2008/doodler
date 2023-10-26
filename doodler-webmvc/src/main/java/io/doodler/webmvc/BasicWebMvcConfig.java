@@ -1,6 +1,7 @@
 package io.doodler.webmvc;
 
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -22,7 +23,7 @@ import io.doodler.common.utils.JacksonUtils;
  * @Version 1.0.0
  */
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
-@ComponentScan("io.doodler.webmvc")
+@ComponentScan("com.elraytech.maxibet.common.webmvc")
 @EnableConfigurationProperties({ThreadPoolProperties.class})
 @Configuration
 public class BasicWebMvcConfig implements WebMvcConfigurer {
@@ -41,6 +42,6 @@ public class BasicWebMvcConfig implements WebMvcConfigurer {
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.removeIf(x -> x instanceof MappingJackson2HttpMessageConverter);
-        converters.add(0, new MappingJackson2HttpMessageConverter(JacksonUtils.getGenericObjectMapper()));
+        converters.add(0, new MappingJackson2HttpMessageConverter(JacksonUtils.getObjectMapperForWebMvc()));
     }
 }

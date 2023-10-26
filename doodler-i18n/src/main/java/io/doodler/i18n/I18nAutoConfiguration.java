@@ -3,7 +3,9 @@ package io.doodler.i18n;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 
+import io.doodler.common.context.MessageLocalization;
 import io.doodler.feign.RestClientBeanDefinitionRegistrarSupport;
 import io.doodler.feign.RestClientCandidatesAutoConfiguration;
 import io.doodler.i18n.I18nAutoConfiguration.I18nRestClientRegistrar;
@@ -22,6 +24,12 @@ public class I18nAutoConfiguration {
 	public I18nCachedKeyGenerator i18nCachedKeyGenerator() {
 		return new I18nCachedKeyGenerator();
 	}
+	
+	@Primary
+    @Bean
+    public MessageLocalization i18nMessageLocalization(IRemoteI18nService remoteI18nService) {
+        return new I18nMessageLocalization(remoteI18nService);
+    }
 
 	@AutoConfigureAfter(RestClientCandidatesAutoConfiguration.class)
 	public static class I18nRestClientRegistrar extends RestClientBeanDefinitionRegistrarSupport {

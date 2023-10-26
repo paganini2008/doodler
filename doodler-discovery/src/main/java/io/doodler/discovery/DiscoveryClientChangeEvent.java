@@ -1,6 +1,7 @@
 package io.doodler.discovery;
 
-import java.util.List;
+import java.util.Collection;
+
 import org.springframework.context.ApplicationEvent;
 
 /**
@@ -13,14 +14,14 @@ public class DiscoveryClientChangeEvent extends ApplicationEvent {
 
     private static final long serialVersionUID = 1125948574959171282L;
 
-    public DiscoveryClientChangeEvent(Object source, List<AffectedApplicationInfo> affects) {
+    public DiscoveryClientChangeEvent(Object source, Collection<AffectedApplicationInfo> affects) {
         super(source);
         this.affects = affects;
     }
 
-    private final List<AffectedApplicationInfo> affects;
+    private final Collection<AffectedApplicationInfo> affects;
 
-    public List<AffectedApplicationInfo> getAffects() {
+    public Collection<AffectedApplicationInfo> getAffects() {
         return affects;
     }
 }

@@ -1,12 +1,5 @@
 package io.doodler.feign;
 
-import feign.Request;
-import feign.RequestTemplate;
-import feign.Response;
-import io.doodler.common.context.HttpRequestContextHolder;
-import io.doodler.common.utils.ThreadLocalInteger;
-import io.doodler.common.utils.WebUtils;
-
 import static io.doodler.common.Constants.REQUEST_HEADER_PARENT_SPAN_ID;
 import static io.doodler.common.Constants.REQUEST_HEADER_SPAN_ID;
 import static io.doodler.common.Constants.REQUEST_HEADER_TIMESTAMP;
@@ -14,8 +7,16 @@ import static io.doodler.common.Constants.REQUEST_HEADER_TRACES;
 import static io.doodler.common.Constants.REQUEST_HEADER_TRACE_ID;
 
 import java.util.List;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.http.HttpHeaders;
+
+import feign.Request;
+import feign.RequestTemplate;
+import feign.Response;
+import io.doodler.common.context.HttpRequestContextHolder;
+import io.doodler.common.utils.ThreadLocalInteger;
+import io.doodler.common.utils.WebUtils;
 
 /**
  * @Description: TraceableRestClientInterceptor

@@ -1,20 +1,18 @@
 package io.doodler.mybatis;
 
-import java.io.Serializable;
-import java.util.List;
-
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import io.doodler.common.utils.BeanCopyUtils;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.io.Serializable;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * 
  * @Description: PageVo
  * @Author: Fred Feng
  * @Date: 16/11/2022
@@ -28,7 +26,7 @@ import lombok.Setter;
 public class PageVo<T> implements Serializable {
 
     private static final long serialVersionUID = 2176041783324956909L;
-    
+
     @ApiModelProperty("Data records")
     private List<T> records;
 

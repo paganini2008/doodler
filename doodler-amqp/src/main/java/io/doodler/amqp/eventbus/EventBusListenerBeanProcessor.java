@@ -30,7 +30,7 @@ public class EventBusListenerBeanProcessor implements BeanPostProcessor {
     private final ClassMapper classMapper;
 
     @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+    public synchronized Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         Class<?> targetClass = AopProxyUtils.ultimateTargetClass(bean);
         List<Method> annotatedMethods = MethodUtils.getMethodsListWithAnnotation(targetClass, Subscribe.class);
         if (CollectionUtils.isNotEmpty(annotatedMethods)) {

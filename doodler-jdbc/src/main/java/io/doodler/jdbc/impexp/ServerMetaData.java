@@ -69,7 +69,7 @@ public class ServerMetaData implements MetaData {
 		}
 		visitor.visit(this);
 
-		Exporter.Configuration configuration = visitor.getConfiguration();
+		Exporter.ExportConfiguration configuration = visitor.getConfiguration();
 		
 		List<Map<String, Object>> infoList = metaDataOperations.getCatalogInfos(metaData);
 		for (Map<String, Object> catalogInfo : infoList) {

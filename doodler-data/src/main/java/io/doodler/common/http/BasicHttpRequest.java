@@ -6,6 +6,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.RetryListener;
 import org.springframework.web.client.RestTemplate;
 
 import lombok.Getter;
@@ -35,6 +36,7 @@ public class BasicHttpRequest implements HttpRequest {
 		this.httpRequestExecutor = httpRequestExecutor;
 		this.maxAttempts = 0;
 		this.allowedPermits = -1;
+		this.retryOn = Exception.class;
 	}
 
 	private String path;
@@ -46,17 +48,28 @@ public class BasicHttpRequest implements HttpRequest {
 	private Class<? extends Throwable> retryOn;
 	private int allowedPermits;
 	private long timestamp;
+	
+	@Override
+	public void addRetryListener(RetryListener listener) {
+		this.httpRequestExecutor.addRetryListener(listener);
+	}
 
 	@Override
-	public <T> ResponseEntity<T> execute(String url, HttpHeaders httpHeaders, Object body, Class<T> responseType) {
+	public void addApiRetryListener(ApiRetryListener listener) {
+		this.httpRequestExecutor.addApiRetryListener(listener);
+	}
+
+	@Override
+	public <T> ResponseEntity<T> execute(String path, HttpHeaders httpHeaders, Object body, Class<T> responseType) {
 		BasicHttpRequest httpRequest = this.clone();
 		if (httpHeaders == null) {
 			httpHeaders = new HttpHeaders();
 		}
+		httpRequest.setPath(path);
 		httpRequest.setHeaders(httpHeaders);
 		httpRequest.setBody(body);
 		httpRequest.setTimestamp(System.currentTimeMillis());
-		return httpRequestExecutor.perform(this, responseType);
+		return httpRequestExecutor.perform(httpRequest, responseType);
 	}
 
 	@Override
@@ -69,7 +82,7 @@ public class BasicHttpRequest implements HttpRequest {
 		httpRequest.setHeaders(httpHeaders);
 		httpRequest.setUrlVariables(urlVariables);
 		httpRequest.setTimestamp(System.currentTimeMillis());
-		return httpRequestExecutor.perform(this, responseType);
+		return httpRequestExecutor.perform(httpRequest, responseType);
 	}
 
 	@Override
@@ -81,9 +94,9 @@ public class BasicHttpRequest implements HttpRequest {
 		}
 		httpRequest.setPath(path);
 		httpRequest.setHeaders(httpHeaders);
-		httpRequest.setBody(body);
+		httpRequest.setBody(requestBody);
 		httpRequest.setTimestamp(System.currentTimeMillis());
-		return httpRequestExecutor.perform(this, typeReference);
+		return httpRequestExecutor.perform(httpRequest, typeReference);
 	}
 
 	@Override
@@ -97,7 +110,7 @@ public class BasicHttpRequest implements HttpRequest {
 		httpRequest.setHeaders(httpHeaders);
 		httpRequest.setUrlVariables(urlVariables);
 		httpRequest.setTimestamp(System.currentTimeMillis());
-		return httpRequestExecutor.perform(this, typeReference);
+		return httpRequestExecutor.perform(httpRequest, typeReference);
 	}
 
 	@Override
@@ -112,4 +125,6 @@ public class BasicHttpRequest implements HttpRequest {
 	public String toString() {
 		return method.name().toUpperCase() + " " + hostUrl;
 	}
+
+
 }

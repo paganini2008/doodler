@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
-import lombok.experimental.UtilityClass;
+
 import org.apache.commons.lang3.StringUtils;
+
+import lombok.experimental.UtilityClass;
 
 /**
  * @Description: SqlTextUtils
@@ -35,8 +37,8 @@ public class SqlTextUtils {
             sql = iter.next();
             if (StringUtils.isBlank(sql)) {
                 iter.remove();
-            } else {
-                iter.set(sql.trim() + ";");
+            } else if(!sql.endsWith(";")){
+                iter.set(sql + ";");
             }
         }
         return copy;

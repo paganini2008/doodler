@@ -103,10 +103,6 @@ public class EventBusAmqpMessageListener implements ChannelAwareMessageListener 
     }
     
     protected void triggerEvent(Object payload) {
-    	try {
-			Thread.sleep(2000L);
-		} catch (InterruptedException ignored) {
-		}
     	eventBus.post(payload);
 	}
 }

@@ -1,3 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  io.doodler.jdbc.DruidConfig,\
-  io.doodler.jdbc.DruidMetricsConfig
+  com.elraytech.maxibet.common.jdbc.DruidConfig

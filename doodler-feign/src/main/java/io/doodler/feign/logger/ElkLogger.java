@@ -1,10 +1,18 @@
 package io.doodler.feign.logger;
 
+import feign.Request;
+import feign.Response;
+import feign.slf4j.Slf4jLogger;
+import io.doodler.common.Constants;
+import io.doodler.common.context.ApiDebuger;
+import io.doodler.common.utils.LruMap;
+import io.doodler.common.utils.MapUtils;
+import io.doodler.common.utils.Markers;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.io.IOUtils;
@@ -13,13 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.springframework.http.HttpStatus;
-
-import feign.Request;
-import feign.Response;
-import feign.slf4j.Slf4jLogger;
-import io.doodler.common.context.AppLogSwitch;
-import io.doodler.common.utils.LruMap;
-import io.doodler.common.utils.MapUtils;
 
 /**
  * @Description: ElkLogger
@@ -30,6 +31,10 @@ import io.doodler.common.utils.MapUtils;
 public class ElkLogger extends Slf4jLogger {
 
     private static final String NEWLINE = System.getProperty("line.separator");
+
+    public ElkLogger(String name) {
+        this(name, Markers.SYSTEM);
+    }
 
     public ElkLogger(String name, Marker marker) {
         super(name);
@@ -85,12 +90,20 @@ public class ElkLogger extends Slf4jLogger {
                             log.error(logBlock);
                         }
                     }
-                } else if (AppLogSwitch.isFeign()) {
-                    if (log.isInfoEnabled()) {
+                } else if (elapsedTime >= Constants.DEFAULT_MAXIMUM_RESPONSE_TIME) {
+                    if (log.isWarnEnabled()) {
                         if (marker != null) {
-                            log.info(marker, logBlock);
+                            log.warn(marker, logBlock);
                         } else {
-                            log.info(logBlock);
+                            log.warn(logBlock);
+                        }
+                    }
+                } else if (ApiDebuger.enableRestClient()) {
+                    if (log.isDebugEnabled()) {
+                        if (marker != null) {
+                            log.debug(marker, logBlock);
+                        } else {
+                            log.debug(logBlock);
                         }
                     }
                 }

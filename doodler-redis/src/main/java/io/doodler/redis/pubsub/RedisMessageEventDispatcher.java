@@ -2,7 +2,8 @@ package io.doodler.redis.pubsub;
 
 import java.lang.reflect.Method;
 import java.util.Observable;
-
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.springframework.aop.framework.AopProxyUtils;
@@ -13,10 +14,9 @@ import org.springframework.context.event.EventListener;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringValueResolver;
 
+import io.doodler.common.utils.MatchMode;
 import io.doodler.common.utils.MutableObservable;
 import io.doodler.common.utils.MutableObserver;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: RedisMessageEventDispatcher
@@ -121,7 +121,14 @@ public class RedisMessageEventDispatcher implements BeanPostProcessor, EmbeddedV
     @EventListener(RedisMessageEvent.class)
     public void handleRedisMessageEvent(RedisMessageEvent event) {
         Object[] args = new Object[]{event.getChannel(), event.getMessage()};
-        repeableObs.notifyObservers(event.getChannel(), args);
-        unrepeableObs.notifyObservers(event.getChannel(), args);
+        boolean result = repeableObs.notifyObservers(event.getChannel(), args);
+        if (!result) {
+            repeableObs.notifyObservers(event.getChannel(), MatchMode.WILDCARD, args);
+        }
+
+        result = unrepeableObs.notifyObservers(event.getChannel(), args);
+        if (!result) {
+            unrepeableObs.notifyObservers(event.getChannel(), MatchMode.WILDCARD, args);
+        }
     }
 }

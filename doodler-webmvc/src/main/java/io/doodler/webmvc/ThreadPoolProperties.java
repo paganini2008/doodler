@@ -12,7 +12,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "spring.threadpool")
+@ConfigurationProperties(prefix = "threadpool")
 public class ThreadPoolProperties {
 
     private TaskExecutor executor = new TaskExecutor();

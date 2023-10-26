@@ -1,5 +1,7 @@
 package io.doodler.feign;
 
+import org.springframework.lang.Nullable;
+
 import lombok.Data;
 
 /**
@@ -13,5 +15,8 @@ public class ServiceInstance {
 
 	private String serviceId;
 	private String url;
+	private String contextPath;
 	private boolean online;
+	
+	private @Nullable Object serviceDetail;
 }

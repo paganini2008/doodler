@@ -63,7 +63,7 @@ public class RedissonConfig {
                 singleConfig.setPassword(new String(configuration.getPassword().get()));
             }
         }
-        config.setCodec(new JsonJacksonCodec(JacksonUtils.getGenericObjectMapper()));
+        config.setCodec(new JsonJacksonCodec(JacksonUtils.getObjectMapperForWebMvc()));
         return Redisson.create(config);
     }
 }

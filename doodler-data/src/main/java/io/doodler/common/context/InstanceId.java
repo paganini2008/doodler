@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -18,15 +19,21 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public final class InstanceId implements Serializable {
+public final class InstanceId implements Serializable, InitializingBean {
 
     private static final long serialVersionUID = 1L;
-    private static final String DEFAULT_PREFIX = "INS-";
-
-    private String id = DEFAULT_PREFIX + UUID.randomUUID().toString();
+    private static final String DEFAULT_ID_PATTERN = "INS-%s";
+    
     private final AtomicBoolean standby = new AtomicBoolean();
+    
+    private String id;
 
-    public String get() {
+    @Override
+	public void afterPropertiesSet() throws Exception {
+		this.id = String.format(DEFAULT_ID_PATTERN, UUID.randomUUID().toString());
+	}
+
+	public String get() {
         return id;
     }
 

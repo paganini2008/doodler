@@ -299,6 +299,7 @@ public class DdlScripter {
             sql.append("(");
             sql.append(StringUtils.join(columnStatements, ","));
             if (primaryKeyStatements.size() > 0) {
+            	sql.append(",");
                 sql.append(StringUtils.join(primaryKeyStatements, ","));
             }
             sql.append(")");

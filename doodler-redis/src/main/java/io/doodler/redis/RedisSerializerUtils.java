@@ -47,7 +47,7 @@ public class RedisSerializerUtils {
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
         om.setDateFormat(new SimpleDateFormat(ISO8601_DATE_TIME_PATTERN));
-        SimpleModule javaTimeModule = JacksonUtils.getGenericJavaTimeModule();
+        SimpleModule javaTimeModule = JacksonUtils.getJavaTimeModuleForWebMvc();
         om.registerModule(javaTimeModule);
         Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<Object>(
                 Object.class);

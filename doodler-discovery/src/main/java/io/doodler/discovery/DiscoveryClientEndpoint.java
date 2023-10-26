@@ -1,11 +1,12 @@
 package io.doodler.discovery;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
+import org.springframework.boot.actuate.endpoint.annotation.Selector;
 import org.springframework.boot.actuate.endpoint.annotation.WriteOperation;
 
 import io.doodler.common.ApiResult;
@@ -24,13 +25,18 @@ public class DiscoveryClientEndpoint {
     private DiscoveryClientService discoveryClientService;
     
     @ReadOperation
-    public ApiResult<Map<String, Set<ApplicationInfo>>> getApplicationInfos() {
+    public ApiResult<Map<String, Collection<ApplicationInfo>>> getApplicationInfos() {
         return ApiResult.ok(discoveryClientService.getApplicationInfos());
+    }
+    
+    @ReadOperation
+    public ApiResult<Collection<ApplicationInfo>> getApplicationInfos(@Selector String applicationName) {
+        return ApiResult.ok(discoveryClientService.getApplicationInfos(applicationName));
     }
     
     @WriteOperation
     public ApiResult<String> forceRefresh(){
-    	ApplicationContextUtils.publishEvent(new DiscoveryClientRefreshEvent());
+    	ApplicationContextUtils.publishEvent(new ApplicationInfoRefreshEvent(this));
     	return ApiResult.ok("Operate successfully");
     }
 

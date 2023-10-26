@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.cache.Cache;
+import org.springframework.cache.support.NoOpCache;
 import org.springframework.data.redis.cache.RedisCache;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
@@ -14,8 +15,10 @@ import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.util.StringUtils;
 
+import io.doodler.cache.CacheControl;
 import io.doodler.cache.CacheKeyManager;
-import io.doodler.cache.EnhancedCache;
+import io.doodler.cache.EnhancedCaching;
+import io.doodler.cache.ReadOnlyCaching;
 import io.doodler.cache.filter.CacheMethodFilter;
 import io.doodler.cache.multilevel.MultiLevelCacheManager;
 import io.doodler.cache.spec.CacheSpecifications;
@@ -37,13 +40,15 @@ public class EnhancedRedisCacheManager extends RedisCacheManager implements Cach
                                      Map<String, RedisCacheConfiguration> sharedCacheConfigurations,
                                      RedisCacheConfigurationHolder redisCacheConfigurationHolder,
                                      CacheSpecifications cacheSpecifications,
-                                     CacheMethodFilter cacheMethodFilter) {
+                                     CacheMethodFilter cacheMethodFilter,
+                                     CacheControl cacheControl) {
         super(cacheWriter, defaultCacheConfig, sharedCacheConfigurations);
 
         this.redisConnectionFactory = redisConnectionFactory;
         this.redisCacheConfigurationHolder = redisCacheConfigurationHolder;
         this.cacheSpecifications = cacheSpecifications;
         this.cacheMethodFilter = cacheMethodFilter;
+        this.cacheControl = cacheControl;
 
         setTransactionAware(true);
     }
@@ -52,13 +57,18 @@ public class EnhancedRedisCacheManager extends RedisCacheManager implements Cach
     private final RedisCacheConfigurationHolder redisCacheConfigurationHolder;
     private final CacheSpecifications cacheSpecifications;
     private final CacheMethodFilter cacheMethodFilter;
+    private final CacheControl cacheControl;
 
     @Override
     public Cache getCache(String cacheName) {
+    	if(!cacheControl.isEnabled()) {
+    		return ReadOnlyCaching.createProxy(cacheName, new NoOpCache(cacheName), cacheMethodFilter);
+    	}
         Cache cache = super.getCache(cacheName);
         if (cache != null) {
-            return cacheMethodFilter != null && cacheSpecifications.isOwner(cacheName) ?
-                    EnhancedCache.createProxy(cacheName, cache, cacheMethodFilter) : cache;
+            return cacheSpecifications.isOwner(cacheName) ?
+                    EnhancedCaching.createProxy(cacheName, cache, cacheMethodFilter) : 
+                    	ReadOnlyCaching.createProxy(cacheName, cache, cacheMethodFilter);
         }
         return null;
     }

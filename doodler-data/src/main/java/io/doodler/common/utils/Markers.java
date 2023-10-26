@@ -11,8 +11,6 @@ import org.slf4j.MarkerFactory;
  */
 public abstract class Markers {
 
-	public static final Marker MAXIBET = MarkerFactory.getMarker("maxibet");
-
 	public static final Marker COMMON = MarkerFactory.getMarker("common");
 
 	public static final Marker UPMS = MarkerFactory.getMarker("upms");
@@ -33,7 +31,9 @@ public abstract class Markers {
 
 	public static final Marker AGGREGATION = MarkerFactory.getMarker("aggregation");
 	
-	public static final Marker UNKNOWN = MarkerFactory.getMarker("UNKNOWN");
+	public static final Marker SYSTEM = MarkerFactory.getMarker("system");
+	
+	public static final Marker UNKNOWN = MarkerFactory.getMarker("unknown");
 
 	public static Marker forName(String applicationName) {
 		switch (applicationName) {
@@ -57,6 +57,9 @@ public abstract class Markers {
 				return PROMOTION;
 			case "crypto-aggregation-service":
 				return AGGREGATION;
+			case "crypto-job-service":
+			case "crypto-alert-service":
+				return SYSTEM;
 		}
 		return UNKNOWN;
 	}

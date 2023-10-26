@@ -62,6 +62,6 @@ public class GenericKeyGenerator implements StringKeyGenerator {
 			return ((CacheKey) arg).getKey();
 		}
 		throw new IllegalArgumentException("Unable to convert as cache key by parameter: " + arg
-				+ ", please try to use basic java type or implement the interface 'io.doodler.cache.CacheKey'");
+				+ ", please try to use basic java type or implement the interface 'com.elraytech.maxibet.common.cache.CacheKey'");
 	}
 }

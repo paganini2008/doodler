@@ -15,10 +15,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import feign.Feign;
 import feign.Logger;
 import feign.Request.Options;
+import io.doodler.common.utils.ListUtils;
+import io.doodler.feign.logger.ElkLogger;
 import feign.RequestInterceptor;
 import feign.Retryer;
-import feign.slf4j.Slf4jLogger;
-import io.doodler.common.utils.ListUtils;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -48,11 +48,12 @@ public class RestClientUtils {
 
     private static final RestClientInterceptorContainer restClientInterceptorContainer = new RestClientInterceptorContainer();
     private static final List<RequestInterceptor> requestInterceptors = new ArrayList<>();
-    private static Logger defaultLogger = new Slf4jLogger(DEFAULT_LOGGER_NAME);
+    
+    private static Logger defaultLogger = new ElkLogger(DEFAULT_LOGGER_NAME);
     
     static {
         addRequestInterceptor(restClientInterceptorContainer);
-        addRestClientInterceptor(new PerRequestRestClientInterceptor());
+        addRestClientInterceptor(new ExternalRequestRestClientInterceptor());
     }
 
     public void addRequestInterceptor(RequestInterceptor requestInterceptor) {
@@ -156,5 +157,7 @@ public class RestClientUtils {
         }
         return allRequestInterceptors;
     }
+
+
 
 }

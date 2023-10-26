@@ -54,7 +54,7 @@ public abstract class ErrorCodes {
             "Service is unavailable");
     
     public static final SimpleErrorCode TOTP_CODE_MISMATCHED = new SimpleErrorCode("TOTP_CODE_MISMATCHED", 1004018,
-            "Totp code is mismatched to server side");
+            "Error, the 2FA code is incorrect");
     
     public static final SimpleErrorCode REMEMBER_ME_NOT_AVAILABLE = new SimpleErrorCode("REMEMBER_ME_NOT_AVAILABLE",
             1004019,
