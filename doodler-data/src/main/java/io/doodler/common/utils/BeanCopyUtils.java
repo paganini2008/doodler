@@ -4,24 +4,24 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
+import lombok.experimental.UtilityClass;
+import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.impl.DefaultMapperFactory;
+import ma.glasnost.orika.metadata.ClassMapBuilder;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.convert.ConversionService;
-
-import lombok.experimental.UtilityClass;
-import ma.glasnost.orika.MapperFactory;
-import ma.glasnost.orika.impl.DefaultMapperFactory;
-import ma.glasnost.orika.metadata.ClassMapBuilder;
 
 /**
  * @Description: BeanCopyUtils
@@ -66,9 +66,9 @@ public class BeanCopyUtils {
                         LinkedHashMap::new));
     }
 
-    private void hardCopyProperties(Object original, Map<String, PropertyDescriptor> originalMap, Object destination,
-                                    Map<String, PropertyDescriptor> destinationMap, boolean retainNonNull,
-                                    ConversionService conversionService)
+    private void hardCopyProperties(Object original, Map<String, PropertyDescriptor> originalMap,
+    		                        Object destination, Map<String, PropertyDescriptor> destinationMap, 
+    		                        boolean retainNonNull, ConversionService conversionService)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         String propertyName;
         Object propertyValue;
@@ -129,6 +129,33 @@ public class BeanCopyUtils {
             throw new IllegalStateException(e.getMessage(), e);
         }
         return destination;
+    }
+
+    public <X, Y> Map<String, Object> hasChanged(X x, Y y) {
+        return hasChanged(x, y, null);
+    }
+
+    public <X, Y> Map<String, Object> hasChanged(X x, Y y, PropertyFilter filter) {
+        Map<String, Object> result = new HashMap<>();
+        Map<String, PropertyDescriptor> leftMap = getPropertyDescriptors(x.getClass(), filter);
+        Map<String, PropertyDescriptor> rightMap = getPropertyDescriptors(y.getClass(), filter);
+        String propertyName;
+        for (Map.Entry<String, PropertyDescriptor> entry : leftMap.entrySet()) {
+            propertyName = entry.getKey();
+            if (!rightMap.containsKey(propertyName)) {
+                continue;
+            }
+            try {
+                Object leftValue = PropertyUtils.getProperty(x, propertyName);
+                Object rightValue = PropertyUtils.getProperty(y, propertyName);
+                if (!Objects.equals(leftValue, rightValue)) {
+                    result.put(propertyName, rightValue);
+                }
+            } catch (Exception e) {
+                throw new IllegalStateException(e.getMessage(), e);
+            }
+        }
+        return result;
     }
 
     public <S, T> T copyBean(S source, Class<T> resultClass) {

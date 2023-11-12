@@ -1,7 +1,9 @@
 package io.doodler.common.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -13,7 +15,6 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
-
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -21,11 +22,10 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-
+import lombok.experimental.UtilityClass;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.util.Assert;
-
-import lombok.experimental.UtilityClass;
 
 /**
  * @Description: UrlUtils
@@ -81,6 +81,30 @@ public class UrlUtils {
             return new URL(url.getProtocol(), url.getHost(), url.getPort(), "");
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Malformed URL: " + url.toString(), e);
+        }
+    }
+
+    public static void saveAs(String url, int connectionTime, int readTimeout, File outputFile) throws IOException {
+        saveAs(new URL(url), connectionTime, readTimeout, outputFile);
+    }
+
+    public static void saveAs(URL url, int connectionTime, int readTimeout, File outputFile) throws IOException {
+        OutputStream output = null;
+        try {
+            output = FileUtils.openOutputStream(outputFile);
+            saveAs(url, connectionTime, readTimeout, output);
+        } finally {
+            IOUtils.closeQuietly(output);
+        }
+    }
+
+    public static void saveAs(URL url, int connectionTime, int readTimeout, OutputStream output) throws IOException {
+        InputStream ins = null;
+        try {
+            ins = openStream(url, connectionTime, readTimeout);
+            IOUtils.copy(ins, output);
+        } finally {
+            IOUtils.closeQuietly(ins);
         }
     }
 
@@ -187,9 +211,8 @@ public class UrlUtils {
             throw new IOException("Can't create unsecure trust manager.", e);
         }
     }
-    
+
     public static void main(String[] args) throws Exception {
-    	String url = "http://checkip.amazonaws.com/";
-    	System.out.println(toString(url, 3000, 3000, Charset.defaultCharset()));
+        saveAs("https://img.dyn123.com/images/slot-images/belatra/bingopower.png", 10000, 60000, new File("g:/abc/bingopower11.png"));
     }
 }

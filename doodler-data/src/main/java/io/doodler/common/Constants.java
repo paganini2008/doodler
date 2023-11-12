@@ -27,8 +27,10 @@ public interface Constants {
     Integer COMMON_EXPIRED = -1;
     
     long DEFAULT_MAXIMUM_RESPONSE_TIME = 3L * 1000;
-
+    
+    String REQUEST_HEADER_ENDPOINT_SECURITY_KEY = "ENDPOINT_SECURITY_KEY";
     String REQUEST_HEADER_REST_CLIENT_SECURITY_KEY = "REST_CLIENT_SECURITY_KEY";
+    
     String ISO8601_DATE_TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     String DEFAULT_DATE_PATTERN = "yyyy-MM-dd";
     String DEFAULT_DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
