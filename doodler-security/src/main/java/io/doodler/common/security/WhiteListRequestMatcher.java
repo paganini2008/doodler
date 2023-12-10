@@ -3,9 +3,10 @@ package io.doodler.common.security;
 import io.doodler.common.Constants;
 import io.doodler.common.SecurityKey;
 import io.doodler.common.context.ENC;
+import io.doodler.common.utils.WebUtils;
+
 import io.doodler.common.security.WhiteListProperties.Mode;
 import io.doodler.common.security.WhiteListProperties.WhiteListInfo;
-import io.doodler.common.utils.WebUtils;
 
 import java.util.Optional;
 import java.util.regex.Matcher;

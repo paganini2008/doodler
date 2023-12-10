@@ -6,11 +6,12 @@ import java.util.Map;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health.Builder;
 
-import io.doodler.common.feign.statistics.HttpSample;
-import io.doodler.common.feign.statistics.RestClientStatisticsService;
 import io.doodler.common.utils.LangUtils;
 import io.doodler.common.utils.MapUtils;
 import io.doodler.common.utils.statistics.Sampler;
+
+import io.doodler.common.feign.statistics.HttpSample;
+import io.doodler.common.feign.statistics.RestClientStatisticsService;
 import lombok.RequiredArgsConstructor;
 
 /**

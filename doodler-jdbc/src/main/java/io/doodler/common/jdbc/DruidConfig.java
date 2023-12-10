@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Configuration;
 
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
-
 import io.doodler.common.context.ConditionalOnNotApplication;
+
 import io.micrometer.core.instrument.MeterRegistry;
 
 /**

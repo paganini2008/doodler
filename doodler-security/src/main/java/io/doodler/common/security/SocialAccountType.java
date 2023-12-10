@@ -1,10 +1,9 @@
 package io.doodler.common.security;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import io.doodler.common.enums.EnumConstant;
 import io.doodler.common.enums.EnumUtils;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * @Description: SocialAccountType

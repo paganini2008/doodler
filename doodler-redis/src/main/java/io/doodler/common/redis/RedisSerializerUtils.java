@@ -7,15 +7,15 @@ import java.text.SimpleDateFormat;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 
+import io.doodler.common.redis.serial.KryoRedisSerializer;
+import io.doodler.common.redis.serial.SnappyRedisSerializer;
+import io.doodler.common.utils.JacksonUtils;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import io.doodler.common.redis.serial.KryoRedisSerializer;
-import io.doodler.common.redis.serial.SnappyRedisSerializer;
-import io.doodler.common.utils.JacksonUtils;
 import lombok.experimental.UtilityClass;
 
 /**

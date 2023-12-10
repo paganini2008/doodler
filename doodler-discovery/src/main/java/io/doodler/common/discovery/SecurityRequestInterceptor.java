@@ -1,14 +1,13 @@
 package io.doodler.common.discovery;
 
+import io.doodler.common.Constants;
+import io.doodler.common.SecurityKey;
+import io.doodler.common.context.ENC;
 import java.io.IOException;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
-
-import io.doodler.common.Constants;
-import io.doodler.common.SecurityKey;
-import io.doodler.common.context.ENC;
 
 /**
  * @Description: SecurityRequestInterceptor

@@ -2,11 +2,12 @@ package io.doodler.common.feign;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import feign.RequestInterceptor;
-import feign.RequestTemplate;
 import io.doodler.common.Constants;
 import io.doodler.common.SecurityKey;
 import io.doodler.common.context.ENC;
+
+import feign.RequestInterceptor;
+import feign.RequestTemplate;
 
 /**
  * @Description: SecurityRequestInterceptor

@@ -10,7 +10,7 @@ import io.doodler.common.quartz.executor.JobSignature;
  */
 public interface JobDispatcher {
 
-	String directCall(String guid, JobSignature jobTag);
+	String directCall(String guid, JobSignature jobSignature, long startTime);
 
-	String dispatch(String guid, JobSignature jobTag);
+	String dispatch(String guid, JobSignature jobSignature, long startTime);
 }

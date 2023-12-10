@@ -15,7 +15,7 @@ import io.doodler.common.utils.Markers;
  */
 public class FixedSlf4jImpl implements Log {
 
-	public static final String DEFAULT_LOGGER_NAME = "com.elraytech.maxibet.common.mybatis.Slf4jLogger";
+	public static final String DEFAULT_LOGGER_NAME = "io.doodler.common.mybatis.Slf4jLogger";
 
     private final Logger log;
     private final Marker marker;

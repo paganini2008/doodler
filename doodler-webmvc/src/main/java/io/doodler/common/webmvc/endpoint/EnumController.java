@@ -1,6 +1,7 @@
 package io.doodler.common.webmvc.endpoint;
 
 import io.doodler.common.ApiResult;
+
 import io.doodler.common.webmvc.EnumDeclarations;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

@@ -1,20 +1,18 @@
 package io.doodler.common.webmvc.actuator;
 
+import io.doodler.common.Constants;
+import io.doodler.common.utils.NetUtils;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
-
-import io.doodler.common.Constants;
-import io.doodler.common.utils.NetUtils;
 
 /**
  * @Description: AdminClientEnvironmentPostProcessor
@@ -29,6 +27,9 @@ public class AdminClientEnvironmentPostProcessor implements EnvironmentPostProce
 	@Override
 	public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
 		Map<String, Object> settings = new HashMap<>();
+		settings.put("spring.boot.admin.client.username", "admin");
+		settings.put("spring.boot.admin.client.password", "admin123");
+
 		settings.put("spring.boot.admin.client.instance.metadata.PID", getPid());
 		settings.put("spring.boot.admin.client.instance.metadata.projectPath", System.getProperty("user.dir"));
 		settings.put("spring.boot.admin.client.instance.metadata.jarFileName",
@@ -49,8 +50,24 @@ public class AdminClientEnvironmentPostProcessor implements EnvironmentPostProce
 	}
 
 	protected String getDefaultExtArgs(ConfigurableEnvironment environment) {
+		String applicationName = environment.getRequiredProperty("spring.application.name");
 		String activeProfile = environment.getRequiredProperty("spring.profiles.active");
-		return String.format("--spring.profiles.active=%s --randomServerPort", activeProfile);
+		String realm = environment.getProperty("spring.application.realm", "kos");
+		String extArgs = "--spring.profiles.active=%s --spring.application.realm=%s";
+		if ("crypto-alert-service".equals(applicationName)) {
+
+		} else {
+			extArgs += " --spring.config.additional-location=file:/data/app/home/%s-backend/realm/%s/application-%s.yml";
+			if ("crypto-chat-service".equals(applicationName) ||
+					"crypto-newsletter-service".equals(applicationName) ||
+					"crypto-job-service".equals(applicationName)) {
+				int port = environment.getRequiredProperty("server.port", int.class);
+				extArgs += " --server.port=" + port;
+			} else {
+				extArgs += " --randomServerPort";
+			}
+		}
+		return String.format(extArgs, activeProfile, realm, applicationName, realm, activeProfile);
 	}
 
 	private String getPid() {

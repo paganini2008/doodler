@@ -3,6 +3,7 @@ package io.doodler.common.webmvc;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import io.doodler.common.SecurityKey;
+
 import lombok.Data;
 
 /**

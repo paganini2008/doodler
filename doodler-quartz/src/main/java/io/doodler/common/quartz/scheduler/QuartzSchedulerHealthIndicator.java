@@ -21,7 +21,7 @@ public class QuartzSchedulerHealthIndicator extends AbstractHealthIndicator {
 
     @Override
     protected void doHealthCheck(Builder builder) throws Exception {
-        builder.up();
+        
         long jobGroupCount = 0, jobCount = 0, runningJobCount = 0, completedJobCount = 0, errorCount = 0;
         long triggerGroupCount = 0, triggerCount = 0;
         List<JobGroupStatusVo> jobGroupStatusVos = jobManager.queryForJobGroupStatus();
@@ -42,7 +42,12 @@ public class QuartzSchedulerHealthIndicator extends AbstractHealthIndicator {
                 triggerCount += vo.getTriggerCount();
             }
         }
-
+        double errorRate = (double) errorCount / completedJobCount;
+        if (errorRate >= 0.8d) {
+            builder.down();
+        } else {
+            builder.up();
+        }
         builder.withDetail("jobGroupCount", jobGroupCount)
                 .withDetail("jobCount", jobCount)
                 .withDetail("triggerGroupCount", triggerGroupCount)

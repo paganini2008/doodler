@@ -19,10 +19,10 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 
-import com.google.common.base.CaseFormat;
-
 import io.doodler.common.utils.CaseInsensitiveMap;
 import io.doodler.common.utils.ConvertUtils;
+import com.google.common.base.CaseFormat;
+
 import lombok.experimental.UtilityClass;
 
 /**

@@ -7,10 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -19,6 +16,11 @@ import io.doodler.common.jdbc.JdbcUtils;
 import io.doodler.common.jdbc.SimpleConnectionFactory;
 import io.doodler.common.jdbc.impexp.DdlScripter.Catalog;
 import io.doodler.common.jdbc.impexp.DdlScripter.Schema;
+import io.doodler.common.jdbc.page.EachPage;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: ImportExportHandler
@@ -125,10 +127,14 @@ public class ImportExportHandler implements ExportHandler {
     }
 
     @Override
-    public void exportData(String catalogName, String schemaName, 
-    		               String tableName, TableMetaData tableMetaData, 
-    		               List<Map<String, Object>> dataList, boolean idReused, 
+    public void exportData(String catalogName, 
+    		               String schemaName, 
+    		               String tableName, 
+    		               TableMetaData tableMetaData, 
+    		               EachPage<Map<String, Object>> eachPage, 
+    		               boolean idReused, 
     		               ConnectionFactory sourceConnectionFactory) throws Exception {
+    	List<Map<String, Object>> dataList = eachPage.getContent();
         if (CollectionUtils.isEmpty(dataList)) {
             return;
         }

@@ -1,10 +1,11 @@
 package io.doodler.common.cache.multilevel;
 
+import io.doodler.common.utils.MatchMode;
+
 import io.doodler.common.cache.CacheKeyManager;
 import io.doodler.common.cache.EnhancedCaching;
 import io.doodler.common.cache.filter.CacheMethodFilter;
 import io.doodler.common.cache.spec.CacheSpecifications;
-import io.doodler.common.utils.MatchMode;
 
 import java.util.ArrayList;
 import java.util.Collection;

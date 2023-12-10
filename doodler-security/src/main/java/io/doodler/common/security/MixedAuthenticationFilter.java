@@ -8,10 +8,12 @@ import static io.doodler.common.security.SecurityConstants.TOKEN_KEY;
 
 import java.io.IOException;
 import java.util.List;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisOperations;
@@ -19,6 +21,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -75,74 +79,104 @@ public class MixedAuthenticationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws IOException, ServletException {
-        if (StringUtils.isNotBlank(WebUtils.getCookieValue(REMEMBER_ME_KEY)) || isMatchedRequestPath(request) ||
+        if (StringUtils.isNotBlank(WebUtils.getCookieValue(REMEMBER_ME_KEY)) ||
+                isMatchedRequestPath(request) ||
                 !isAuthorizationTypeSupported(request)) {
             filterChain.doFilter(request, response);
             return;
         }
         final String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (StringUtils.isNotBlank(authorization)) {
-            try {
-                final String token = resolveToken(authorization);
-                IdentifiableUserDetails user = tokenStrategy.decode(authorization);
-                if (tokenStrategy.validate(authorization)) {
-                    String key = String.format(TOKEN_KEY, user.getPlatform(), token);
-                    AuthenticationInfo authInfo = (AuthenticationInfo) redisOperations.opsForValue().get(key);
-                    if (authInfo == null) {
-                        throw new BizException(ErrorCodes.JWT_TOKEN_EXPIRATION, HttpStatus.UNAUTHORIZED);
-                    }
-                    if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                        if (authInfo.hasSa()) {
-                            user = SuperAdmin.INSTANCE;
-                        } else {
-                            user = new RegularUser(authInfo.getId(), user.getUsername(), user.getPassword(),
-                                    user.getPlatform(),
-                                    user.isEnabled(),
-                                    authInfo.isFirstLogin(),
-                                    SecurityUtils.getGrantedAuthorities(authInfo.getGrantedAuthorities()));
-                            if (MapUtils.isNotEmpty(authInfo.getAttributes())) {
-                                user.getAttributes().putAll(authInfo.getAttributes());
-                            }
-                        }
-                        userDetailsChecker.check(user);
-                        InternalAuthenticationToken authentication = new InternalAuthenticationToken(
-                                user,
-                                user.getUsername(),
-                                user.getPlatform(),
-                                false,
-                                user.getAuthorities());
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }
-                } else {
-                    String key = String.format(LOGIN_KEY, user.getPlatform(), user.getUsername());
-                    redisOperations.delete(key);
-
-                    key = String.format(TOKEN_KEY, user.getPlatform(), token);
-                    redisOperations.delete(key);
-
+        if (StringUtils.isBlank(authorization)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        String token = null;
+        try {
+            String[] args = resolveToken(authorization);
+            String authType = args[0];
+            if (AUTHORIZATION_TYPE_BASIC.equals(authType)) {
+                super.doFilterInternal(request, response, filterChain);
+                return;
+            }
+            token = args[1];
+            IdentifiableUserDetails user = tokenStrategy.decode(authorization);
+            if (tokenStrategy.validate(authorization)) {
+                String key = String.format(TOKEN_KEY, user.getPlatform(), token);
+                AuthenticationInfo authInfo = (AuthenticationInfo) redisOperations.opsForValue().get(key);
+                if (authInfo == null) {
                     throw new BizException(ErrorCodes.JWT_TOKEN_EXPIRATION, HttpStatus.UNAUTHORIZED);
                 }
-            } catch (RuntimeException e) {
-                if (e instanceof BizException) {
-                    handlerExceptionResolver.resolveException(request, response, null, e);
+                if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                    if (authInfo.hasSa()) {
+                        user = SuperAdmin.INSTANCE;
+                    } else {
+                        user = new RegularUser(authInfo.getId(), user.getUsername(), user.getPassword(),
+                                user.getPlatform(),
+                                user.isEnabled(),
+                                authInfo.isFirstLogin(),
+                                SecurityUtils.getGrantedAuthorities(authInfo.getGrantedAuthorities()));
+                        if (MapUtils.isNotEmpty(authInfo.getAttributes())) {
+                            user.getAttributes().putAll(authInfo.getAttributes());
+                        }
+                    }
+                    userDetailsChecker.check(user);
+                    InternalAuthenticationToken authentication = new InternalAuthenticationToken(
+                            user,
+                            user.getUsername(),
+                            user.getPlatform(),
+                            false,
+                            user.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    onSuccessfulAuthentication(request, response, authentication);
                 }
-                throw e;
+            } else {
+                String key = String.format(LOGIN_KEY, user.getPlatform(), user.getUsername());
+                redisOperations.delete(key);
+
+                key = String.format(TOKEN_KEY, user.getPlatform(), token);
+                redisOperations.delete(key);
+
+                throw new BizException(ErrorCodes.JWT_TOKEN_EXPIRATION, HttpStatus.UNAUTHORIZED);
             }
+        } catch (RuntimeException e) {
+            AuthenticationException authenticationException =
+                    (e instanceof AuthenticationException) ? (AuthenticationException) e :
+                            new JwtAuthenticationException(token, e.getMessage(), e);
+            onUnsuccessfulAuthentication(request, response, authenticationException);
+            handlerExceptionResolver.resolveException(request, response, null, authenticationException);
+            throw authenticationException;
         }
         filterChain.doFilter(request, response);
     }
 
-    private String resolveToken(String authorization) {
+    @Override
+    protected void onSuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                              Authentication authResult)
+            throws IOException {
+        super.onSuccessfulAuthentication(request, response, authResult);
+    }
+
+    @Override
+    protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                                AuthenticationException failed)
+            throws IOException {
+        super.onUnsuccessfulAuthentication(request, response, failed);
+    }
+
+    private String[] resolveToken(String authorization) {
+        String[] args = null;
         try {
             if (authorization.startsWith(AUTHORIZATION_TYPE_BEARER)) {
-                return authorization.substring(7);
+                args = new String[]{AUTHORIZATION_TYPE_BEARER, authorization.substring(7)};
             }
             if (authorization.startsWith(AUTHORIZATION_TYPE_BASIC)) {
-                return authorization.substring(6);
+                args = new String[]{AUTHORIZATION_TYPE_BASIC, authorization.substring(6)};
             }
-            return authorization;
-        } catch (RuntimeException e) {
-            throw new BizException(ErrorCodes.JWT_TOKEN_BAD_FORMAT, HttpStatus.UNAUTHORIZED);
+        } catch (RuntimeException ignored) {
         }
+        if (args == null) {
+            throw new BizException(ErrorCodes.JWT_TOKEN_BAD_FORMAT, HttpStatus.UNAUTHORIZED, authorization);
+        }
+        return args;
     }
 }

@@ -11,9 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -23,44 +20,31 @@ import io.doodler.common.ApiResult;
 import io.doodler.common.ErrorCode;
 import io.doodler.common.context.HttpRequestContextHolder;
 import io.doodler.common.context.MessageLocalization;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @Description: LoginFailureAwareHandler
+ * @Description: JwtAuthenticationFailureHandlerAware
  * @Author: Fred Feng
- * @Date: 12/12/2022
+ * @Date: 28/11/2023
  * @Version 1.0.0
  */
 @Slf4j
-@Order(80)
+@Order(81)
 @RestControllerAdvice
-public class LoginFailureAwareHandler {
+public class JwtAuthenticationFailureHandlerAware {
 
     @Autowired
-    private LoginFailureExceptionListener loginFailureExceptionListener;
+    private JwtAuthenticationFailureListener jwtAuthenticationFailureListener;
 
     @Autowired
     private MessageLocalization messageLocalization;
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiResult<?>> handleBadCredentialsException(HttpServletRequest request,
-                                                                      BadCredentialsException e) {
-    	loginFailureExceptionListener.onTryAgain(e);
-        return getEntity(request, e);
-    }
-
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    @ExceptionHandler(DisabledException.class)
-    public ResponseEntity<ApiResult<?>> handleDisabledException(HttpServletRequest request, DisabledException e) {
-    	loginFailureExceptionListener.onDisabled(e);
-        return getEntity(request, e);
-    }
-
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    @ExceptionHandler(LockedException.class)
-    public ResponseEntity<ApiResult<?>> handleLockedException(HttpServletRequest request, LockedException e) {
-    	loginFailureExceptionListener.onLocked(e);
+    @ExceptionHandler(JwtAuthenticationException.class)
+    public ResponseEntity<ApiResult<?>> handleJwtAuthenticationException(HttpServletRequest request,
+                                                                         JwtAuthenticationException e) {
+        jwtAuthenticationFailureListener.onAuthenticationFailed(e);
         return getEntity(request, e);
     }
 

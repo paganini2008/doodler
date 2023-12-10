@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 
 import io.doodler.common.BizException;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -48,7 +49,7 @@ public class JwtTokenStrategy implements TokenStrategy {
             Claims claims = Jwts.parser().setSigningKey(jwtProperties.getSecretKey()).parseClaimsJws(token).getBody();
             return new RegularUser(Long.valueOf(claims.getId()), claims.getSubject(), SecurityConstants.NA, claims.getAudience());
         } catch (RuntimeException e) {
-            throw new BizException(ErrorCodes.JWT_TOKEN_EXPIRATION, HttpStatus.UNAUTHORIZED);
+            throw new BizException(ErrorCodes.JWT_TOKEN_INVALID, HttpStatus.UNAUTHORIZED, e.getMessage());
         }
     }
 
@@ -62,7 +63,7 @@ public class JwtTokenStrategy implements TokenStrategy {
             Claims claims = Jwts.parser().setSigningKey(jwtProperties.getSecretKey()).parseClaimsJws(token).getBody();
             return !claims.getExpiration().before(new Date());
         } catch (RuntimeException e) {
-            throw new BizException(ErrorCodes.JWT_TOKEN_EXPIRATION, HttpStatus.UNAUTHORIZED);
+            throw new BizException(ErrorCodes.JWT_TOKEN_INVALID, HttpStatus.UNAUTHORIZED, e.getMessage());
         }
     }
 }

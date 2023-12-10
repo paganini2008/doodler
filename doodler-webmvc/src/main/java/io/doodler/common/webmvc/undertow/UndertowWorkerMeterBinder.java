@@ -1,4 +1,4 @@
-package io.doodler.common.webmvc.actuator;
+package io.doodler.common.webmvc.undertow;
 
 import java.lang.management.ManagementFactory;
 import java.util.Optional;
@@ -16,14 +16,14 @@ import io.micrometer.core.lang.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @Description: UndertowMeterBinder
+ * @Description: UndertowWorkerMeterBinder
  * @Author: Fred Feng
  * @Date: 30/09/2023
  * @Version 1.0.0
  */
 @Slf4j
 @Component
-public class UndertowMeterBinder implements MeterBinder {
+public class UndertowWorkerMeterBinder implements MeterBinder {
 
 	private static final String OBJECT_NAME = "org.xnio:type=Xnio,provider=\"nio\",worker=\"XNIO-1\"";
 	private static final String GAUGE_NAME_WORKER_QUEUE_SIZE = "undertow.worker.queue.size";

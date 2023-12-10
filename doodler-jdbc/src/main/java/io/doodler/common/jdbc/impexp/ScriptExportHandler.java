@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import io.doodler.common.jdbc.ConnectionFactory;
 import io.doodler.common.jdbc.JdbcUtils;
 import io.doodler.common.jdbc.impexp.DdlScripter.Catalog;
+import io.doodler.common.jdbc.page.EachPage;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -79,10 +80,14 @@ public class ScriptExportHandler implements ExportHandler {
     }
 
     @Override
-    public void exportData(String catalogName, String schemaName,
-                           String tableName, TableMetaData tableMetaData,
-                           List<Map<String, Object>> dataList,
-                           boolean idReused, ConnectionFactory connectionFactory) throws Exception {
+    public void exportData(String catalogName, 
+    		               String schemaName,
+                           String tableName,
+                           TableMetaData tableMetaData,
+                           EachPage<Map<String, Object>> eachPage,
+                           boolean idReused, 
+                           ConnectionFactory connectionFactory) throws Exception {
+    	List<Map<String, Object>> dataList = eachPage.getContent();
         if (CollectionUtils.isEmpty(dataList)) {
             return;
         }
@@ -129,7 +134,7 @@ public class ScriptExportHandler implements ExportHandler {
                     columnStringValues);
             sqlLines.add(insertSql);
         }
-        if (idReused) {
+        if (idReused && eachPage.isLastPage()) {
             String resetIdSeqSql = resetStartValueOfIdSequence(catalogName, schemaName, tableName, tableMetaData,
                     connectionFactory);
             if (StringUtils.isNotBlank(resetIdSeqSql)) {
@@ -185,6 +190,9 @@ public class ScriptExportHandler implements ExportHandler {
                     sql = tableMetaData.getDialect().getSequenceNameStatement(catalogName, schemaName, tableName,
                             metaData.getColumnName());
                     String sequenceName = JdbcUtils.fetchOne(connection, sql, String.class);
+                    if(StringUtils.isBlank(sequenceName)) {
+                    	sequenceName = tableMetaData.getDialect().getDefaultSequenceName(catalogName, schemaName, tableName, metaData.getColumnName());
+                    }
                     return tableMetaData.getDialect().getAlterSequenceStartValueStatement(catalogName, schemaName, tableName,
                             sequenceName, maxId + 1);
                 }

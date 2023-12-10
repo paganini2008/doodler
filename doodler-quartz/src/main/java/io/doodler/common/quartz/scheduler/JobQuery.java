@@ -12,17 +12,17 @@ import io.doodler.common.quartz.executor.TriggerDefination;
  * @Version 1.0.0
  */
 public interface JobQuery {
-	
-	List<JobGroupStatusVo> queryForJobGroupStatus() throws Exception;
+
+    List<JobGroupStatusVo> queryForJobGroupStatus() throws Exception;
 
     List<TriggerGroupStatusVo> queryForTriggerGroupStatus() throws Exception;
-    
+
     JobGroupStatusVo getJobGroupStatus(String jobGroup) throws Exception;
-    
+
     TriggerGroupStatusVo getTriggerGroupStatus(String triggerGroup) throws Exception;
-    
+
     long getRunningJobCount(String jobGroup) throws Exception;
-    
+
     long getRunningJobCount() throws Exception;
 
     List<String> getJobGroupNames() throws Exception;
@@ -40,6 +40,8 @@ public interface JobQuery {
     }
 
     long countOfTriggers(String triggerGroup, String triggerNamePattern) throws Exception;
+
+    long countOfTriggersOfJob(String jobName, String jobGroup) throws Exception;
 
     List<TriggerDefination> queryForTriggerOfJob(String jobName, String jobGroup) throws Exception;
 

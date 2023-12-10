@@ -14,13 +14,13 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.doodler.common.ApiResult;
 import io.doodler.common.ErrorCode;
 import io.doodler.common.ExceptionDescriptor;
 import io.doodler.common.context.HttpRequestContextHolder;
 import io.doodler.common.context.MessageLocalization;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

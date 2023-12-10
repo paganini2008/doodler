@@ -7,9 +7,10 @@ import java.net.URI;
 
 import org.springframework.http.HttpStatus;
 
+import io.doodler.common.enums.AppName;
+
 import feign.Request;
 import feign.RetryableException;
-import io.doodler.common.enums.AppName;
 import io.doodler.common.feign.HttpUtils;
 import io.doodler.common.feign.RetryFailureHandler;
 import lombok.RequiredArgsConstructor;

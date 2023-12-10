@@ -24,6 +24,6 @@ public class SecurityClientProperties {
 	private int rememberMeDuration = AbstractRememberMeServices.TWO_WEEKS_S;
     private String saPassword;
     private List<String> permittedUrls = new ArrayList<>();
-    private boolean basicEnabled = false;
+    private boolean basicEnabled = true;
     private boolean showAuthorizationType = false;
 }

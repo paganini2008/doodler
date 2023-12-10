@@ -1,10 +1,9 @@
 package io.doodler.common.redis.eventbus;
 
+import io.doodler.common.redis.pubsub.RedisPubSubService;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
-
-import io.doodler.common.redis.pubsub.RedisPubSubService;
 import lombok.RequiredArgsConstructor;
 
 /**

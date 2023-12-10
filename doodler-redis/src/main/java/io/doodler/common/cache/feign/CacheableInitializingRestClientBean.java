@@ -16,11 +16,12 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 
 import io.doodler.common.annotations.Serializer;
 import io.doodler.common.annotations.Ttl;
-import io.doodler.common.cache.CacheLifeCycleExtension;
-import io.doodler.common.cache.spec.CacheSpecifications;
 import io.doodler.common.feign.InitializingRestClientBean;
 import io.doodler.common.feign.RestClient;
 import io.doodler.common.redis.RedisSerializerUtils;
+
+import io.doodler.common.cache.CacheLifeCycleExtension;
+import io.doodler.common.cache.spec.CacheSpecifications;
 import lombok.RequiredArgsConstructor;
 
 /**

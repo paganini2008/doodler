@@ -1,7 +1,6 @@
 package io.doodler.common.jdbc.impexp;
 
 import java.sql.Connection;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -190,9 +189,8 @@ public class Exporter {
         PageReader<Map<String, Object>> pageReader = new MapBasedPageReader(connectionFactory, sql, -1);
         PageResponse<Map<String, Object>> pageResponse = pageReader.list(PageRequest.of(1, configuration.getPageSize()));
         for (EachPage<Map<String, Object>> eachPage : pageResponse) {
-            List<Map<String, Object>> content = eachPage.getContent();
             try {
-                exportHandler.exportData(catalogName, schemaName, tableName, tableMetaData, content, configuration.isIdReused(), connectionFactory);
+                exportHandler.exportData(catalogName, schemaName, tableName, tableMetaData, eachPage, configuration.isIdReused(), connectionFactory);
             } catch (Exception e) {
                 if (configuration.isFailFast()) {
                 	throw new ImpExpException(e.getMessage(), e);

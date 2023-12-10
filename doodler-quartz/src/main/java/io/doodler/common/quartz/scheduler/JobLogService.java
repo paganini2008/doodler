@@ -7,8 +7,9 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 
 import io.doodler.common.discovery.ApplicationInfo;
-import io.doodler.common.quartz.executor.JobSignature;
 import io.doodler.common.utils.BeanCopyUtils;
+
+import io.doodler.common.quartz.executor.JobSignature;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

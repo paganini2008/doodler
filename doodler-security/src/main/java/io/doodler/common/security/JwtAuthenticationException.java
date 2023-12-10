@@ -12,11 +12,19 @@ public class JwtAuthenticationException extends AuthenticationException {
 
     private static final long serialVersionUID = -7328093761114226130L;
 
-    public JwtAuthenticationException(String message) {
+    private final String token;
+
+    public JwtAuthenticationException(String token, String message) {
         super(message);
+        this.token = token;
     }
 
-    public JwtAuthenticationException(String message, Throwable cause) {
+    public JwtAuthenticationException(String token, String message, Throwable cause) {
         super(message, cause);
+        this.token = token;
+    }
+
+    public String getToken() {
+        return token;
     }
 }

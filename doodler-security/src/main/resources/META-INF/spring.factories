@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.elraytech.maxibet.common.security.WebSecurityConfig
+  io.doodler.common.security.WebSecurityConfig

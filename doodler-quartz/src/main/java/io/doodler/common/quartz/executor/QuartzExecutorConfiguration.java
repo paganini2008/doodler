@@ -3,8 +3,9 @@ package io.doodler.common.quartz.executor;
 import io.doodler.common.discovery.ApplicationInfoHolder;
 import io.doodler.common.discovery.DiscoveryClientService;
 import io.doodler.common.discovery.LoadBalancedRestTemplate;
-import io.doodler.common.quartz.scheduler.JobOperations;
 import io.doodler.common.retry.RetryOperations;
+
+import io.doodler.common.quartz.scheduler.JobOperations;
 
 import static io.doodler.common.quartz.JobConstants.JOB_EXECUTOR_HTTP_HEADERS;
 

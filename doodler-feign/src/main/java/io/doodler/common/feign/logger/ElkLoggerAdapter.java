@@ -2,10 +2,11 @@ package io.doodler.common.feign.logger;
 
 import org.springframework.beans.factory.InitializingBean;
 
+import io.doodler.common.utils.IdUtils;
+
 import feign.Request;
 import io.doodler.common.feign.RestClientInterceptor;
 import io.doodler.common.feign.RestClientUtils;
-import io.doodler.common.utils.IdUtils;
 
 /**
  * @Description: ElkLoggerAdapter

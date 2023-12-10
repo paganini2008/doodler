@@ -1,12 +1,13 @@
 package io.doodler.common.webmvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.doodler.common.context.FormattedMessageLocalization;
 import io.doodler.common.context.MessageLocalization;
 import io.doodler.common.utils.JacksonUtils;
 import io.doodler.common.utils.Markers;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.doodler.common.webmvc.WebServerConfig.WebRequestLoggingProperties;
+import io.doodler.common.webmvc.undertow.UndertowMetricsHandlerWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.embedded.undertow.UndertowDeploymentInfoCustomizer;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -95,6 +97,13 @@ public class WebServerConfig {
     @Bean
     public MessageLocalization messageLocalization() {
         return new FormattedMessageLocalization();
+    }
+
+    @Bean
+    public UndertowDeploymentInfoCustomizer undertowDeploymentInfoCustomizer(
+            UndertowMetricsHandlerWrapper undertowMetricsHandlerWrapper) {
+        return deploymentInfo ->
+                deploymentInfo.addOuterHandlerChainWrapper(undertowMetricsHandlerWrapper);
     }
 
     /**

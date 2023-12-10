@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Marker;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.RedisKeyExpiredEvent;
@@ -26,6 +27,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 
 import io.doodler.common.utils.WebUtils;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,10 +47,12 @@ public class WebAppAuthenticationService implements AuthenticationService {
     private final SecurityClientProperties securityClientProperties;
     private final AbstractRememberMeServices rememberMeServices;
     private final PlatformUserDetailsService platformUserDetailsService;
+    private final Marker marker;
     private final List<AuthenticationAspect> authenticationAspects = new CopyOnWriteArrayList<>();
 
     @Override
-    public String signIn(AbstractAuthenticationToken authenticationToken, AuthenticationPostHandler postHandler,
+    public String signIn(AbstractAuthenticationToken authenticationToken, 
+    		             AuthenticationPostHandler postHandler,
                          HttpServletRequest request,
                          HttpServletResponse response) {
         authenticationAspects.forEach(a -> a.onLogin(authenticationToken, request, response));
@@ -85,7 +89,8 @@ public class WebAppAuthenticationService implements AuthenticationService {
 
     @Override
     public String signInAndRememberMe(AbstractAuthenticationToken authenticationToken,
-                                      AuthenticationPostHandler postHandler, HttpServletRequest request,
+                                      AuthenticationPostHandler postHandler, 
+                                      HttpServletRequest request,
                                       HttpServletResponse response) {
         authenticationAspects.forEach(a -> a.onLogin(authenticationToken, request, response));
         try {
@@ -163,6 +168,9 @@ public class WebAppAuthenticationService implements AuthenticationService {
             }
             if (WebUtils.hasCookie(REMEMBER_ME_KEY)) {
                 ((PlatformTokenBasedRememberMeServices) rememberMeServices).cleanCookies(request, response);
+            }
+            if(log.isInfoEnabled()) {
+            	log.info(marker, "Force logout from system. Token: {}", oldToken);
             }
             return true;
         }

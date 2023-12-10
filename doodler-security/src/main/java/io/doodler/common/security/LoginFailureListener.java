@@ -3,12 +3,12 @@ package io.doodler.common.security;
 import org.springframework.security.core.AuthenticationException;
 
 /**
- * @Description: LoginFailureExceptionListener
+ * @Description: LoginFailureListener
  * @Author: Fred Feng
  * @Date: 12/12/2022
  * @Version 1.0.0
  */
-public interface LoginFailureExceptionListener {
+public interface LoginFailureListener {
 
     default void onTryAgain(AuthenticationException e) {
     }

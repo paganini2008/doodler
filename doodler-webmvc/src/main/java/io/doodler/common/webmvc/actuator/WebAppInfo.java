@@ -21,6 +21,9 @@ public class WebAppInfo implements InfoContributor {
 
     @Value("${spring.application.name}")
     private String applicationName;
+    
+    @Value("${spring.application.realm:kos}")
+    private String realm;
 
     @Override
     public void contribute(Builder builder) {
@@ -28,6 +31,7 @@ public class WebAppInfo implements InfoContributor {
         info.put("project", Constants.PROJECT_NAME);
         info.put("version", Constants.VERSION);
         info.put("name", applicationName);
-        builder.withDetail("app", info);
+        info.put("realm", realm);
+        builder.withDetails(info);
     }
 }

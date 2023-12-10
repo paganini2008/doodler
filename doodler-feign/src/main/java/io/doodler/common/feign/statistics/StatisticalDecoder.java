@@ -1,9 +1,10 @@
 package io.doodler.common.feign.statistics;
 
+import io.doodler.common.enums.AppName;
+
 import feign.Request;
 import feign.Response;
 import feign.codec.Decoder;
-import io.doodler.common.enums.AppName;
 import io.doodler.common.feign.HttpUtils;
 
 import static io.doodler.common.feign.RestClientConstants.DEFAULT_MAXIMUM_RESPONSE_TIME;

@@ -107,6 +107,8 @@ public abstract class Dialect {
     
     public abstract String getSequenceNameStatement(String catalog, String schema, String tableName, String columnName);
     
+    public abstract String getDefaultSequenceName(String catalog, String schema, String tableName, String columnName);
+    
     public abstract String getAlterSequenceStartValueStatement(String catalog, String schema, String tableName, String sequenceName, long startValue);
 
     public String[] getStatementAfterTableCreated(String catalog, String schema, String tableName, String username) {

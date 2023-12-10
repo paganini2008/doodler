@@ -23,7 +23,7 @@ import io.doodler.common.utils.JacksonUtils;
  * @Version 1.0.0
  */
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
-@ComponentScan("com.elraytech.maxibet.common.webmvc")
+@ComponentScan("io.doodler.common.webmvc")
 @EnableConfigurationProperties({ThreadPoolProperties.class})
 @Configuration
 public class BasicWebMvcConfig implements WebMvcConfigurer {

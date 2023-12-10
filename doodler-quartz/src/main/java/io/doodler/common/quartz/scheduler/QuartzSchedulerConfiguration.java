@@ -1,7 +1,10 @@
 package io.doodler.common.quartz.scheduler;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.quartz.spi.JobFactory;
 import org.quartz.spi.TriggerFiredBundle;
@@ -25,6 +28,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.doodler.common.quartz.executor.QuartzExecutorConfiguration;
+import io.doodler.common.quartz.statistics.CountingJobSchedulingListener;
+import io.doodler.common.quartz.statistics.CountingStatisticsService;
+import io.doodler.common.utils.MapUtils;
 import io.micrometer.core.instrument.MeterRegistry;
 
 /**
@@ -34,11 +40,12 @@ import io.micrometer.core.instrument.MeterRegistry;
  * @Version 1.0.0
  */
 @AutoConfigureAfter({QuartzExecutorConfiguration.class, DataSourceAutoConfiguration.class})
-@ComponentScan("com.elraytech.maxibet.common.quartz.scheduler")
+@ComponentScan("io.doodler.common.quartz.scheduler")
 @Configuration(proxyBeanMethods = false)
 public class QuartzSchedulerConfiguration {
+    private static final String DEFAULT_QUARTZ_PROPERTIES_NAME = "quartz.properties";
 
-    private static final String QUARTZ_PROPERTIES_PATH = "quartz-%s.properties";
+    private static final String QUARTZ_PROPERTIES_NAME = "quartz-%s.properties";
 
     @Value("${spring.profiles.active}")
     private String env;
@@ -66,10 +73,22 @@ public class QuartzSchedulerConfiguration {
 
     @Bean
     public Properties quartzProperties() throws IOException {
-        PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
-        propertiesFactoryBean.setLocation(new ClassPathResource(String.format(QUARTZ_PROPERTIES_PATH, env)));
-        propertiesFactoryBean.afterPropertiesSet();
-        return propertiesFactoryBean.getObject();
+        ClassPathResource classPathResource = new ClassPathResource(DEFAULT_QUARTZ_PROPERTIES_NAME);
+        Properties config = new Properties();
+        if (classPathResource.exists()) {
+            PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
+            propertiesFactoryBean.setLocation(classPathResource);
+            propertiesFactoryBean.afterPropertiesSet();
+            config.putAll(propertiesFactoryBean.getObject());
+        }
+        classPathResource = new ClassPathResource(String.format(QUARTZ_PROPERTIES_NAME, env));
+        if (classPathResource.exists()) {
+            PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
+            propertiesFactoryBean.setLocation(classPathResource);
+            propertiesFactoryBean.afterPropertiesSet();
+            config.putAll(propertiesFactoryBean.getObject());
+        }
+        return config;
     }
 
     @Bean
@@ -78,8 +97,13 @@ public class QuartzSchedulerConfiguration {
     }
 
     @Bean
-    public JobSchedulerMeterCounter jobSchedulerMeterCounter(MeterRegistry meterRegistry) {
-        return new JobSchedulerMeterCounter(meterRegistry);
+    public JobSchedulerStatusNotifier jobSchedulerStatusNotifier(MeterRegistry meterRegistry) {
+        return new JobSchedulerStatusNotifier(meterRegistry);
+    }
+
+    @Bean
+    public JobSchedulingListener counterMetricsJobSchedulingListener(MeterRegistry meterRegistry) {
+        return new CounterMetricsJobSchedulingListener(meterRegistry);
     }
 
     /**
@@ -90,25 +114,39 @@ public class QuartzSchedulerConfiguration {
      */
     public static class AutowiringSpringBeanJobFactory extends SpringBeanJobFactory implements ApplicationContextAware {
 
+        private ApplicationContext applicationContext;
         private AutowireCapableBeanFactory beanFactory;
 
         AutowiringSpringBeanJobFactory() {
         }
 
-        public void setApplicationContext(final ApplicationContext context) {
-            beanFactory = context.getAutowireCapableBeanFactory();
+        public void setApplicationContext(ApplicationContext context) {
+            this.applicationContext = context;
+            this.beanFactory = context.getAutowireCapableBeanFactory();
         }
 
         protected Object createJobInstance(final TriggerFiredBundle bundle) throws Exception {
             final Object job = super.createJobInstance(bundle);
             beanFactory.autowireBean(job);
+            if (job instanceof JobSchedulingListenerAware) {
+                Map<String, JobSchedulingListener> beanMap = applicationContext.getBeansOfType(JobSchedulingListener.class);
+                if (MapUtils.isNotEmpty(beanMap)) {
+                    List<JobSchedulingListener> listeners = new CopyOnWriteArrayList<>(beanMap.values());
+                    ((JobSchedulingListenerAware) job).setJobSchedulingListeners(listeners);
+                }
+            }
             return job;
         }
     }
-    
+
     @Bean
-    public Counters counters() {
-    	return new Counters();
+    public CountingStatisticsService countingStatisticsService() {
+        return new CountingStatisticsService();
+    }
+
+    @Bean
+    public JobSchedulingListener countingJobSchedulingListener(CountingStatisticsService countingStatisticsService) {
+        return new CountingJobSchedulingListener(countingStatisticsService);
     }
 
     @ConditionalOnProperty(name = "management.health.quartz.enabled", havingValue = "true", matchIfMissing = true)

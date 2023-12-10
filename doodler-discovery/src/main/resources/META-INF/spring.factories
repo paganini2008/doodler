@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-   com.elraytech.maxibet.common.discovery.DiscoveryClientConfig
+   io.doodler.common.discovery.DiscoveryClientConfig

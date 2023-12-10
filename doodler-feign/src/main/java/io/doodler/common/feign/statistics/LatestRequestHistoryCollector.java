@@ -1,11 +1,11 @@
 package io.doodler.common.feign.statistics;
 
+import io.doodler.common.utils.ExceptionUtils;
+import io.doodler.common.utils.LatestRequestHistory;
 import feign.Request;
 import feign.Response;
 import io.doodler.common.feign.HttpUtils;
 import io.doodler.common.feign.RestClientInterceptor;
-import io.doodler.common.utils.ExceptionUtils;
-import io.doodler.common.utils.LatestRequestHistory;
 
 import java.util.List;
 import org.springframework.http.HttpStatus;

@@ -1,10 +1,9 @@
 package io.doodler.common.redis.pubsub;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import io.doodler.common.enums.EnumConstant;
 import io.doodler.common.enums.EnumUtils;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * @Description: PubSubMode

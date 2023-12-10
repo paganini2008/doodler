@@ -1,9 +1,9 @@
 package io.doodler.common.jdbc.impexp;
 
-import java.util.List;
 import java.util.Map;
 
 import io.doodler.common.jdbc.ConnectionFactory;
+import io.doodler.common.jdbc.page.EachPage;
 
 /**
  * @Description: ExportHandler
@@ -21,8 +21,11 @@ public interface ExportHandler {
 
     void exportDdl(DdlScripter ddlScripter) throws Exception;
 
-    void exportData(String catalogName, String schemaName, 
-    		        String tableName, TableMetaData tableMetaData, 
-    		        List<Map<String, Object>> dataList, boolean idReused, 
+    void exportData(String catalogName, 
+    		        String schemaName, 
+    		        String tableName, 
+    		        TableMetaData tableMetaData, 
+    		        EachPage<Map<String, Object>> eachPage,
+    		        boolean idReused, 
     		        ConnectionFactory connectionFactory) throws Exception;
 }

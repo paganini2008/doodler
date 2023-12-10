@@ -3,6 +3,7 @@ package io.doodler.common.webmvc;
 import static io.doodler.common.Constants.SERVER_PORT_END_WITH;
 import static io.doodler.common.Constants.SERVER_PORT_START_WITH;
 
+import io.doodler.common.utils.NetUtils;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -11,8 +12,6 @@ import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
-
-import io.doodler.common.utils.NetUtils;
 
 /**
  * @Description: RandomServerPortConfigurator

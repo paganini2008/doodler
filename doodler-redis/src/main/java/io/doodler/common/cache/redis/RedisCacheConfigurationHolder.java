@@ -31,13 +31,14 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.lang.Nullable;
 
-import io.doodler.common.cache.CacheExtensionProperties;
-import io.doodler.common.cache.spec.CacheSpecifications;
-import io.doodler.common.cache.spec.TtlSpec;
 import io.doodler.common.context.ManagedBeanLifeCycle;
 import io.doodler.common.enums.AppName;
 import io.doodler.common.redis.RedisSerializerUtils;
 import io.doodler.common.utils.ExecutorUtils;
+
+import io.doodler.common.cache.CacheExtensionProperties;
+import io.doodler.common.cache.spec.CacheSpecifications;
+import io.doodler.common.cache.spec.TtlSpec;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

@@ -21,6 +21,12 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
+import io.doodler.common.context.InstanceId;
+import io.doodler.common.feign.RestClientCandidatesAutoConfiguration;
+import io.doodler.common.redis.RedisConfig;
+import io.doodler.common.redis.pubsub.RedisPubSubConfig;
+import io.doodler.common.redis.pubsub.RedisPubSubService;
+
 import io.doodler.common.cache.feign.CacheableInitializingRestClientBean;
 import io.doodler.common.cache.feign.RestClientKeyGenerator;
 import io.doodler.common.cache.filter.CacheMethodFilter;
@@ -41,11 +47,6 @@ import io.doodler.common.cache.spec.CacheSpecifications;
 import io.doodler.common.cache.spec.CacheSpecificationsBeanPostProcessor;
 import io.doodler.common.cache.statistics.CacheStatisticsFilter;
 import io.doodler.common.cache.statistics.CacheStatisticsService;
-import io.doodler.common.context.InstanceId;
-import io.doodler.common.feign.RestClientCandidatesAutoConfiguration;
-import io.doodler.common.redis.RedisConfig;
-import io.doodler.common.redis.pubsub.RedisPubSubConfig;
-import io.doodler.common.redis.pubsub.RedisPubSubService;
 import io.micrometer.core.instrument.MeterRegistry;
 
 /**

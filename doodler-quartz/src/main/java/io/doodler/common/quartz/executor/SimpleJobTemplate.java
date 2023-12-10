@@ -5,6 +5,7 @@ import static io.doodler.common.quartz.JobConstants.DEFAULT_JOB_TRIGGER_GROUP_NA
 
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Marker;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -42,9 +43,15 @@ public class SimpleJobTemplate {
         this.defaultTriggerGroupName = defaultTriggerGroupName;
     }
 
-    public Date addJob(String jobName, String description, String className, String method,
-                                String initialParameter,
-                                Date startTime, long period, Date endTime) throws Exception {
+    public Date addJob(String jobName,
+                       String triggerName,
+                       String description,
+                       String className,
+                       String method,
+                       String initialParameter,
+                       Date startTime,
+                       long period,
+                       Date endTime) throws Exception {
         JobDefination.JobDefinationBuilder builder = JobDefination.builder();
         JobDefination jobDefination = builder.applicationName(applicationName)
                 .jobName(jobName)
@@ -53,14 +60,19 @@ public class SimpleJobTemplate {
                 .className(className)
                 .method(method)
                 .initialParameter(initialParameter).build();
-        TriggerDefination.TriggerDefinationBuilder triggerBuilder = TriggerDefination.builder();
-        TriggerDefination triggerDefination = triggerBuilder.triggerName(
-                        String.format(DEFAULT_TRIGGER_NAME_PATTERN, jobName.toUpperCase()))
-                .triggerGroup(defaultTriggerGroupName)
-                .startTime(startTime)
-                .period(period)
-                .endTime(endTime).build();
-        jobDefination.setTriggerDefination(triggerDefination);
+        if (startTime != null && period > 0) {
+            TriggerDefination.TriggerDefinationBuilder triggerBuilder = TriggerDefination.builder();
+            if (StringUtils.isBlank(triggerName)) {
+                triggerName = String.format(DEFAULT_TRIGGER_NAME_PATTERN, jobName.toUpperCase());
+            }
+            TriggerDefination triggerDefination = triggerBuilder.triggerName(triggerName)
+                    .triggerGroup(defaultTriggerGroupName)
+                    .description(description)
+                    .startTime(startTime)
+                    .period(period)
+                    .endTime(endTime).build();
+            jobDefination.setTriggerDefination(triggerDefination);
+        }
         Date firstFiredDate = jobOperations.addJob(jobDefination);
         if (log.isInfoEnabled()) {
             log.info(marker, "Job {}.{} is added and first fired date will at {}", jobDefination.getJobGroup(),
@@ -69,9 +81,15 @@ public class SimpleJobTemplate {
         return firstFiredDate;
     }
 
-    public Date addJob(String jobName, String description, String className, String method,
-                                String initialParameter,
-                                Date startTime, long period, int repeatCount) throws Exception {
+    public Date addJob(String jobName,
+                       String triggerName,
+                       String description,
+                       String className,
+                       String method,
+                       String initialParameter,
+                       Date startTime,
+                       long period,
+                       int repeatCount) throws Exception {
         JobDefination.JobDefinationBuilder builder = JobDefination.builder();
         JobDefination jobDefination = builder.applicationName(applicationName)
                 .jobName(jobName)
@@ -80,14 +98,19 @@ public class SimpleJobTemplate {
                 .className(className)
                 .method(method)
                 .initialParameter(initialParameter).build();
-        TriggerDefination.TriggerDefinationBuilder triggerBuilder = TriggerDefination.builder();
-        TriggerDefination triggerDefination = triggerBuilder.triggerName(
-                        String.format(DEFAULT_TRIGGER_NAME_PATTERN, jobName.toUpperCase()))
-                .triggerGroup(defaultTriggerGroupName)
-                .startTime(startTime)
-                .period(period)
-                .repeatCount(repeatCount).build();
-        jobDefination.setTriggerDefination(triggerDefination);
+        if (startTime != null && period > 0) {
+            TriggerDefination.TriggerDefinationBuilder triggerBuilder = TriggerDefination.builder();
+            if (StringUtils.isBlank(triggerName)) {
+                triggerName = String.format(DEFAULT_TRIGGER_NAME_PATTERN, jobName.toUpperCase());
+            }
+            TriggerDefination triggerDefination = triggerBuilder.triggerName(triggerName)
+                    .triggerGroup(defaultTriggerGroupName)
+                    .description(description)
+                    .startTime(startTime)
+                    .period(period)
+                    .repeatCount(repeatCount).build();
+            jobDefination.setTriggerDefination(triggerDefination);
+        }
         Date firstFiredDate = jobOperations.addJob(jobDefination);
         if (log.isInfoEnabled()) {
             log.info(marker, "Job {}.{} is added and first fired date will at {}", jobDefination.getJobGroup(),
@@ -96,9 +119,13 @@ public class SimpleJobTemplate {
         return firstFiredDate;
     }
 
-    public Date addCronJob(String jobName, String description, String className, String method,
-                                    String initialParameter,
-                                    String cron) throws Exception {
+    public Date addCronJob(String jobName,
+                           String triggerName,
+                           String description,
+                           String className,
+                           String method,
+                           String initialParameter,
+                           String cron) throws Exception {
         JobDefination.JobDefinationBuilder builder = JobDefination.builder();
         JobDefination jobDefination = builder.applicationName(applicationName)
                 .jobName(jobName)
@@ -107,18 +134,171 @@ public class SimpleJobTemplate {
                 .className(className)
                 .method(method)
                 .initialParameter(initialParameter).build();
-        TriggerDefination.TriggerDefinationBuilder triggerBuilder = TriggerDefination.builder();
-        TriggerDefination triggerDefination = triggerBuilder.triggerName(
-                        String.format(DEFAULT_TRIGGER_NAME_PATTERN, jobName.toUpperCase()))
-                .triggerGroup(defaultTriggerGroupName)
-                .cron(cron).build();
-        jobDefination.setTriggerDefination(triggerDefination);
+        if (StringUtils.isNotBlank(cron)) {
+            TriggerDefination.TriggerDefinationBuilder triggerBuilder = TriggerDefination.builder();
+            if (StringUtils.isBlank(triggerName)) {
+                triggerName = String.format(DEFAULT_TRIGGER_NAME_PATTERN, jobName.toUpperCase());
+            }
+            TriggerDefination triggerDefination = triggerBuilder.triggerName(triggerName)
+                    .description(description)
+                    .triggerGroup(defaultTriggerGroupName)
+                    .cron(cron).build();
+            jobDefination.setTriggerDefination(triggerDefination);
+        }
         Date firstFiredDate = jobOperations.addCronJob(jobDefination);
         if (log.isInfoEnabled()) {
             log.info(marker, "Job {}.{} is added and first fired date will at {}", jobDefination.getJobGroup(),
                     jobDefination.getJobName(), (firstFiredDate != null ? firstFiredDate.toString() : "<NONE>"));
         }
         return firstFiredDate;
+    }
+
+    public Date referenceJob(String jobName,
+                             String triggerName,
+                             String description,
+                             String className,
+                             String method,
+                             String initialParameter,
+                             Date startTime,
+                             long period,
+                             int repeatCount) throws Exception {
+        JobDefination.JobDefinationBuilder builder = JobDefination.builder();
+        JobDefination jobDefination = builder.applicationName(applicationName)
+                .jobName(jobName)
+                .jobGroup(defaultJobGroupName)
+                .className(className)
+                .method(method)
+                .initialParameter(initialParameter).build();
+        if (startTime != null && period > 0) {
+            TriggerDefination.TriggerDefinationBuilder triggerBuilder = TriggerDefination.builder();
+            TriggerDefination triggerDefination = triggerBuilder.triggerName(triggerName)
+                    .triggerGroup(defaultTriggerGroupName)
+                    .description(description)
+                    .startTime(startTime)
+                    .period(period)
+                    .repeatCount(repeatCount).build();
+            jobDefination.setTriggerDefination(triggerDefination);
+        }
+        Date firstFiredDate = jobOperations.referenceJob(jobDefination);
+        if (log.isInfoEnabled()) {
+            log.info(marker, "Job {}.{} is referred and first fired date will at {}", jobDefination.getJobGroup(),
+                    jobDefination.getJobName(), (firstFiredDate != null ? firstFiredDate.toString() : "<NONE>"));
+        }
+        return firstFiredDate;
+    }
+
+    public Date referenceJob(String jobName,
+                             String triggerName,
+                             String description,
+                             String className,
+                             String method,
+                             String initialParameter,
+                             Date startTime,
+                             long period,
+                             Date endDate) throws Exception {
+        JobDefination.JobDefinationBuilder builder = JobDefination.builder();
+        JobDefination jobDefination = builder.applicationName(applicationName)
+                .jobName(jobName)
+                .jobGroup(defaultJobGroupName)
+                .className(className)
+                .method(method)
+                .initialParameter(initialParameter).build();
+        if (startTime != null && period > 0) {
+            TriggerDefination.TriggerDefinationBuilder triggerBuilder = TriggerDefination.builder();
+            TriggerDefination triggerDefination = triggerBuilder.triggerName(triggerName)
+                    .triggerGroup(defaultTriggerGroupName)
+                    .description(description)
+                    .startTime(startTime)
+                    .period(period)
+                    .endTime(endDate).build();
+            jobDefination.setTriggerDefination(triggerDefination);
+        }
+        Date firstFiredDate = jobOperations.referenceJob(jobDefination);
+        if (log.isInfoEnabled()) {
+            log.info(marker, "Job {}.{} is referred and first fired date will at {}", jobDefination.getJobGroup(),
+                    jobDefination.getJobName(), (firstFiredDate != null ? firstFiredDate.toString() : "<NONE>"));
+        }
+        return firstFiredDate;
+    }
+
+    public Date referenceCronJob(String jobName,
+                                 String triggerName,
+                                 String description,
+                                 String className,
+                                 String method,
+                                 String initialParameter,
+                                 String cron) throws Exception {
+        JobDefination.JobDefinationBuilder builder = JobDefination.builder();
+        JobDefination jobDefination = builder.applicationName(applicationName)
+                .jobName(jobName)
+                .jobGroup(defaultJobGroupName)
+                .className(className)
+                .method(method)
+                .initialParameter(initialParameter).build();
+        if (StringUtils.isNotBlank(cron)) {
+            TriggerDefination.TriggerDefinationBuilder triggerBuilder = TriggerDefination.builder();
+            TriggerDefination triggerDefination = triggerBuilder.triggerName(triggerName)
+                    .triggerGroup(defaultTriggerGroupName)
+                    .description(description)
+                    .cron(cron).build();
+            jobDefination.setTriggerDefination(triggerDefination);
+        }
+        Date firstFiredDate = jobOperations.referenceCronJob(jobDefination);
+        if (log.isInfoEnabled()) {
+            log.info(marker, "Job {}.{} is referred and first fired date will at {}", jobDefination.getJobGroup(),
+                    jobDefination.getJobName(), (firstFiredDate != null ? firstFiredDate.toString() : "<NONE>"));
+        }
+        return firstFiredDate;
+    }
+
+    public Date joinJob(String jobName,
+                        String triggerName,
+                        String description,
+                        String className,
+                        String method,
+                        String initialParameter,
+                        Date startTime,
+                        long period,
+                        Date endTime) throws Exception {
+        if (isJobExists(jobName)) {
+            return referenceJob(jobName, triggerName, description, className, method, initialParameter, startTime, period,
+                    endTime);
+        } else {
+            return addJob(jobName, triggerName, description, className, method, initialParameter, startTime, period,
+                    endTime);
+        }
+    }
+
+    public Date joinJob(String jobName,
+                        String triggerName,
+                        String description,
+                        String className,
+                        String method,
+                        String initialParameter,
+                        Date startTime,
+                        long period,
+                        int repeatCount) throws Exception {
+        if (isJobExists(jobName)) {
+            return referenceJob(jobName, triggerName, description, className, method, initialParameter, startTime, period,
+                    repeatCount);
+        } else {
+            return addJob(jobName, triggerName, description, className, method, initialParameter, startTime, period,
+                    repeatCount);
+        }
+    }
+
+    public Date joinCronJob(String jobName,
+                            String triggerName,
+                            String description,
+                            String className,
+                            String method,
+                            String initialParameter,
+                            String cron) throws Exception {
+        if (isJobExists(jobName)) {
+            return referenceCronJob(jobName, triggerName, description, className, method, initialParameter, cron);
+        } else {
+            return addCronJob(jobName, triggerName, description, className, method, initialParameter, cron);
+        }
     }
 
     public boolean isJobExists(String jobName) throws Exception {
@@ -137,11 +317,14 @@ public class SimpleJobTemplate {
         jobOperations.resumeJob(jobName, defaultJobGroupName);
     }
 
-    public Date modifyTrigger(String jobName, String cron, Date startTime, Date endTime)
+    public Date modifyTrigger(String jobName,
+                              String cron,
+                              Date startTime,
+                              Date endTime)
             throws Exception {
-    	Date firstFiredDate = jobOperations.modifyTrigger(
+        Date firstFiredDate = jobOperations.modifyTrigger(
                 String.format(DEFAULT_TRIGGER_NAME_PATTERN, jobName.toUpperCase()),
-                defaultTriggerGroupName, cron, startTime, endTime);
+                defaultTriggerGroupName, cron, startTime, endTime, null);
         if (log.isInfoEnabled()) {
             log.info(marker, "Job {}.{} is updated and first fired date will at {}", defaultJobGroupName, jobName,
                     (firstFiredDate != null ? firstFiredDate.toString() : "<NONE>"));
@@ -149,11 +332,14 @@ public class SimpleJobTemplate {
         return firstFiredDate;
     }
 
-    public Date modifyTrigger(String jobName, Date startTime, long period, int repeatCount,
-    		Date endTime) throws Exception {
-    	Date firstFiredDate = jobOperations.modifyTrigger(
+    public Date modifyTrigger(String jobName,
+                              Date startTime,
+                              long period,
+                              int repeatCount,
+                              Date endTime) throws Exception {
+        Date firstFiredDate = jobOperations.modifyTrigger(
                 String.format(DEFAULT_TRIGGER_NAME_PATTERN, jobName.toUpperCase()),
-                defaultTriggerGroupName, startTime, period, repeatCount, endTime);
+                defaultTriggerGroupName, startTime, period, repeatCount, endTime, null);
         if (log.isInfoEnabled()) {
             log.info(marker, "Job {}.{} is updated and first fired date will at {}", defaultJobGroupName, jobName,
                     (firstFiredDate != null ? firstFiredDate.toString() : "<NONE>"));

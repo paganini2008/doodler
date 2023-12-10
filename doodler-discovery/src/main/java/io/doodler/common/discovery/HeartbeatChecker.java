@@ -1,9 +1,10 @@
 package io.doodler.common.discovery;
 
-import io.doodler.common.discovery.AffectedApplicationInfo.AffectedType;
 import io.doodler.common.utils.ExecutorUtils;
 import io.doodler.common.utils.MapUtils;
 import io.doodler.common.utils.SimpleTimer;
+
+import io.doodler.common.discovery.AffectedApplicationInfo.AffectedType;
 
 import java.util.ArrayList;
 import java.util.Collection;

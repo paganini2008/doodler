@@ -6,6 +6,12 @@ import static io.doodler.common.Constants.REQUEST_HEADER_TIMESTAMP;
 import static io.doodler.common.Constants.REQUEST_HEADER_TRACES;
 import static io.doodler.common.Constants.REQUEST_HEADER_TRACE_ID;
 
+import io.doodler.common.ApiResult;
+import io.doodler.common.ErrorCode;
+import io.doodler.common.context.HttpRequestContextHolder;
+import io.doodler.common.context.MessageLocalization;
+import io.doodler.common.context.Span;
+import io.doodler.common.utils.LangUtils;
 import java.util.List;
 import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
@@ -19,13 +25,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import io.doodler.common.ApiResult;
-import io.doodler.common.ErrorCode;
-import io.doodler.common.context.HttpRequestContextHolder;
-import io.doodler.common.context.MessageLocalization;
-import io.doodler.common.context.Span;
-import io.doodler.common.utils.LangUtils;
 
 /**
  * @Description: RestClientExceptionHandler

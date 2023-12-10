@@ -1,8 +1,6 @@
 package io.doodler.common.webmvc;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import static io.doodler.common.Constants.REQUEST_HEADER_TIMESTAMP;
 
 import io.doodler.common.ErrorCode;
 import io.doodler.common.ExceptionDescriptor;
@@ -10,9 +8,9 @@ import io.doodler.common.context.ApplicationContextUtils;
 import io.doodler.common.context.HttpRequestContextHolder;
 import io.doodler.common.context.MessageLocalization;
 import io.doodler.common.utils.LangUtils;
-
-import static io.doodler.common.Constants.REQUEST_HEADER_TIMESTAMP;
-
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.util.Locale;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;

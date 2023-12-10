@@ -1,9 +1,8 @@
 package io.doodler.common.feign;
 
+import io.doodler.common.utils.MapUtils;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
-import io.doodler.common.utils.MapUtils;
-
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;

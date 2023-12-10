@@ -1,7 +1,8 @@
 package io.doodler.common.feign.statistics;
 
-import feign.FeignException;
 import io.doodler.common.BizException;
+
+import feign.FeignException;
 import io.doodler.common.feign.HttpUtils;
 import io.doodler.common.feign.RestClientInvokerAspect;
 import io.doodler.common.feign.RestClientMetadata;

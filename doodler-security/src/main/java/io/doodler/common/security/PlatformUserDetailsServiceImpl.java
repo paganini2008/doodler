@@ -1,7 +1,5 @@
 package io.doodler.common.security;
 
-import lombok.RequiredArgsConstructor;
-
 import static io.doodler.common.security.SecurityConstants.LOGIN_KEY;
 
 import org.springframework.data.redis.core.RedisOperations;
@@ -14,11 +12,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  * @Date: 21/12/2022
  * @Version 1.0.0
  */
-@RequiredArgsConstructor
-public class PlatformUserDetailsServiceImpl implements PlatformUserDetailsService {
+public class PlatformUserDetailsServiceImpl extends BasicUserDetailsServiceImpl implements PlatformUserDetailsService {
 
-    private final RedisOperations<String, Object> redisOperations;
-
+	public PlatformUserDetailsServiceImpl(RedisOperations<String, Object> redisOperation) {
+		super(redisOperation);
+	}
+	
     @Override
     public UserDetails loadUserById(Long userId) throws UsernameNotFoundException {
         throw new UnsupportedOperationException("loadUserById");

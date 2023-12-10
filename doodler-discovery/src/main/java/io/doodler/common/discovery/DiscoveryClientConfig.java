@@ -17,13 +17,13 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import io.doodler.common.feign.LoadBalancerClient;
+import io.doodler.common.http.RestTemplateConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 
 import io.doodler.common.discovery.actuator.DiscoveryClientHealthIndicator;
 import io.doodler.common.discovery.feign.DiscoveryClientLoadBalancerClient;
-import io.doodler.common.feign.LoadBalancerClient;
-import io.doodler.common.http.RestTemplateConfig;
 
 /**
  * @Description: DiscoveryClientConfig

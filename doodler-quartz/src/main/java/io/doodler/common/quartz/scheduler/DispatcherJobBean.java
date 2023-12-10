@@ -1,13 +1,14 @@
 package io.doodler.common.quartz.scheduler;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
-import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.PersistJobDataAfterExecution;
@@ -19,9 +20,10 @@ import io.doodler.common.discovery.ApplicationInfo;
 import io.doodler.common.discovery.ApplicationInfoHolder;
 import io.doodler.common.discovery.DiscoveryClientService;
 import io.doodler.common.discovery.ServiceResourceAccessException;
-import io.doodler.common.quartz.executor.JobSignature;
 import io.doodler.common.utils.ExceptionUtils;
 import io.doodler.common.utils.IdUtils;
+
+import io.doodler.common.quartz.executor.JobSignature;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -33,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @DisallowConcurrentExecution
 @PersistJobDataAfterExecution
-public class DispatcherJobBean implements Job {
+public class DispatcherJobBean implements Job, JobSchedulingListenerAware {
 
     private static final String RETRY_GUID = "RETRY_GUID";
     private static final String RETRY_COUNTER = "RETRY_COUNTER";
@@ -46,17 +48,21 @@ public class DispatcherJobBean implements Job {
 
     @Autowired
     private JobDispatcher jobDispatcher;
-    
+
     @Autowired
     private Marker marker;
 
     @Autowired
     private DiscoveryClientService discoveryClientService;
-    
-    @Autowired
-    private Counters counters;
 
-    public void execute(JobExecutionContext context) throws JobExecutionException {
+    private List<JobSchedulingListener> jobSchedulingListeners = new CopyOnWriteArrayList<>();
+
+    @Override
+    public void setJobSchedulingListeners(List<JobSchedulingListener> jobSchedulingListeners) {
+		this.jobSchedulingListeners = jobSchedulingListeners;
+	}
+
+	public void execute(JobExecutionContext context) throws JobExecutionException {
         boolean retry = false, callOk = false;
         Throwable reason = null;
         if (context.get(RETRY_GUID) != null) {
@@ -64,28 +70,29 @@ public class DispatcherJobBean implements Job {
         }
         final String guid = IdUtils.getShortUuid();
 
-        JobDataMap dataMap = context.getJobDetail().getJobDataMap();
-        JobSignature jobSignature = (JobSignature) dataMap.get("jobSignature");
-        if(log.isInfoEnabled()) {
-        	log.info(marker, "Job server start to schedule job: {}", jobSignature);
+        JobSignature jobSignature = (JobSignature) context.getMergedJobDataMap().get("jobSignature");
+        if (log.isInfoEnabled()) {
+            log.info(marker, "Job server start to schedule job: {}", jobSignature);
         }
-        
-        Counter counter = counters.getCounter(jobSignature.getJobGroup());
-        counter.incrementRunningCount();
+        long startTime = System.currentTimeMillis();
+        for (JobSchedulingListener listener : jobSchedulingListeners) {
+            listener.beforeScheduling(startTime, jobSignature);
+        }
+
         String responseBody = null;
         try {
             jobLogService.startJob(guid, jobSignature, applicationInfoHolder.get());
             if (StringUtils.isNotBlank(jobSignature.getUrl())) {
-            	responseBody = jobDispatcher.directCall(guid, jobSignature);
+                responseBody = jobDispatcher.directCall(guid, jobSignature, startTime);
             } else {
-            	responseBody = jobDispatcher.dispatch(guid, jobSignature);
+                responseBody = jobDispatcher.dispatch(guid, jobSignature, startTime);
             }
             callOk = true;
         } catch (RestClientException e) {
             reason = e;
             context.put(RETRY_GUID, guid);
             if (jobSignature.getMaxRetryCount() == null || jobSignature.getMaxRetryCount() < 0 ||
-            		context.getRefireCount() < jobSignature.getMaxRetryCount()) {
+                    context.getRefireCount() < jobSignature.getMaxRetryCount()) {
                 throw new SpecificJobExecutionException(e.getMessage(), e, true, context.getJobDetail().getKey());
             } else {
                 if (log.isErrorEnabled()) {
@@ -96,7 +103,7 @@ public class DispatcherJobBean implements Job {
             reason = e;
             context.put(RETRY_GUID, guid);
             if (jobSignature.getMaxRetryCount() == null || jobSignature.getMaxRetryCount() < 0 ||
-            		context.getRefireCount() < jobSignature.getMaxRetryCount()) {
+                    context.getRefireCount() < jobSignature.getMaxRetryCount()) {
                 throw new SpecificJobExecutionException(e.getMessage(), e, false, context.getJobDetail().getKey());
             } else {
                 if (log.isErrorEnabled()) {
@@ -116,22 +123,18 @@ public class DispatcherJobBean implements Job {
                     }
                 }
                 jobLogService.endJob(guid, jobSignature, jobExecutor, responseBody, ExceptionUtils.toArray(reason), retry);
-                
-                counter.decrementRunningCount();
-                counter.incrementCount();
-                if(!callOk) {
-                	counter.incrementErrorCount();
+                for (JobSchedulingListener listener : jobSchedulingListeners) {
+                    listener.afterScheduling(startTime, jobSignature, reason);
                 }
-                
             }
-            if(log.isInfoEnabled()) {
-            	log.info(marker, "Job server is complete to schedule job: {}", jobSignature);
+            if (log.isInfoEnabled()) {
+                log.info(marker, "Job server is complete to schedule job: {}", jobSignature);
             }
         }
     }
 
     @SuppressWarnings("unused")
-	private int getRetryCount(JobExecutionContext context) {
+    private int getRetryCount(JobExecutionContext context) {
         AtomicInteger counter = (AtomicInteger) context.get(RETRY_COUNTER);
         if (counter == null) {
             context.put(RETRY_COUNTER, new AtomicInteger());

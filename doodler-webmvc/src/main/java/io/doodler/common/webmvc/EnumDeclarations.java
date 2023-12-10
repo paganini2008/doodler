@@ -1,13 +1,13 @@
 package io.doodler.common.webmvc;
 
+import io.doodler.common.enums.EnumConstant;
+
 import java.beans.Introspector;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import io.doodler.common.enums.EnumConstant;
 
 /**
  * @Description: EnumDeclarations

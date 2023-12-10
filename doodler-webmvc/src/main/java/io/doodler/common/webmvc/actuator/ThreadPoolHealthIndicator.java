@@ -1,5 +1,6 @@
 package io.doodler.common.webmvc.actuator;
 
+import io.doodler.common.utils.MapUtils;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -12,8 +13,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
-
-import io.doodler.common.utils.MapUtils;
 
 /**
  * @Description: ThreadPoolHealthIndicator

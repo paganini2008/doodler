@@ -17,11 +17,12 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 
+import io.doodler.common.utils.MapUtils;
+
 import feign.Headers;
 import feign.RequestLine;
 import io.doodler.common.feign.RestClientMetadata.RestClientMethodInfo;
 import io.doodler.common.feign.RestClientProperties.Instance;
-import io.doodler.common.utils.MapUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;

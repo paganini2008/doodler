@@ -2,10 +2,10 @@ package io.doodler.common.quartz.executor;
 
 import org.springframework.lang.Nullable;
 
+import io.doodler.common.discovery.ApplicationInfo;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-import io.doodler.common.discovery.ApplicationInfo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,9 +28,11 @@ public class RpcJobBean {
 	private ApplicationInfo jobExecutor;
 	private @Nullable String responseBody;
 	private @Nullable String[] errors;
+	private long startTime;
 
-	public RpcJobBean(String guid, JobSignature jobSignature) {
+	public RpcJobBean(String guid, JobSignature jobSignature, long startTime) {
 		this.guid = guid;
 		this.jobSignature = jobSignature;
+		this.startTime = startTime;
 	}
 }

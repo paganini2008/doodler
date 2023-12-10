@@ -106,6 +106,11 @@ public class PostgreSQLDialect extends Dialect {
 	}
 
 	@Override
+	public String getDefaultSequenceName(String catalog, String schema, String tableName, String columnName) {
+		return String.format("%s.%s_%s_seq", schema, tableName, columnName);
+	}
+
+	@Override
     public String getCreateIndexStatement(String catalog, String schema, String tableName, boolean partition,
                                           String[] columnNames, String indexName, boolean unique, String indexType) {
         if (StringUtils.isNotBlank(indexType)) {

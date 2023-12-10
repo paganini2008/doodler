@@ -12,11 +12,12 @@ import java.util.function.Consumer;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import io.doodler.common.utils.ListUtils;
+
 import feign.Feign;
 import feign.Logger;
 import feign.Request.Options;
 import io.doodler.common.feign.logger.ElkLogger;
-import io.doodler.common.utils.ListUtils;
 import feign.RequestInterceptor;
 import feign.Retryer;
 import lombok.experimental.UtilityClass;

@@ -1,13 +1,12 @@
 package io.doodler.common.security;
 
+import io.doodler.common.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.web.annotation.RestControllerEndpoint;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import io.doodler.common.ApiResult;
 
 /**
  * @Description: AuthenticationController

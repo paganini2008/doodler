@@ -1,5 +1,8 @@
 package io.doodler.common.redis.pubsub;
 
+import io.doodler.common.utils.MatchMode;
+import io.doodler.common.utils.MutableObservable;
+import io.doodler.common.utils.MutableObserver;
 import java.lang.reflect.Method;
 import java.util.Observable;
 import lombok.Setter;
@@ -13,10 +16,6 @@ import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.context.event.EventListener;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringValueResolver;
-
-import io.doodler.common.utils.MatchMode;
-import io.doodler.common.utils.MutableObservable;
-import io.doodler.common.utils.MutableObserver;
 
 /**
  * @Description: RedisMessageEventDispatcher

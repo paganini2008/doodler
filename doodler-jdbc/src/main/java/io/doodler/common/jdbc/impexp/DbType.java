@@ -1,10 +1,9 @@
 package io.doodler.common.jdbc.impexp;
 
+import io.doodler.common.utils.CaseInsensitiveMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
-
-import io.doodler.common.utils.CaseInsensitiveMap;
 
 /**
  * @Description: DbType

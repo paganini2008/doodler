@@ -18,16 +18,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-
 import io.doodler.common.ApiResult;
 import io.doodler.common.discovery.ApplicationInfo;
 import io.doodler.common.discovery.ApplicationInfoHolder;
 import io.doodler.common.discovery.DiscoveryClientService;
 import io.doodler.common.discovery.LoadBalancedRestTemplate;
+import io.doodler.common.utils.JacksonUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import io.doodler.common.quartz.executor.JobSignature;
 import io.doodler.common.quartz.executor.RpcJobBean;
-import io.doodler.common.utils.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -50,7 +50,7 @@ public class InternalJobDispatcher implements JobDispatcher {
     private DiscoveryClientService discoveryClientService;
 
     @Override
-    public String directCall(String guid, JobSignature jobSignature) {
+    public String directCall(String guid, JobSignature jobSignature, long startTime) {
         HttpMethod httpMethod = HttpMethod.valueOf(jobSignature.getMethod());
         HttpHeaders httpHeaders = getHeaders(jobSignature);
         Map<String, Object> payload = Collections.emptyMap();
@@ -102,7 +102,7 @@ public class InternalJobDispatcher implements JobDispatcher {
     }
 
     @Override
-    public String dispatch(String guid, JobSignature jobSignature) {
+    public String dispatch(String guid, JobSignature jobSignature, long startTime) {
         Collection<ApplicationInfo> applicationInfos = discoveryClientService.getApplicationInfos(jobSignature.getJobExecutor());
         if (CollectionUtils.isEmpty(applicationInfos)) {
             throw new IllegalStateException(
@@ -113,7 +113,7 @@ public class InternalJobDispatcher implements JobDispatcher {
                 String.format("http://%s%s/job/start", jobSignature.getJobExecutor(),
                         StringUtils.isNotBlank(applicationInfo.getContextPath()) ? applicationInfo.getContextPath() : ""));
 
-        RpcJobBean rpcJobBean = new RpcJobBean(guid, jobSignature);
+        RpcJobBean rpcJobBean = new RpcJobBean(guid, jobSignature, startTime);
         rpcJobBean.setJobScheduler(applicationInfoHolder.get());
         HttpHeaders httpHeaders = getHeaders(jobSignature);
         ResponseEntity<ApiResult<String>> responseEntity = null;

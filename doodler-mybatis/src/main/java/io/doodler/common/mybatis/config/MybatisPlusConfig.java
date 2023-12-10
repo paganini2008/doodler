@@ -20,7 +20,7 @@ import io.doodler.common.mybatis.statistics.MyBatisStatisticsService;
 import io.micrometer.core.instrument.MeterRegistry;
 
 @Configuration
-@MapperScan("com.elraytech.maxibet.**.mapper")
+@MapperScan("io.doodler.**.mapper")
 public class MybatisPlusConfig {
 
     @Bean

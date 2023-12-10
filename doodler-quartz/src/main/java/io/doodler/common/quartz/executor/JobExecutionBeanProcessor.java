@@ -21,12 +21,13 @@ import org.springframework.retry.RetryListener;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestClientException;
 
-import io.doodler.common.quartz.annotation.Job;
-import io.doodler.common.quartz.annotation.Trigger;
-import io.doodler.common.quartz.scheduler.JobOperations;
 import io.doodler.common.retry.RetryOperations;
 import io.doodler.common.utils.JacksonUtils;
 import io.doodler.common.utils.MutableObservable;
+
+import io.doodler.common.quartz.annotation.Job;
+import io.doodler.common.quartz.annotation.Trigger;
+import io.doodler.common.quartz.scheduler.JobOperations;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,7 +1,8 @@
 package io.doodler.common.jdbc.impexp;
 
-import io.doodler.common.jdbc.JdbcUtils;
 import io.doodler.common.utils.CaseInsensitiveMap;
+
+import io.doodler.common.jdbc.JdbcUtils;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;

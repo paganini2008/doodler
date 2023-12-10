@@ -60,7 +60,7 @@ public class RestClientCandidatesAutoConfiguration {
         return new RestClientMetadataCollector(config);
     }
     
-    @ConditionalOnMissingClass("com.elraytech.maxibet.common.discovery.feign.DiscoveryClientLoadBalancerClient")
+    @ConditionalOnMissingClass("io.doodler.common.discovery.feign.DiscoveryClientLoadBalancerClient")
     @Bean
     public LoadBalancerClient loadBalancerClient(RestClientProperties config) {
     	DefaultLoadBalancerClient loadBalancerClient = new DefaultLoadBalancerClient();

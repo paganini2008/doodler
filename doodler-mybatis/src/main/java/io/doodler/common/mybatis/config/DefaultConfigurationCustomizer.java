@@ -11,11 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
-
 import io.doodler.common.enums.BonusType;
 import io.doodler.common.enums.PaymentSource;
 import io.doodler.common.enums.PaymentStatus;
 import io.doodler.common.enums.TransType;
+
 import io.doodler.common.mybatis.SimpleEnumTypeHandler;
 import io.doodler.common.mybatis.statistics.MyBatisStatisticsService;
 import io.doodler.common.mybatis.statistics.SqlTraceInterceptor;

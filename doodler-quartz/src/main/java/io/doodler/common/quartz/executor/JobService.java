@@ -3,9 +3,10 @@ package io.doodler.common.quartz.executor;
 import io.doodler.common.ApiResult;
 import io.doodler.common.discovery.ApplicationInfoHolder;
 import io.doodler.common.discovery.LoadBalancedRestTemplate;
-import io.doodler.common.quartz.scheduler.JobSchedulingException;
 import io.doodler.common.utils.ExceptionUtils;
 import io.doodler.common.utils.MapUtils;
+
+import io.doodler.common.quartz.scheduler.JobSchedulingException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
@@ -96,7 +97,7 @@ public class JobService {
     private void endJob(RpcJobBean rpcJobBean, String returnValue, Throwable error) {
         URI uri = URI.create(String.format("http://%s/job/end",
                 rpcJobBean.getJobScheduler().getApplicationName()));
-        RpcJobBean newRpcJobBean = new RpcJobBean(rpcJobBean.getGuid(), rpcJobBean.getJobSignature());
+        RpcJobBean newRpcJobBean = new RpcJobBean(rpcJobBean.getGuid(), rpcJobBean.getJobSignature(), rpcJobBean.getStartTime());
         newRpcJobBean.setJobScheduler(rpcJobBean.getJobScheduler());
         newRpcJobBean.setJobExecutor(applicationInfoHolder.get());
         newRpcJobBean.setResponseBody(returnValue);

@@ -1,5 +1,7 @@
 package io.doodler.common.quartz.executor;
 
+import org.springframework.lang.Nullable;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -28,14 +30,14 @@ import lombok.ToString;
 @JsonInclude(value = Include.NON_NULL)
 public class JobDefination {
 
-    @ApiModelProperty("applicationName")
-    private String applicationName;
-
     @ApiModelProperty("Job Name")
     private String jobName;
 
     @ApiModelProperty("Job Group Name")
     private String jobGroup;
+    
+    @ApiModelProperty("applicationName")
+    private String applicationName;
 
     @ApiModelProperty("Job Description")
     private String description;
@@ -59,5 +61,5 @@ public class JobDefination {
     private Integer maxRetryCount;
 
     @ApiModelProperty("Job Trigger Defination")
-    private TriggerDefination triggerDefination;
+    private @Nullable TriggerDefination triggerDefination;
 }

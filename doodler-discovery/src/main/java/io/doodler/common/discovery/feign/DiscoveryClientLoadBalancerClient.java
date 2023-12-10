@@ -1,14 +1,14 @@
 package io.doodler.common.discovery.feign;
 
+import io.doodler.common.feign.LoadBalancer;
+import io.doodler.common.feign.LoadBalancerClient;
+import io.doodler.common.feign.RobinLoadBalancer;
+import io.doodler.common.feign.ServiceInstance;
 import feign.Request;
 import io.doodler.common.discovery.ApplicationInfo;
 import io.doodler.common.discovery.DiscoveryClientChangeEvent;
 import io.doodler.common.discovery.DiscoveryClientService;
 import io.doodler.common.discovery.AffectedApplicationInfo.AffectedType;
-import io.doodler.common.feign.LoadBalancer;
-import io.doodler.common.feign.LoadBalancerClient;
-import io.doodler.common.feign.RobinLoadBalancer;
-import io.doodler.common.feign.ServiceInstance;
 
 import java.net.URI;
 import java.util.ArrayList;

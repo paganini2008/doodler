@@ -21,9 +21,9 @@ public class QuartzIntegratedSelector implements ImportSelector {
 		Mode mode = annotationAttributes.getEnum("value");
 		switch (mode) {
 			case EXECUTOR:
-				return new String[]{"com.elraytech.maxibet.common.quartz.executor.QuartzExecutorConfiguration"};
+				return new String[]{"io.doodler.common.quartz.executor.QuartzExecutorConfiguration"};
 			case SCHEDULER:
-				return new String[]{"com.elraytech.maxibet.common.quartz.scheduler.QuartzSchedulerConfiguration"};
+				return new String[]{"io.doodler.common.quartz.scheduler.QuartzSchedulerConfiguration"};
 		}
 		throw new IllegalStateException();
 	}

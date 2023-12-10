@@ -2,7 +2,6 @@ package io.doodler.common.jdbc;
 
 import cn.hutool.core.net.NetUtil;
 import com.alibaba.druid.pool.DruidDataSource;
-
 import io.doodler.common.context.MetricsCollector;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;

@@ -3,6 +3,7 @@ package io.doodler.common.security;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import io.doodler.common.SecurityKey;
+
 import lombok.Getter;
 import lombok.Setter;
 

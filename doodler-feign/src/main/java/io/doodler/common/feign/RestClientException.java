@@ -1,10 +1,9 @@
 package io.doodler.common.feign;
 
-import feign.Request;
-import feign.Response;
 import io.doodler.common.BizException;
 import io.doodler.common.ErrorCode;
-
+import feign.Request;
+import feign.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 

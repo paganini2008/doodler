@@ -1,14 +1,13 @@
 package io.doodler.common.mybatis;
 
+import io.doodler.common.enums.EnumConstant;
+import io.doodler.common.enums.EnumUtils;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
-
-import io.doodler.common.enums.EnumConstant;
-import io.doodler.common.enums.EnumUtils;
 
 /**
  * @Description: SimpleEnumTypeHandler

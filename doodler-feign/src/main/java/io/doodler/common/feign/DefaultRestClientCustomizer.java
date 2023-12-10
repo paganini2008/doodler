@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import io.doodler.common.utils.Markers;
+
 import feign.Client;
 import feign.Feign;
 import feign.Logger;
@@ -19,7 +21,6 @@ import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
 import io.doodler.common.feign.logger.ElkLogger;
-import io.doodler.common.utils.Markers;
 import lombok.RequiredArgsConstructor;
 
 /**

@@ -1,5 +1,7 @@
 package io.doodler.common.discovery;
 
+import io.doodler.common.feign.LoadBalancerClient;
+import io.doodler.common.feign.ServiceInstance;
 import java.io.IOException;
 import java.net.URI;
 import lombok.extern.slf4j.Slf4j;
@@ -12,9 +14,6 @@ import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-
-import io.doodler.common.feign.LoadBalancerClient;
-import io.doodler.common.feign.ServiceInstance;
 
 /**
  * @Description: LoadBalancedRestTemplate

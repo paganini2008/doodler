@@ -2,13 +2,14 @@ package io.doodler.common.feign;
 
 import org.springframework.http.MediaType;
 
+import io.doodler.common.utils.JacksonUtils;
+
 import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.codec.StringDecoder;
 import feign.form.FormEncoder;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
-import io.doodler.common.utils.JacksonUtils;
 
 /**
  * @Description: GenericEncoderDecoderFactory

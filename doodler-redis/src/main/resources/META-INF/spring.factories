@@ -1,9 +1,9 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.elraytech.maxibet.common.redis.RedisConfig,\
-  com.elraytech.maxibet.common.redis.RedissonConfig,\
-  com.elraytech.maxibet.common.redis.pubsub.RedisPubSubConfig,\
-  com.elraytech.maxibet.common.redis.eventbus.RedisEventBusConfig,\
-  com.elraytech.maxibet.common.redis.RedisUtils,\
-  com.elraytech.maxibet.common.redis.RedisSchedulerLockConfig,\
-  com.elraytech.maxibet.common.cache.GenericCacheConfig,\
-  com.elraytech.maxibet.common.cache.CacheUtils
+  io.doodler.common.redis.RedisConfig,\
+  io.doodler.common.redis.RedissonConfig,\
+  io.doodler.common.redis.pubsub.RedisPubSubConfig,\
+  io.doodler.common.redis.eventbus.RedisEventBusConfig,\
+  io.doodler.common.redis.RedisUtils,\
+  io.doodler.common.redis.RedisSchedulerLockConfig,\
+  io.doodler.common.cache.GenericCacheConfig,\
+  io.doodler.common.cache.CacheUtils

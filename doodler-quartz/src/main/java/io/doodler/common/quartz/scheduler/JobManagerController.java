@@ -1,7 +1,12 @@
 package io.doodler.common.quartz.scheduler;
 
-import java.util.Date;
+import io.doodler.common.ApiResult;
 
+import io.doodler.common.quartz.executor.JobDefination;
+import io.doodler.common.quartz.executor.JobRun;
+import io.doodler.common.quartz.executor.TriggerDefination;
+
+import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,11 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import io.doodler.common.ApiResult;
-import io.doodler.common.quartz.executor.JobDefination;
-import io.doodler.common.quartz.executor.JobRun;
-import io.doodler.common.quartz.executor.TriggerDefination;
 
 /**
  * @Description: JobManagerController
@@ -35,10 +35,23 @@ public class JobManagerController {
     @PostMapping("/add")
     public ApiResult<Date> addJob(@RequestBody JobDefination jobDefination) throws Exception {
         Date date;
-        if (StringUtils.isNotBlank(jobDefination.getTriggerDefination().getCron())) {
+        if (jobDefination.getTriggerDefination() != null &&
+                StringUtils.isNotBlank(jobDefination.getTriggerDefination().getCron())) {
             date = jobOperations.addCronJob(jobDefination);
         } else {
             date = jobOperations.addJob(jobDefination);
+        }
+        return ApiResult.ok(date);
+    }
+
+    @PostMapping("/reference")
+    public ApiResult<Date> referenceJob(@RequestBody JobDefination jobDefination) throws Exception {
+        Date date;
+        if (jobDefination.getTriggerDefination() != null &&
+                StringUtils.isNotBlank(jobDefination.getTriggerDefination().getCron())) {
+            date = jobOperations.referenceCronJob(jobDefination);
+        } else {
+            date = jobOperations.referenceJob(jobDefination);
         }
         return ApiResult.ok(date);
     }
@@ -136,15 +149,20 @@ public class JobManagerController {
             @RequestBody TriggerDefination triggerDefination) throws Exception {
         Date date;
         if (StringUtils.isNotBlank(triggerDefination.getCron())) {
-            date = jobOperations.modifyTrigger(triggerDefination.getTriggerName(), triggerDefination.getTriggerGroup(),
-                    triggerDefination.getCron(), triggerDefination.getStartTime(), triggerDefination.getEndTime());
+            date = jobOperations.modifyTrigger(triggerDefination.getTriggerName(),
+                    triggerDefination.getTriggerGroup(),
+                    triggerDefination.getCron(),
+                    triggerDefination.getStartTime(),
+                    triggerDefination.getEndTime(),
+                    null);
         } else {
             date = jobOperations.modifyTrigger(triggerDefination.getTriggerName(),
                     triggerDefination.getTriggerGroup(),
                     triggerDefination.getStartTime(),
                     triggerDefination.getPeriod(),
                     triggerDefination.getRepeatCount(),
-                    triggerDefination.getEndTime());
+                    triggerDefination.getEndTime(),
+                    null);
         }
         return ApiResult.ok(date);
     }

@@ -1,12 +1,12 @@
 package io.doodler.common.mybatis;
 
-import com.github.yulichang.base.MPJBaseService;
-import com.github.yulichang.interfaces.MPJBaseJoin;
-
 import io.doodler.common.jdbc.page.EachPage;
 import io.doodler.common.jdbc.page.PageReader;
 import io.doodler.common.jdbc.page.PageRequest;
 import io.doodler.common.jdbc.page.PageResponse;
+import com.github.yulichang.base.MPJBaseService;
+import com.github.yulichang.interfaces.MPJBaseJoin;
+
 import io.doodler.common.mybatis.utils.MPJGenericQueryPageReader;
 import io.doodler.common.mybatis.utils.MPJMapQueryPageReader;
 import io.doodler.common.mybatis.utils.ScanHandler;

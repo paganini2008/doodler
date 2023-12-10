@@ -1,20 +1,18 @@
 package io.doodler.common.mybatis;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 /**
- * 
- * @Description: DTPageDto
- * @Author: Fred Feng
- * @Date: 12/11/2023
- * @Version 1.0.0
+ * Description:
+ * Author: Vincent
+ * Date: 20/12/2022 2:51 pm
  */
+@Data
 @ApiModel(description = "Date time Page query dto")
 public class DTPageDto extends PageInfo {
 
@@ -27,6 +25,7 @@ public class DTPageDto extends PageInfo {
     public <T> QueryWrapper<T> toQueryWrapper(String fromColumn, String toColumn) {
         QueryWrapper<T> queryWrapper = Wrappers.query();
         queryWrapper.ge(StringUtils.isNotBlank(from), fromColumn, from);
+        // 增加结束时间的分区条件
         queryWrapper.ge(StringUtils.isNotBlank(from), toColumn, from);
         queryWrapper.le(StringUtils.isNotBlank(to), toColumn, to);
         return queryWrapper;

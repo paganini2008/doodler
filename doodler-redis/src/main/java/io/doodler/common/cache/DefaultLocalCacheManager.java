@@ -22,6 +22,7 @@ import org.springframework.cache.support.NoOpCache;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
+import io.doodler.common.utils.MatchMode;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.CaffeineSpec;
 import com.github.benmanes.caffeine.cache.RemovalCause;
@@ -30,7 +31,6 @@ import com.github.benmanes.caffeine.cache.RemovalListener;
 import io.doodler.common.cache.filter.CacheMethodFilter;
 import io.doodler.common.cache.spec.CacheSpecifications;
 import io.doodler.common.cache.spec.TtlSpec;
-import io.doodler.common.utils.MatchMode;
 
 /**
  * @Description: DefaultLocalCacheManager

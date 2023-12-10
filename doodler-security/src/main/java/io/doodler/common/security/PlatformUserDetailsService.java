@@ -1,7 +1,6 @@
 package io.doodler.common.security;
 
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 /**
@@ -10,7 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  * @Date: 21/12/2022
  * @Version 1.0.0
  */
-public interface PlatformUserDetailsService extends UserDetailsService {
+public interface PlatformUserDetailsService extends BasicUserDetailsService {
 	
 	UserDetails loadUserById(Long userId) throws UsernameNotFoundException;
 

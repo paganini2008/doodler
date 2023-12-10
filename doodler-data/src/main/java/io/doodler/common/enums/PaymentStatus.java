@@ -51,7 +51,7 @@ public enum PaymentStatus implements EnumConstant {
 
     public boolean isProcessed() {
         switch (this.getValue()) {
-            case "succeed":
+            case "completed":
             case "cancelled":
             case "declined":
                 return true;

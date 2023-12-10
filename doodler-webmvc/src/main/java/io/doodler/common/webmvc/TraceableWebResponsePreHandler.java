@@ -6,6 +6,9 @@ import static io.doodler.common.Constants.REQUEST_HEADER_TIMESTAMP;
 import static io.doodler.common.Constants.REQUEST_HEADER_TRACES;
 import static io.doodler.common.Constants.REQUEST_HEADER_TRACE_ID;
 
+import io.doodler.common.ApiResult;
+import io.doodler.common.context.HttpRequestContextHolder;
+import io.doodler.common.context.Span;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -15,10 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
-
-import io.doodler.common.ApiResult;
-import io.doodler.common.context.HttpRequestContextHolder;
-import io.doodler.common.context.Span;
 
 /**
  * @Description: TraceableWebResponsePreHandler

@@ -1,5 +1,8 @@
 package io.doodler.common.cache.redis;
 
+import io.doodler.common.enums.AppName;
+import io.doodler.common.utils.MapUtils;
+import io.doodler.common.utils.SimpleTimer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,10 +11,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-
-import io.doodler.common.enums.AppName;
-import io.doodler.common.utils.MapUtils;
-import io.doodler.common.utils.SimpleTimer;
 
 /**
  * @Description: RedisCacheNameFinder

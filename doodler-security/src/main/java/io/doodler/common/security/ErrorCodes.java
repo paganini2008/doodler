@@ -59,17 +59,21 @@ public abstract class ErrorCodes {
     public static final SimpleErrorCode REMEMBER_ME_NOT_AVAILABLE = new SimpleErrorCode("REMEMBER_ME_NOT_AVAILABLE",
             1004019,
             "Remember-me function is unavailable");
+    
     public static final SimpleErrorCode JWT_TOKEN_EXPIRATION = new SimpleErrorCode("JWT_TOKEN_EXPIRATION",
             1004020, "Jwt token is expired", false);
     
     public static final SimpleErrorCode JWT_TOKEN_BAD_FORMAT = new SimpleErrorCode("JWT_TOKEN_BAD_FORMAT",
-            1004021, "Jwt token has a bad format");
+            1004021, "Jwt token has a bad format '%s'");
     
     public static final SimpleErrorCode NONE_USER_AUTHORIZATION = new SimpleErrorCode("NONE_USER_AUTHORIZATION",
             1004022, "Current authorization comes from a none-login user or anonymous user");
     
     public static final SimpleErrorCode SOCIAL_ACCOUNT_AUTHORIZATION_FAILURE = new SimpleErrorCode("SOCIAL_ACCOUNT_AUTHORIZATION_FAILURE",
             1004023, "Failed to login to third-party social platform");
+    
+    public static final SimpleErrorCode JWT_TOKEN_INVALID = new SimpleErrorCode("JWT_TOKEN_INVALID",
+            1004020, "Jwt token is invalid due to reason '%s'", false);
 
     public static ErrorCode matches(AuthenticationException e) {
         if (e instanceof ExceptionDescriptor) {

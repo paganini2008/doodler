@@ -1,8 +1,5 @@
 package io.doodler.common.security;
 
-import io.doodler.common.BizException;
-import io.doodler.common.security.AuthenticationInfo.GrantedAuthorityInfo;
-
 import static io.doodler.common.security.SecurityConstants.AUTHORIZATION_TYPE_BEARER;
 import static io.doodler.common.security.SecurityConstants.PERMISSION_TYPE_NAME_MENU;
 import static io.doodler.common.security.SecurityConstants.PERMISSION_TYPE_NAME_OPERATION;
@@ -13,12 +10,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import lombok.experimental.UtilityClass;
+
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import io.doodler.common.BizException;
+
+import io.doodler.common.security.AuthenticationInfo.GrantedAuthorityInfo;
+import lombok.experimental.UtilityClass;
 
 /**
  * @Description: SecurityUtils
@@ -35,7 +38,7 @@ public class SecurityUtils {
         if (StringUtils.isNotBlank(authorization) && authorization.startsWith(AUTHORIZATION_TYPE_BEARER)) {
             return authorization.substring(7);
         }
-        throw new BizException(ErrorCodes.JWT_TOKEN_BAD_FORMAT, HttpStatus.UNAUTHORIZED);
+        throw new BizException(ErrorCodes.JWT_TOKEN_BAD_FORMAT, HttpStatus.UNAUTHORIZED, authorization);
     }
 
     public Authentication getAuthentication() {
@@ -75,6 +78,9 @@ public class SecurityUtils {
     }
 
     public Collection<PermissionGrantedAuthority> getGrantedAuthorities(String... roles) {
+    	if(ArrayUtils.isEmpty(roles)) {
+    		return Collections.emptyList();
+    	}
         return Arrays.stream(roles).map(role -> new PermissionGrantedAuthority(role, new String[0], new String[0])).collect(
                 Collectors.toList());
     }
@@ -87,6 +93,9 @@ public class SecurityUtils {
     }
 
     public <T extends GrantedAuthority> Collection<SimpleGrantedAuthority> getSimpleAuthorities(String... roles) {
+    	if(ArrayUtils.isEmpty(roles)) {
+    		return Collections.emptyList();
+    	}
         return Arrays.stream(roles).map(role -> new SimpleGrantedAuthority(role)).collect(
                 Collectors.toList());
     }

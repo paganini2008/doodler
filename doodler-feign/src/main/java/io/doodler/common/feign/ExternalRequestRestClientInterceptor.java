@@ -8,13 +8,14 @@ import static io.doodler.common.Constants.REQUEST_HEADER_TRACE_ID;
 
 import org.springframework.http.HttpHeaders;
 
-import feign.Request;
-import feign.RequestTemplate;
-import feign.Response;
 import io.doodler.common.context.HttpRequestContextHolder;
 import io.doodler.common.context.Span;
 import io.doodler.common.utils.ThreadLocalInteger;
 import io.doodler.common.utils.WebUtils;
+
+import feign.Request;
+import feign.RequestTemplate;
+import feign.Response;
 
 /**
  * @Description: ExternalRequestRestClientInterceptor

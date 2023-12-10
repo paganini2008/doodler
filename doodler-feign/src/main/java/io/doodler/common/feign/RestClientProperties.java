@@ -1,12 +1,11 @@
 package io.doodler.common.feign;
 
+import io.doodler.common.SecurityKey;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import io.doodler.common.SecurityKey;
 
 /**
  * @Description: RestClientProperties

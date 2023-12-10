@@ -1,14 +1,21 @@
 package io.doodler.common.quartz.scheduler;
 
-import org.apache.commons.lang3.ArrayUtils;
+import io.doodler.common.ApiResult;
+import io.doodler.common.utils.MapUtils;
+
+import io.doodler.common.quartz.executor.RpcJobBean;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import lombok.Setter;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import io.doodler.common.ApiResult;
-import io.doodler.common.quartz.executor.RpcJobBean;
 
 /**
  * @Description: JobEndController
@@ -18,23 +25,33 @@ import io.doodler.common.quartz.executor.RpcJobBean;
  */
 @RequestMapping("/job")
 @RestController
-public class JobEndController {
+public class JobEndController implements SmartInitializingSingleton, JobSchedulingListenerAware {
 
     @Autowired()
     private JobLogService jobLogService;
-    
+
     @Autowired
-    private Counters counters;
+    private ApplicationContext applicationContext;
+
+    @Setter
+    private List<JobSchedulingListener> jobSchedulingListeners = new CopyOnWriteArrayList<>();
 
     @PostMapping("/end")
     public ApiResult<String> endJob(@RequestBody RpcJobBean rpcJobBean) {
-    	Counter counter = counters.getCounter(rpcJobBean.getJobSignature().getJobGroup());
-    	counter.decrementRunningCount();
-    	counter.incrementCount();
-    	if(ArrayUtils.isNotEmpty(rpcJobBean.getErrors())) {
-    		counter.incrementErrorCount();
-    	}
-        jobLogService.endJob(rpcJobBean.getGuid(), rpcJobBean.getJobSignature(), rpcJobBean.getJobExecutor(), rpcJobBean.getResponseBody(), rpcJobBean.getErrors(), false);
+        for (JobSchedulingListener listener : jobSchedulingListeners) {
+            listener.afterScheduling(rpcJobBean.getStartTime(), rpcJobBean.getJobSignature(), rpcJobBean.getErrors());
+        }
+        jobLogService.endJob(rpcJobBean.getGuid(), rpcJobBean.getJobSignature(), rpcJobBean.getJobExecutor(),
+                rpcJobBean.getResponseBody(), rpcJobBean.getErrors(), false);
         return ApiResult.ok();
+    }
+
+    @Override
+    public void afterSingletonsInstantiated() {
+        Map<String, JobSchedulingListener> beanMap = applicationContext.getBeansOfType(JobSchedulingListener.class);
+        if (MapUtils.isNotEmpty(beanMap)) {
+            List<JobSchedulingListener> listeners = new CopyOnWriteArrayList<>(beanMap.values());
+            setJobSchedulingListeners(listeners);
+        }
     }
 }

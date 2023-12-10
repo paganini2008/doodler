@@ -2,8 +2,9 @@ package io.doodler.common.cache.spec;
 
 import io.doodler.common.annotations.Serializer;
 import io.doodler.common.annotations.Ttl;
-import io.doodler.common.cache.CacheLifeCycleExtension;
 import io.doodler.common.redis.RedisSerializerUtils;
+
+import io.doodler.common.cache.CacheLifeCycleExtension;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;

@@ -1,6 +1,8 @@
 package io.doodler.common.context;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -8,7 +10,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.GenericFilterBean;
 
 import io.doodler.common.Constants;
@@ -23,6 +28,20 @@ public abstract class ApiRealmFilter extends GenericFilterBean {
 
     @Value("${spring.profiles.active}")
     private String env;
+
+    private final PathMatcher pathMatcher = new AntPathMatcher();
+
+    private final List<String> excludedServletPaths = new CopyOnWriteArrayList<>();
+
+    protected ApiRealmFilter() {
+        excludeServletPath("/druid/**");
+    }
+
+    protected void excludeServletPath(String path) {
+        if (StringUtils.isNotBlank(path)) {
+            excludedServletPaths.add(path);
+        }
+    }
 
     @SneakyThrows
     @Override
@@ -43,6 +62,15 @@ public abstract class ApiRealmFilter extends GenericFilterBean {
             throws IOException, ServletException;
 
     protected boolean shouldFilter(HttpServletRequest request) {
+        if (excludedServletPaths.isEmpty()) {
+            return false;
+        }
+        String requestUri = request.getRequestURI();
+        for (String servletPath : excludedServletPaths) {
+            if (pathMatcher.match(servletPath, requestUri)) {
+                return true;
+            }
+        }
         return false;
     }
 

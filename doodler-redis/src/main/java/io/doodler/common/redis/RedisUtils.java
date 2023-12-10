@@ -1,5 +1,7 @@
 package io.doodler.common.redis;
 
+import io.doodler.common.Constants;
+import io.doodler.common.enums.AppName;
 import java.time.Duration;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -8,9 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-
-import io.doodler.common.Constants;
-import io.doodler.common.enums.AppName;
 
 /**
  * Description:

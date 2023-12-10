@@ -1,21 +1,22 @@
 package io.doodler.common.quartz.executor;
 
+import io.doodler.common.ApiResult;
+import io.doodler.common.discovery.LoadBalancedRestTemplate;
+
+import io.doodler.common.quartz.scheduler.JobOperations;
+import io.doodler.common.quartz.scheduler.JobOperationsException;
+
 import static io.doodler.common.quartz.JobConstants.DEFAULT_JOB_SERVICE_NAME;
 
 import java.net.URI;
 import java.util.Date;
-
+import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-
-import io.doodler.common.ApiResult;
-import io.doodler.common.discovery.LoadBalancedRestTemplate;
-import io.doodler.common.quartz.scheduler.JobOperations;
-import io.doodler.common.quartz.scheduler.JobOperationsException;
-import lombok.RequiredArgsConstructor;
 
 /**
  * @Description: RestJobOperations
@@ -48,6 +49,24 @@ public class RestJobOperations implements JobOperations {
     }
 
     @Override
+    public Date referenceJob(JobDefination jobDefination) throws Exception {
+        ResponseEntity<ApiResult<Date>> responseEntity = restTemplate.exchange(
+                URI.create(String.format("http://%s/job/man/reference", DEFAULT_JOB_SERVICE_NAME)),
+                HttpMethod.POST, new HttpEntity<Object>(jobDefination, defaultHttpHeaders),
+                new ParameterizedTypeReference<ApiResult<Date>>() {
+                });
+        if (responseEntity.getStatusCode().isError()) {
+            throw new JobOperationsException("Job Server Error: " + responseEntity.toString());
+        }
+        return responseEntity.getBody().getData();
+    }
+
+    @Override
+    public Date referenceCronJob(JobDefination jobDefination) throws Exception {
+        return referenceJob(jobDefination);
+    }
+
+    @Override
     public Date modifyJob(JobDefination jobDefination) throws Exception {
         ResponseEntity<ApiResult<Date>> responseEntity = restTemplate.exchange(
                 URI.create(String.format("http://%s/job/man/modify", DEFAULT_JOB_SERVICE_NAME)),
@@ -66,9 +85,13 @@ public class RestJobOperations implements JobOperations {
     }
 
     @Override
-    public Date modifyTrigger(String triggerName, String triggerGroup,
-                              Date startTime, long period,
-                              int repeatCount, Date endTime) throws Exception {
+    public Date modifyTrigger(String triggerName,
+                              String triggerGroup,
+                              Date startTime,
+                              long period,
+                              int repeatCount,
+                              Date endTime,
+                              Map<String, Object> dataMap) throws Exception {
         TriggerDefination triggerDefination = new TriggerDefination();
         triggerDefination.setTriggerName(triggerName);
         triggerDefination.setTriggerGroup(triggerGroup);
@@ -89,7 +112,12 @@ public class RestJobOperations implements JobOperations {
     }
 
     @Override
-    public Date modifyTrigger(String triggerName, String triggerGroup, String cron, Date startTime, Date endTime)
+    public Date modifyTrigger(String triggerName,
+                              String triggerGroup,
+                              String cron,
+                              Date startTime,
+                              Date endTime,
+                              Map<String, Object> dataMap)
             throws Exception {
         TriggerDefination triggerDefination = new TriggerDefination();
         triggerDefination.setTriggerName(triggerName);
@@ -113,7 +141,8 @@ public class RestJobOperations implements JobOperations {
         ResponseEntity<ApiResult<String>> responseEntity = restTemplate.exchange(
                 URI.create(String.format("http://%s/job/man/trigger/pause/%s/%s", DEFAULT_JOB_SERVICE_NAME, triggerGroup,
                         triggerName)),
-                HttpMethod.PUT, null, new ParameterizedTypeReference<ApiResult<String>>() {
+                HttpMethod.PUT, new HttpEntity<Object>(defaultHttpHeaders),
+                new ParameterizedTypeReference<ApiResult<String>>() {
                 });
         if (responseEntity.getStatusCode().isError()) {
             throw new JobOperationsException("Job Server Error: " + responseEntity.toString());
@@ -124,7 +153,8 @@ public class RestJobOperations implements JobOperations {
     public void pauseTriggers(String triggerGroup) throws Exception {
         ResponseEntity<ApiResult<String>> responseEntity = restTemplate.exchange(
                 URI.create(String.format("http://%s/job/man/trigger/pause/%s", DEFAULT_JOB_SERVICE_NAME, triggerGroup)),
-                HttpMethod.PUT, null, new ParameterizedTypeReference<ApiResult<String>>() {
+                HttpMethod.PUT, new HttpEntity<Object>(defaultHttpHeaders),
+                new ParameterizedTypeReference<ApiResult<String>>() {
                 });
         if (responseEntity.getStatusCode().isError()) {
             throw new JobOperationsException("Job Server Error: " + responseEntity.toString());
@@ -135,7 +165,8 @@ public class RestJobOperations implements JobOperations {
     public void pauseJob(String jobName, String jobGroup) throws Exception {
         ResponseEntity<ApiResult<String>> responseEntity = restTemplate.exchange(
                 URI.create(String.format("http://%s/job/man/pause/%s/%s", DEFAULT_JOB_SERVICE_NAME, jobGroup, jobName)),
-                HttpMethod.PUT, null, new ParameterizedTypeReference<ApiResult<String>>() {
+                HttpMethod.PUT, new HttpEntity<Object>(defaultHttpHeaders),
+                new ParameterizedTypeReference<ApiResult<String>>() {
                 });
         if (responseEntity.getStatusCode().isError()) {
             throw new JobOperationsException("Job Server Error: " + responseEntity.toString());
@@ -146,7 +177,8 @@ public class RestJobOperations implements JobOperations {
     public void pauseAll() throws Exception {
         ResponseEntity<ApiResult<String>> responseEntity = restTemplate.exchange(
                 URI.create(String.format("http://%s/job/man/trigger/pause/all", DEFAULT_JOB_SERVICE_NAME)),
-                HttpMethod.PUT, null, new ParameterizedTypeReference<ApiResult<String>>() {
+                HttpMethod.PUT, new HttpEntity<Object>(defaultHttpHeaders),
+                new ParameterizedTypeReference<ApiResult<String>>() {
                 });
         if (responseEntity.getStatusCode().isError()) {
             throw new JobOperationsException("Job Server Error: " + responseEntity.toString());
@@ -157,7 +189,8 @@ public class RestJobOperations implements JobOperations {
     public boolean isJobExists(String jobName, String jobGroup) throws Exception {
         ResponseEntity<ApiResult<Boolean>> responseEntity = restTemplate.exchange(
                 URI.create(String.format("http://%s/job/man/exists/%s/%s", DEFAULT_JOB_SERVICE_NAME, jobGroup, jobName)),
-                HttpMethod.GET, null, new ParameterizedTypeReference<ApiResult<Boolean>>() {
+                HttpMethod.GET, new HttpEntity<Object>(defaultHttpHeaders),
+                new ParameterizedTypeReference<ApiResult<Boolean>>() {
                 });
         if (responseEntity.getStatusCode().isError()) {
             throw new JobOperationsException("Job Server Error: " + responseEntity.toString());
@@ -175,7 +208,8 @@ public class RestJobOperations implements JobOperations {
         ResponseEntity<ApiResult<Boolean>> responseEntity = restTemplate.exchange(
                 URI.create(String.format("http://%s/job/man/trigger/delete/%s/%s", DEFAULT_JOB_SERVICE_NAME, triggerGroup,
                         triggerName)),
-                HttpMethod.DELETE, null, new ParameterizedTypeReference<ApiResult<Boolean>>() {
+                HttpMethod.DELETE, new HttpEntity<Object>(defaultHttpHeaders),
+                new ParameterizedTypeReference<ApiResult<Boolean>>() {
                 });
         if (responseEntity.getStatusCode().isError()) {
             throw new JobOperationsException("Job Server Error: " + responseEntity.toString());
@@ -199,7 +233,8 @@ public class RestJobOperations implements JobOperations {
     public boolean deleteJob(String jobName, String jobGroup) throws Exception {
         ResponseEntity<ApiResult<Boolean>> responseEntity = restTemplate.exchange(
                 URI.create(String.format("http://%s/job/man/delete/%s/%s", DEFAULT_JOB_SERVICE_NAME, jobGroup, jobName)),
-                HttpMethod.DELETE, null, new ParameterizedTypeReference<ApiResult<Boolean>>() {
+                HttpMethod.DELETE, new HttpEntity<Object>(defaultHttpHeaders),
+                new ParameterizedTypeReference<ApiResult<Boolean>>() {
                 });
         if (responseEntity.getStatusCode().isError()) {
             throw new JobOperationsException("Job Server Error: " + responseEntity.toString());
@@ -211,7 +246,8 @@ public class RestJobOperations implements JobOperations {
     public boolean deleteJobs(String jobGroup) throws Exception {
         ResponseEntity<ApiResult<Boolean>> responseEntity = restTemplate.exchange(
                 URI.create(String.format("http://%s/job/man/delete/%s", DEFAULT_JOB_SERVICE_NAME, jobGroup)),
-                HttpMethod.DELETE, null, new ParameterizedTypeReference<ApiResult<Boolean>>() {
+                HttpMethod.DELETE, new HttpEntity<Object>(defaultHttpHeaders),
+                new ParameterizedTypeReference<ApiResult<Boolean>>() {
                 });
         if (responseEntity.getStatusCode().isError()) {
             throw new JobOperationsException("Job Server Error: " + responseEntity.toString());
@@ -223,7 +259,8 @@ public class RestJobOperations implements JobOperations {
     public void resumeAll() throws Exception {
         ResponseEntity<ApiResult<String>> responseEntity = restTemplate.exchange(
                 URI.create(String.format("http://%s/job/man/trigger/resume/all", DEFAULT_JOB_SERVICE_NAME)),
-                HttpMethod.PUT, null, new ParameterizedTypeReference<ApiResult<String>>() {
+                HttpMethod.PUT, new HttpEntity<Object>(defaultHttpHeaders),
+                new ParameterizedTypeReference<ApiResult<String>>() {
                 });
         if (responseEntity.getStatusCode().isError()) {
             throw new JobOperationsException("Job Server Error: " + responseEntity.toString());
@@ -234,7 +271,8 @@ public class RestJobOperations implements JobOperations {
     public void resumeTriggers(String triggerGroup) throws Exception {
         ResponseEntity<ApiResult<String>> responseEntity = restTemplate.exchange(
                 URI.create(String.format("http://%s/job/man/trigger/resume/%s", DEFAULT_JOB_SERVICE_NAME, triggerGroup)),
-                HttpMethod.PUT, null, new ParameterizedTypeReference<ApiResult<String>>() {
+                HttpMethod.PUT, new HttpEntity<Object>(defaultHttpHeaders),
+                new ParameterizedTypeReference<ApiResult<String>>() {
                 });
         if (responseEntity.getStatusCode().isError()) {
             throw new JobOperationsException("Job Server Error: " + responseEntity.toString());
@@ -246,7 +284,8 @@ public class RestJobOperations implements JobOperations {
         ResponseEntity<ApiResult<String>> responseEntity = restTemplate.exchange(
                 URI.create(String.format("http://%s/job/man/trigger/resume/%s/%s", DEFAULT_JOB_SERVICE_NAME, triggerGroup,
                         triggerName)),
-                HttpMethod.PUT, null, new ParameterizedTypeReference<ApiResult<String>>() {
+                HttpMethod.PUT, new HttpEntity<Object>(defaultHttpHeaders),
+                new ParameterizedTypeReference<ApiResult<String>>() {
                 });
         if (responseEntity.getStatusCode().isError()) {
             throw new JobOperationsException("Job Server Error: " + responseEntity.toString());
@@ -257,7 +296,8 @@ public class RestJobOperations implements JobOperations {
     public void resumeJob(String jobName, String jobGroup) throws Exception {
         ResponseEntity<ApiResult<String>> responseEntity = restTemplate.exchange(
                 URI.create(String.format("http://%s/job/man/resume/%s/%s", DEFAULT_JOB_SERVICE_NAME, jobGroup, jobName)),
-                HttpMethod.PUT, null, new ParameterizedTypeReference<ApiResult<String>>() {
+                HttpMethod.PUT, new HttpEntity<Object>(defaultHttpHeaders),
+                new ParameterizedTypeReference<ApiResult<String>>() {
                 });
         if (responseEntity.getStatusCode().isError()) {
             throw new JobOperationsException("Job Server Error: " + responseEntity.toString());
@@ -272,7 +312,8 @@ public class RestJobOperations implements JobOperations {
         jobRun.setInitialParameter(parameter);
         ResponseEntity<ApiResult<String>> responseEntity = restTemplate.exchange(
                 URI.create(String.format("http://%s/job/man/run", DEFAULT_JOB_SERVICE_NAME)),
-                HttpMethod.POST, new HttpEntity<Object>(jobRun, defaultHttpHeaders), new ParameterizedTypeReference<ApiResult<String>>() {
+                HttpMethod.POST, new HttpEntity<Object>(jobRun, defaultHttpHeaders),
+                new ParameterizedTypeReference<ApiResult<String>>() {
                 });
         if (responseEntity.getStatusCode().isError()) {
             throw new JobOperationsException("Job Server Error: " + responseEntity.toString());
@@ -283,7 +324,8 @@ public class RestJobOperations implements JobOperations {
     public void pauseJobs(String jobGroup) throws Exception {
         ResponseEntity<ApiResult<String>> responseEntity = restTemplate.exchange(
                 URI.create(String.format("http://%s/job/man/pause/%s", DEFAULT_JOB_SERVICE_NAME, jobGroup)),
-                HttpMethod.PUT, null, new ParameterizedTypeReference<ApiResult<String>>() {
+                HttpMethod.PUT, new HttpEntity<Object>(defaultHttpHeaders),
+                new ParameterizedTypeReference<ApiResult<String>>() {
                 });
         if (responseEntity.getStatusCode().isError()) {
             throw new JobOperationsException("Job Server Error: " + responseEntity.toString());
@@ -294,7 +336,8 @@ public class RestJobOperations implements JobOperations {
     public void resumeJobs(String jobGroup) throws Exception {
         ResponseEntity<ApiResult<String>> responseEntity = restTemplate.exchange(
                 URI.create(String.format("http://%s/job/man/resume/%s", DEFAULT_JOB_SERVICE_NAME, jobGroup)),
-                HttpMethod.PUT, null, new ParameterizedTypeReference<ApiResult<String>>() {
+                HttpMethod.PUT, new HttpEntity<Object>(defaultHttpHeaders),
+                new ParameterizedTypeReference<ApiResult<String>>() {
                 });
         if (responseEntity.getStatusCode().isError()) {
             throw new JobOperationsException("Job Server Error: " + responseEntity.toString());

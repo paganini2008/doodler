@@ -1,6 +1,9 @@
 package io.doodler.common.quartz.scheduler;
 
 import java.util.Date;
+import java.util.Map;
+
+import org.springframework.lang.Nullable;
 
 import io.doodler.common.quartz.executor.JobDefination;
 
@@ -16,17 +19,28 @@ public interface JobOperations {
 
     Date addCronJob(JobDefination jobDefination) throws Exception;
 
+    Date referenceJob(JobDefination jobDefination) throws Exception;
+
+    Date referenceCronJob(JobDefination jobDefination) throws Exception;
+
     Date modifyJob(JobDefination jobDefination) throws Exception;
 
     Date modifyCronJob(JobDefination jobDefination) throws Exception;
 
-    Date modifyTrigger(String triggerName, String triggerGroup,
-                       Date startTime, long period,
-                       int repeatCount, Date endTime) throws Exception;
+    Date modifyTrigger(String triggerName,
+                       String triggerGroup,
+                       Date startTime,
+                       long period,
+                       int repeatCount,
+                       @Nullable Date endTime,
+                       @Nullable Map<String, Object> dataMap) throws Exception;
 
-    Date modifyTrigger(String triggerName, String triggerGroup,
-                       String cron, Date startTime,
-                       Date endTime) throws Exception;
+    Date modifyTrigger(String triggerName,
+                       String triggerGroup,
+                       String cron,
+                       Date startTime,
+                       @Nullable Date endTime,
+                       @Nullable Map<String, Object> dataMap) throws Exception;
 
     void pauseTrigger(String triggerName, String triggerGroup) throws Exception;
 

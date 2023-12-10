@@ -8,9 +8,9 @@ package io.doodler.common;
  */
 public interface Constants {
 
-	String PROJECT_NAME = "Maxibet Crypto Casino";
+	String PROJECT_NAME = "Doodler";
     String VERSION = "1.0.0-SNAPSHOT";
-    String DEFAULT_CLUSTER_NAME = "maxibet";
+    String DEFAULT_CLUSTER_NAME = "app";
 
     int SERVER_PORT_START_WITH = 39000;
     int SERVER_PORT_END_WITH = 40000;

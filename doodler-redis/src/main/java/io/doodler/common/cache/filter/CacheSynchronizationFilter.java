@@ -2,10 +2,11 @@ package io.doodler.common.cache.filter;
 
 import static io.doodler.common.cache.CacheConstants.PUBSUB_CHANNEL_CACHE_CHANGE_EVENT;
 
-import io.doodler.common.cache.CacheChangeEvent;
-import io.doodler.common.cache.CacheChangeType;
 import io.doodler.common.context.InstanceId;
 import io.doodler.common.redis.pubsub.RedisPubSubService;
+
+import io.doodler.common.cache.CacheChangeEvent;
+import io.doodler.common.cache.CacheChangeType;
 
 /**
  * @Description: CacheSynchronization

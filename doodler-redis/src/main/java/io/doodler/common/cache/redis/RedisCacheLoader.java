@@ -28,9 +28,10 @@ import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.util.StringUtils;
 
+import io.doodler.common.redis.RedisKeyIterator;
+
 import io.doodler.common.cache.spec.CacheSpecifications;
 import io.doodler.common.cache.spec.TtlSpec;
-import io.doodler.common.redis.RedisKeyIterator;
 import lombok.extern.slf4j.Slf4j;
 
 /**

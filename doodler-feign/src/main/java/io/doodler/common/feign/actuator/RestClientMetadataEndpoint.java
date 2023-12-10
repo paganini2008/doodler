@@ -7,6 +7,7 @@ import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 
 import io.doodler.common.ApiResult;
+
 import io.doodler.common.feign.RestClientMetadata;
 import io.doodler.common.feign.RestClientMetadataCollector;
 

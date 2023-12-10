@@ -21,6 +21,7 @@ import org.springframework.util.ErrorHandler;
 
 import io.doodler.common.context.AsyncErrorHandler;
 import io.doodler.common.context.ConditionalOnNotApplication;
+
 import io.doodler.common.webmvc.actuator.ThreadPoolMetricsCollector;
 import io.micrometer.core.instrument.MeterRegistry;
 

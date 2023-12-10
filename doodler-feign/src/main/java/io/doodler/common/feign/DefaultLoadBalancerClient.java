@@ -1,8 +1,8 @@
 package io.doodler.common.feign;
 
+import io.doodler.common.utils.MapUtils;
 import feign.Request;
 import io.doodler.common.feign.RestClientProperties.Instance;
-import io.doodler.common.utils.MapUtils;
 
 import java.net.URI;
 import java.util.ArrayList;

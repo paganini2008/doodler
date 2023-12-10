@@ -1,6 +1,7 @@
 package io.doodler.common.redis.eventbus;
 
 import io.doodler.common.redis.pubsub.RedisPubSub;
+
 import lombok.RequiredArgsConstructor;
 
 /**

@@ -4,8 +4,9 @@ import static io.doodler.common.feign.RestClientConstants.REQUEST_HEADER_TIMESTA
 
 import java.net.URI;
 
-import feign.RequestTemplate;
 import io.doodler.common.enums.AppName;
+
+import feign.RequestTemplate;
 import io.doodler.common.feign.MappedRequestInterceptor;
 import lombok.RequiredArgsConstructor;
 

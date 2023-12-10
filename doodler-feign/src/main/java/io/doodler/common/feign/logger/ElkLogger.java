@@ -1,14 +1,13 @@
 package io.doodler.common.feign.logger;
 
-import feign.Request;
-import feign.Response;
-import feign.slf4j.Slf4jLogger;
 import io.doodler.common.Constants;
 import io.doodler.common.context.ApiDebuger;
 import io.doodler.common.utils.LruMap;
 import io.doodler.common.utils.MapUtils;
 import io.doodler.common.utils.Markers;
-
+import feign.Request;
+import feign.Response;
+import feign.slf4j.Slf4jLogger;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;

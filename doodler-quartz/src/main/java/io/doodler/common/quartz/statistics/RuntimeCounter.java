@@ -1,14 +1,14 @@
-package io.doodler.common.quartz.scheduler;
+package io.doodler.common.quartz.statistics;
 
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * @Description: Counter
+ * @Description: RuntimeCounter
  * @Author: Fred Feng
  * @Date: 11/11/2023
  * @Version 1.0.0
  */
-public final class Counter {
+public final class RuntimeCounter {
 
     private final AtomicLong counter = new AtomicLong();
     private final AtomicLong errorCounter = new AtomicLong();
@@ -35,7 +35,12 @@ public final class Counter {
     }
 
     public long decrementRunningCount() {
-        return runningCounter.decrementAndGet();
+        long l;
+        if ((l = runningCounter.decrementAndGet()) < 0) {
+            runningCounter.set(0);
+            l = 0;
+        }
+        return l;
     }
 
     public long getRunningCount() {

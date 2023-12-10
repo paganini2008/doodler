@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.StringUtils;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,6 +15,7 @@ import lombok.Setter;
  * @Date: 14/06/2023
  * @Version 1.0.0
  */
+@EqualsAndHashCode
 @Getter
 @Setter
 @NoArgsConstructor

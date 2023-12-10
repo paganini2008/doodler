@@ -2,12 +2,14 @@ package io.doodler.common.discovery.actuator;
 
 import java.util.Collection;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
+
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health.Builder;
 
 import io.doodler.common.discovery.ApplicationInfo;
 import io.doodler.common.discovery.DiscoveryClientService;
+import lombok.RequiredArgsConstructor;
 
 /**
  * @Description: DiscoveryClientHealthIndicator
@@ -22,8 +24,12 @@ public class DiscoveryClientHealthIndicator extends AbstractHealthIndicator {
 
     @Override
     protected void doHealthCheck(Builder builder) throws Exception {
-        builder.up();
         Map<String, Collection<ApplicationInfo>> map = discoveryClientService.getApplicationInfos();
+        if(MapUtils.isNotEmpty(map)) {
+        	builder.up();
+        }else {
+        	builder.unknown();
+        }
         for (Map.Entry<String, Collection<ApplicationInfo>> entry : map.entrySet()) {
             builder.withDetail(entry.getKey(), entry.getValue().size());
         }

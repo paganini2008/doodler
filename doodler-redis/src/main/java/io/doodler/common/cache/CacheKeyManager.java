@@ -1,8 +1,7 @@
 package io.doodler.common.cache;
 
-import java.util.Set;
-
 import io.doodler.common.utils.MatchMode;
+import java.util.Set;
 
 /**
  * @Description: CacheKeyManager

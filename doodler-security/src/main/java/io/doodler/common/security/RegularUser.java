@@ -1,16 +1,19 @@
 package io.doodler.common.security;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import lombok.Getter;
-import lombok.Setter;
+
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.userdetails.User;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @Description: RegularUser
@@ -64,5 +67,12 @@ public class RegularUser extends User implements IdentifiableUserDetails {
 
     public List<PermissionGrantedAuthority> getPermissionGrantedAuthorities() {
         return getAuthorities().stream().map(au -> (PermissionGrantedAuthority) au).collect(Collectors.toList());
+    }
+    
+    public String toString() {
+    	StringBuilder str = new StringBuilder();
+    	str.append(String.format("Id: %s, Platform: %s, FirstLogin: %s\n", id, platform, firstLogin));
+    	str.append(super.toString());
+    	return str.toString();
     }
 }

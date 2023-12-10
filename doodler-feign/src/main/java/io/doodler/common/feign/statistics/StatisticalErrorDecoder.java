@@ -7,10 +7,11 @@ import java.net.URI;
 
 import org.springframework.http.HttpStatus;
 
+import io.doodler.common.enums.AppName;
+
 import feign.Request;
 import feign.Response;
 import feign.codec.ErrorDecoder;
-import io.doodler.common.enums.AppName;
 import io.doodler.common.feign.HttpUtils;
 import lombok.RequiredArgsConstructor;
 

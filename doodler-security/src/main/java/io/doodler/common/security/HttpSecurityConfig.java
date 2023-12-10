@@ -24,9 +24,9 @@ import org.springframework.security.web.authentication.rememberme.RememberMeAuth
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+import io.doodler.common.context.MessageLocalization;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.doodler.common.context.MessageLocalization;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -114,18 +114,18 @@ public class HttpSecurityConfig {
                 .permitAll()
                 .requestMatchers(new ActuatorHandlerRequestMatcher(port, actuatorPort))
                 .permitAll()
-//                .antMatchers("/monitor/prometheus", "/monitor/loggers/**")
+//                .antMatchers("/monitor/prometheus")
 //                .permitAll()
 //                .antMatchers("/monitor/**")
-//                .hasAuthority(ROLE_SUPER_AMDIN)
+//                .hasAuthority(ROLE_SUPPORTER)
+//                .mvcMatchers("/actuator/**")
+//                .servletPath(servletContextPath)
+//                .hasAuthority(ROLE_SUPPORTER)
                 .antMatchers("/monitor/**")
                 .permitAll()
                 .mvcMatchers("/actuator/**")
                 .servletPath(servletContextPath)
                 .permitAll()
-//                .mvcMatchers("/actuator/**")
-//                .servletPath(servletContextPath)
-//                .hasAuthority(ROLE_SUPER_AMDIN)
                 .anyRequest()
                 .authenticated()
                 .and()

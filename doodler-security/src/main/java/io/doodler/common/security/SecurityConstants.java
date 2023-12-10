@@ -13,6 +13,7 @@ public abstract class SecurityConstants {
 	
     public static final String SUPER_AMDIN = "sa";
     public static final String ROLE_SUPER_AMDIN = "ROLE_SUPER_ADMIN";
+    public static final String ROLE_SUPPORTER = "ROLE_SUPPORTER";
     public static final String NA = "N/A";
     public static final String ACCESS_TOKEN = "access_token";
     public static final String AUTHORIZATION_TYPE_BEARER = "Bearer";
@@ -22,6 +23,7 @@ public abstract class SecurityConstants {
     public static final String LOGIN_KEY = "login:%s:%s";
     public static final String PLATFORM_WEBSITE = "website";
     public static final String PLATFORM_ADMIN = "admin";
+    public static final String PLATFORM_BOTH = "both";
     public static final String REMEMBER_ME_KEY = "remember-me";
 
     public static final int PERMISSION_TYPE_MENU = 1;

@@ -1,7 +1,6 @@
 package io.doodler.common.mybatis;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-
 import io.doodler.common.utils.BeanCopyUtils;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

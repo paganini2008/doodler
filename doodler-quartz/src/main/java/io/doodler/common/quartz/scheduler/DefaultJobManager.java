@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -39,9 +42,12 @@ import io.doodler.common.id.IdGenerator;
 import io.doodler.common.jdbc.page.PageReader;
 import io.doodler.common.jdbc.page.PageRequest;
 import io.doodler.common.jdbc.page.PageResponse;
+
 import io.doodler.common.quartz.executor.JobDefination;
 import io.doodler.common.quartz.executor.JobSignature;
 import io.doodler.common.quartz.executor.TriggerDefination;
+import io.doodler.common.quartz.statistics.CountingStatisticsService;
+import io.doodler.common.quartz.statistics.RuntimeCounter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,9 +64,9 @@ public class DefaultJobManager implements JobManager, DisposableBean {
 
     @Autowired
     private SchedulerFactoryBean schedulerFactoryBean;
-    
+
     @Autowired
-    private Counters counters;
+    private CountingStatisticsService statisticsService;
 
     @Autowired
     private IdGenerator idGenerator;
@@ -82,37 +88,130 @@ public class DefaultJobManager implements JobManager, DisposableBean {
             String jobKey = String.format("%s.%s", jobDefination.getJobGroup(), jobDefination.getJobName());
             throw new SchedulerException("Job '" + jobKey + "' is existed");
         }
-        JobDetail jobDetail = JobBuilder.newJob(DispatcherJobBean.class)
-                .withIdentity(jobDefination.getJobName(), jobDefination.getJobGroup()).withDescription(
-                        jobDefination.getDescription())
+        final JobDetail jobDetail = JobBuilder.newJob(DispatcherJobBean.class)
+                .withIdentity(jobDefination.getJobName(), jobDefination.getJobGroup())
+                .withDescription(jobDefination.getDescription())
                 .build();
         JobDataMap dataMap = jobDetail.getJobDataMap();
-        long id = idGenerator.generateId();
-        JobSignature jobSignature = new JobSignature(id, jobDefination.getJobGroup(), jobDefination.getJobName(),
-                jobDefination.getClassName(), jobDefination.getMethod(), jobDefination.getDefaultHeaders(), applicationName,
-                jobDefination.getApplicationName());
-        if (StringUtils.isNotBlank(jobDefination.getUrl())) {
-            jobSignature.setUrl(jobDefination.getUrl());
-        }
-        jobSignature.setDescription(jobDefination.getDescription());
-        jobSignature.setInitialParameter(jobDefination.getInitialParameter());
-        jobSignature.setMaxRetryCount(jobDefination.getMaxRetryCount());
+        dataMap.put("jobSignature", getJobSignature(jobDefination));
 
         TriggerDefination triggerDefination = jobDefination.getTriggerDefination();
-        jobSignature.setTriggerName(triggerDefination.getTriggerName());
-        jobSignature.setTriggerGroup(triggerDefination.getTriggerGroup());
-        dataMap.put("jobSignature", jobSignature);
+        if (triggerDefination != null) {
+            TriggerKey triggerKey = TriggerKey.triggerKey(triggerDefination.getTriggerName(),
+                    triggerDefination.getTriggerGroup());
+            MutableTrigger trigger = (MutableTrigger) getScheduler()
+                    .getTrigger(triggerKey);
+            if (trigger == null) {
+                trigger = SimpleScheduleBuilder.simpleSchedule()
+                        .withMisfireHandlingInstructionNextWithRemainingCount()
+                        .withIntervalInMilliseconds(triggerDefination.getPeriod())
+                        .withRepeatCount(
+                                triggerDefination.getRepeatCount() != null && triggerDefination.getRepeatCount() >= 0 ?
+                                        triggerDefination.getRepeatCount()
+                                        : SimpleTrigger.REPEAT_INDEFINITELY)
+                        .build();
+                trigger.setKey(triggerKey);
 
-        MutableTrigger trigger = (MutableTrigger) getScheduler()
-                .getTrigger(TriggerKey.triggerKey(triggerDefination.getTriggerName(), triggerDefination.getTriggerGroup()));
+                dataMap = trigger.getJobDataMap();
+                dataMap.put("jobSignature", getJobSignature(jobDefination));
+
+                trigger.setStartTime(triggerDefination.getStartTime());
+                if (triggerDefination.getEndTime() != null) {
+                    trigger.setEndTime(triggerDefination.getEndTime());
+                }
+                if (triggerDefination.getPriority() != null) {
+                    trigger.setPriority(triggerDefination.getPriority());
+                }
+                if (StringUtils.isNotBlank(triggerDefination.getCalendarName())) {
+                    trigger.setCalendarName(triggerDefination.getCalendarName());
+                }
+                trigger.setDescription(triggerDefination.getDescription());
+            }
+            Date firstFiredDate = getScheduler().scheduleJob(jobDetail, trigger);
+            if (log.isInfoEnabled()) {
+                log.info(marker, "Job '{}' added and first fired date will at {}.", jobDetail.toString(), firstFiredDate);
+            }
+            return firstFiredDate;
+        } else {
+            getScheduler().addJob(jobDetail, false);
+            return null;
+        }
+    }
+
+    @Override
+    public synchronized Date addCronJob(JobDefination jobDefination) throws SchedulerException {
+        if (isJobExists(jobDefination.getJobName(), jobDefination.getJobGroup())) {
+            String jobKey = String.format("%s.%s", jobDefination.getJobGroup(), jobDefination.getJobName());
+            throw new SchedulerException("Job '" + jobKey + "' is existed");
+        }
+        final JobDetail jobDetail = JobBuilder.newJob(DispatcherJobBean.class)
+                .withIdentity(jobDefination.getJobName(), jobDefination.getJobGroup())
+                .withDescription(jobDefination.getDescription())
+                .build();
+        JobDataMap dataMap = jobDetail.getJobDataMap();
+        dataMap.put("jobSignature", getJobSignature(jobDefination));
+        TriggerDefination triggerDefination = jobDefination.getTriggerDefination();
+        if (triggerDefination != null) {
+            TriggerKey triggerKey = TriggerKey.triggerKey(triggerDefination.getTriggerName(),
+                    triggerDefination.getTriggerGroup());
+            CronTrigger trigger = (CronTrigger) getScheduler().getTrigger(triggerKey);
+            if (trigger == null) {
+                CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(triggerDefination.getCron())
+                        .withMisfireHandlingInstructionDoNothing();
+                TriggerBuilder<CronTrigger> triggerBuilder = TriggerBuilder.newTrigger()
+                        .withIdentity(triggerKey)
+                        .withPriority(triggerDefination.getPriority() != null ? triggerDefination.getPriority() :
+                                Trigger.DEFAULT_PRIORITY)
+                        .withDescription(triggerDefination.getDescription())
+                        .withSchedule(scheduleBuilder);
+
+                dataMap = new JobDataMap();
+                dataMap.put("jobSignature", getJobSignature(jobDefination));
+                triggerBuilder.usingJobData(dataMap);
+
+                if (triggerDefination.getStartTime() != null) {
+                    triggerBuilder = triggerBuilder.startAt(triggerDefination.getStartTime());
+                }
+                if (triggerDefination.getEndTime() != null) {
+                    triggerBuilder = triggerBuilder.endAt(triggerDefination.getEndTime());
+                }
+                if (StringUtils.isNotBlank(triggerDefination.getCalendarName())) {
+                    triggerBuilder = triggerBuilder.modifiedByCalendar(triggerDefination.getCalendarName());
+                }
+                trigger = triggerBuilder.build();
+            }
+            Date firstFiredDate = getScheduler().scheduleJob(jobDetail, trigger);
+            if (log.isInfoEnabled()) {
+                log.info(marker, "Job '{}' added and first fired date will at {}.", jobDetail.toString(), firstFiredDate);
+            }
+            return firstFiredDate;
+        } else {
+            getScheduler().addJob(jobDetail, false);
+            return null;
+        }
+    }
+
+    public synchronized Date referenceJob(JobDefination jobDefination) throws SchedulerException {
+        if (!isJobExists(jobDefination.getJobName(), jobDefination.getJobGroup())) {
+            String jobKey = String.format("%s.%s", jobDefination.getJobGroup(), jobDefination.getJobName());
+            throw new SchedulerException("Job '" + jobKey + "' is not existing");
+        }
+        TriggerDefination triggerDefination = jobDefination.getTriggerDefination();
+        TriggerKey triggerKey = TriggerKey.triggerKey(triggerDefination.getTriggerName(),
+                triggerDefination.getTriggerGroup());
+        MutableTrigger trigger = (MutableTrigger) getScheduler().getTrigger(triggerKey);
         if (trigger == null) {
-            trigger = SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionNextWithRemainingCount()
+            trigger = SimpleScheduleBuilder.simpleSchedule()
+                    .withMisfireHandlingInstructionNextWithRemainingCount()
                     .withIntervalInMilliseconds(triggerDefination.getPeriod())
                     .withRepeatCount(triggerDefination.getRepeatCount() != null && triggerDefination.getRepeatCount() >= 0 ?
                             triggerDefination.getRepeatCount()
                             : SimpleTrigger.REPEAT_INDEFINITELY)
                     .build();
-            trigger.setKey(TriggerKey.triggerKey(triggerDefination.getTriggerName(), triggerDefination.getTriggerGroup()));
+            trigger.setKey(triggerKey);
+            trigger.setJobKey(JobKey.jobKey(jobDefination.getJobName(), jobDefination.getJobGroup()));
+            JobDataMap dataMap = trigger.getJobDataMap();
+            dataMap.put("jobSignature", getJobSignature(jobDefination));
             trigger.setStartTime(triggerDefination.getStartTime());
             if (triggerDefination.getEndTime() != null) {
                 trigger.setEndTime(triggerDefination.getEndTime());
@@ -124,52 +223,40 @@ public class DefaultJobManager implements JobManager, DisposableBean {
                 trigger.setCalendarName(triggerDefination.getCalendarName());
             }
             trigger.setDescription(triggerDefination.getDescription());
+            Date firstFiredDate = getScheduler().scheduleJob(trigger);
+            if (log.isInfoEnabled()) {
+                log.info(marker, "Trigger '{}' added and first fired date will at {}.", triggerKey.toString(),
+                        firstFiredDate);
+            }
+            return firstFiredDate;
         }
-        Date firstFiredDate = getScheduler().scheduleJob(jobDetail, trigger);
-        if (log.isInfoEnabled()) {
-            log.info(marker, "Job '{}' added and first fired date will at {}.", jobDetail.toString(), firstFiredDate);
-        }
-        return firstFiredDate;
+        return null;
     }
 
-    @Override
-    public synchronized Date addCronJob(JobDefination jobDefination) throws SchedulerException {
-        if (isJobExists(jobDefination.getJobName(), jobDefination.getJobGroup())) {
+    public synchronized Date referenceCronJob(JobDefination jobDefination) throws SchedulerException {
+        if (!isJobExists(jobDefination.getJobName(), jobDefination.getJobGroup())) {
             String jobKey = String.format("%s.%s", jobDefination.getJobGroup(), jobDefination.getJobName());
-            throw new SchedulerException("Job '" + jobKey + "' is existed");
+            throw new SchedulerException("Job '" + jobKey + "' is not existing");
         }
-        JobDetail jobDetail = JobBuilder.newJob(DispatcherJobBean.class)
-                .withIdentity(jobDefination.getJobName(), jobDefination.getJobGroup()).withDescription(
-                        jobDefination.getDescription())
-                .build();
-        JobDataMap dataMap = jobDetail.getJobDataMap();
-        long id = idGenerator.generateId();
-        JobSignature jobSignature = new JobSignature(id, jobDefination.getJobGroup(), jobDefination.getJobName(),
-                jobDefination.getClassName(), jobDefination.getMethod(), jobDefination.getDefaultHeaders(), applicationName,
-                jobDefination.getApplicationName());
-        if (StringUtils.isNotBlank(jobDefination.getUrl())) {
-            jobSignature.setUrl(jobDefination.getUrl());
-        }
-        jobSignature.setMaxRetryCount(jobDefination.getMaxRetryCount());
-        jobSignature.setDescription(jobDefination.getDescription());
-        jobSignature.setInitialParameter(jobDefination.getInitialParameter());
-
         TriggerDefination triggerDefination = jobDefination.getTriggerDefination();
-        jobSignature.setTriggerName(triggerDefination.getTriggerName());
-        jobSignature.setTriggerGroup(triggerDefination.getTriggerGroup());
-        dataMap.put("jobSignature", jobSignature);
-
-        CronTrigger trigger = (CronTrigger) getScheduler()
-                .getTrigger(TriggerKey.triggerKey(triggerDefination.getTriggerName(), triggerDefination.getTriggerGroup()));
+        TriggerKey triggerKey = TriggerKey.triggerKey(triggerDefination.getTriggerName(),
+                triggerDefination.getTriggerGroup());
+        CronTrigger trigger = (CronTrigger) getScheduler().getTrigger(triggerKey);
         if (trigger == null) {
             CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(triggerDefination.getCron())
                     .withMisfireHandlingInstructionDoNothing();
             TriggerBuilder<CronTrigger> triggerBuilder = TriggerBuilder.newTrigger()
-                    .withIdentity(triggerDefination.getTriggerName(), triggerDefination.getTriggerGroup())
+                    .withIdentity(triggerKey)
                     .withPriority(triggerDefination.getPriority() != null ? triggerDefination.getPriority() :
                             Trigger.DEFAULT_PRIORITY)
                     .withDescription(triggerDefination.getDescription())
                     .withSchedule(scheduleBuilder);
+
+            triggerBuilder.forJob(jobDefination.getJobName(), jobDefination.getJobGroup());
+            JobDataMap dataMap = new JobDataMap();
+            dataMap.put("jobSignature", getJobSignature(jobDefination));
+            triggerBuilder.usingJobData(dataMap);
+
             if (triggerDefination.getStartTime() != null) {
                 triggerBuilder = triggerBuilder.startAt(triggerDefination.getStartTime());
             }
@@ -180,37 +267,91 @@ public class DefaultJobManager implements JobManager, DisposableBean {
                 triggerBuilder = triggerBuilder.modifiedByCalendar(triggerDefination.getCalendarName());
             }
             trigger = triggerBuilder.build();
+            Date firstFiredDate = getScheduler().scheduleJob(trigger);
+            if (log.isInfoEnabled()) {
+                log.info(marker, "Trigger '{}' added and first fired date will at {}.", triggerKey.toString(),
+                        firstFiredDate);
+            }
+            return firstFiredDate;
         }
-        Date firstFiredDate = getScheduler().scheduleJob(jobDetail, trigger);
-        if (log.isInfoEnabled()) {
-            log.info(marker, "Job '{}' added and first fired date will at {}.", jobDetail.toString(), firstFiredDate);
+        return null;
+    }
+
+    private JobSignature getJobSignature(JobDefination jobDefination) {
+        long id = idGenerator.generateId();
+        JobSignature jobSignature = new JobSignature(id,
+                jobDefination.getJobGroup(),
+                jobDefination.getJobName(),
+                jobDefination.getClassName(),
+                jobDefination.getMethod(),
+                jobDefination.getDefaultHeaders(),
+                applicationName,
+                jobDefination.getApplicationName());
+        if (StringUtils.isNotBlank(jobDefination.getUrl())) {
+            jobSignature.setUrl(jobDefination.getUrl());
         }
-        return firstFiredDate;
+        jobSignature.setMaxRetryCount(jobDefination.getMaxRetryCount());
+        jobSignature.setDescription(jobDefination.getDescription());
+        jobSignature.setInitialParameter(jobDefination.getInitialParameter());
+        if (jobDefination.getTriggerDefination() != null) {
+            jobSignature.setTriggerName(jobDefination.getTriggerDefination().getTriggerName());
+            jobSignature.setTriggerGroup(jobDefination.getTriggerDefination().getTriggerGroup());
+        }
+        return jobSignature;
     }
 
     @Override
     public synchronized Date modifyJob(JobDefination jobDefination) throws SchedulerException {
-        if (isJobExists(jobDefination.getJobName(), jobDefination.getJobGroup())) {
-            TriggerDefination triggerDefination = jobDefination.getTriggerDefination();
+        if (!isJobExists(jobDefination.getJobName(), jobDefination.getJobGroup())) {
+            String jobKey = String.format("%s.%s", jobDefination.getJobGroup(), jobDefination.getJobName());
+            throw new SchedulerException("Job '" + jobKey + "' is not existing");
+        }
+        JobDetail jobDetail = getScheduler().getJobDetail(
+                JobKey.jobKey(jobDefination.getJobName(), jobDefination.getJobGroup()));
+        JobSignature signature = getJobSignature(jobDefination);
+        JobSignature prevSignature = (JobSignature) jobDetail.getJobDataMap().get("jobSignature");
+        if (!signature.equals(prevSignature)) {
+            jobDetail.getJobDataMap().put("jobSignature", signature);
+            getScheduler().addJob(jobDetail, true);
+        }
+        TriggerDefination triggerDefination = jobDefination.getTriggerDefination();
+        if (triggerDefination != null) {
+            Map<String, Object> dataMap = new HashMap<>();
+            dataMap.put("jobSignature", getJobSignature(jobDefination));
             return modifyTrigger(triggerDefination.getTriggerName(),
                     triggerDefination.getTriggerGroup(),
                     triggerDefination.getStartTime(),
                     triggerDefination.getPeriod(),
                     triggerDefination.getRepeatCount() != null ? triggerDefination.getRepeatCount() : -1,
-                    triggerDefination.getEndTime());
+                    triggerDefination.getEndTime(), dataMap);
         }
         return null;
     }
 
     @Override
     public synchronized Date modifyCronJob(JobDefination jobDefination) throws SchedulerException {
-        if (isJobExists(jobDefination.getJobName(), jobDefination.getJobGroup())) {
-            TriggerDefination triggerDefination = jobDefination.getTriggerDefination();
+        if (!isJobExists(jobDefination.getJobName(), jobDefination.getJobGroup())) {
+            String jobKey = String.format("%s.%s", jobDefination.getJobGroup(), jobDefination.getJobName());
+            throw new SchedulerException("Job '" + jobKey + "' is not existing");
+        }
+        JobDetail jobDetail = getScheduler().getJobDetail(
+                JobKey.jobKey(jobDefination.getJobName(), jobDefination.getJobGroup()));
+        JobSignature signature = getJobSignature(jobDefination);
+        JobSignature prevSignature = (JobSignature) jobDetail.getJobDataMap().get("jobSignature");
+        if (!signature.equals(prevSignature)) {
+            jobDetail.getJobDataMap().put("jobSignature", signature);
+            getScheduler().addJob(jobDetail, true);
+        }
+        TriggerDefination triggerDefination = jobDefination.getTriggerDefination();
+        if (triggerDefination != null) {
+            Map<String, Object> dataMap = new HashMap<>();
+            dataMap.put("jobSignature", getJobSignature(jobDefination));
             return modifyTrigger(triggerDefination.getTriggerName(),
                     triggerDefination.getTriggerGroup(),
                     triggerDefination.getCron(),
                     triggerDefination.getStartTime(),
-                    triggerDefination.getEndTime());
+                    triggerDefination.getEndTime(),
+                    dataMap);
         }
         return null;
     }
@@ -235,12 +376,27 @@ public class DefaultJobManager implements JobManager, DisposableBean {
     }
 
     @Override
-    public synchronized Date modifyTrigger(String triggerName, String triggerGroup, Date startTime,
+    public synchronized Date modifyTrigger(String triggerName,
+                                           String triggerGroup,
+                                           Date startTime,
                                            long period,
-                                           int repeatCount, Date endTime) throws SchedulerException {
+                                           int repeatCount,
+                                           Date endTime,
+                                           Map<String, Object> dataMap) throws SchedulerException {
         TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroup);
-        MutableTrigger oldTrigger = (MutableTrigger) getScheduler().getTrigger(triggerKey);
-        MutableTrigger trigger = SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionNextWithRemainingCount()
+        if (!getScheduler().checkExists(triggerKey)) {
+            throw new SchedulerException("Trigger: " + triggerKey + " is not existing");
+        }
+        SimpleTrigger oldTrigger = (SimpleTrigger) getScheduler().getTrigger(triggerKey);
+        if (Objects.equals(oldTrigger.getStartTime(), startTime) &&
+                oldTrigger.getRepeatInterval() == period &&
+                oldTrigger.getRepeatCount() == repeatCount &&
+                Objects.equals(oldTrigger.getEndTime(), endTime)) {
+            return null;
+        }
+
+        MutableTrigger trigger = SimpleScheduleBuilder.simpleSchedule()
+                .withMisfireHandlingInstructionNextWithRemainingCount()
                 .withIntervalInMilliseconds(period).withRepeatCount(
                         repeatCount >= 0 ? repeatCount : SimpleTrigger.REPEAT_INDEFINITELY)
                 .build();
@@ -249,9 +405,12 @@ public class DefaultJobManager implements JobManager, DisposableBean {
             trigger.setEndTime(endTime);
         }
         trigger.setKey(triggerKey);
+        trigger.setJobKey(oldTrigger.getJobKey());
         trigger.setPriority(oldTrigger.getPriority());
         trigger.setCalendarName(oldTrigger.getCalendarName());
-
+        if (dataMap != null) {
+            trigger.setJobDataMap(new JobDataMap(dataMap));
+        }
         Date firstFiredDate = getScheduler().rescheduleJob(triggerKey, trigger);
         if (log.isInfoEnabled()) {
             log.info(marker, "Modify trigger '{}' and first fired date will at {}", trigger, firstFiredDate);
@@ -260,19 +419,35 @@ public class DefaultJobManager implements JobManager, DisposableBean {
     }
 
     @Override
-    public synchronized Date modifyTrigger(String triggerName, String triggerGroup, String cron,
+    public synchronized Date modifyTrigger(String triggerName,
+                                           String triggerGroup,
+                                           String cron,
                                            Date startTime,
-                                           Date endTime) throws SchedulerException {
+                                           Date endTime,
+                                           Map<String, Object> dataMap) throws SchedulerException {
         TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroup);
+        if (!getScheduler().checkExists(triggerKey)) {
+            throw new SchedulerException("Trigger: " + triggerKey + " is not existing");
+        }
         CronTrigger oldTrigger = (CronTrigger) getScheduler().getTrigger(triggerKey);
+        if (StringUtils.equals(oldTrigger.getCronExpression(), cron) &&
+                Objects.equals(oldTrigger.getStartTime(), startTime) &&
+                Objects.equals(oldTrigger.getEndTime(), endTime)) {
+            return null;
+        }
+
         CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(cron);
-        TriggerBuilder<CronTrigger> triggerBuilder = oldTrigger.getTriggerBuilder().withIdentity(triggerKey).withSchedule(
-                scheduleBuilder);
+        TriggerBuilder<CronTrigger> triggerBuilder = oldTrigger.getTriggerBuilder()
+                .withIdentity(triggerKey)
+                .withSchedule(scheduleBuilder);
         if (startTime != null) {
             triggerBuilder.startAt(startTime);
         }
         if (endTime != null) {
             triggerBuilder.endAt(endTime);
+        }
+        if (dataMap != null) {
+            triggerBuilder.usingJobData(new JobDataMap(dataMap));
         }
         CronTrigger trigger = triggerBuilder.build();
         Date firstFiredDate = getScheduler().rescheduleJob(triggerKey, trigger);
@@ -615,6 +790,12 @@ public class DefaultJobManager implements JobManager, DisposableBean {
     }
 
     @Override
+    public long countOfTriggersOfJob(String jobName, String jobGroup) throws SchedulerException {
+        List<? extends Trigger> triggers = getScheduler().getTriggersOfJob(JobKey.jobKey(jobName, jobGroup));
+        return triggers != null ? triggers.size() : 0;
+    }
+
+    @Override
     public List<TriggerStatusVo> queryForTriggerStatusOfJob(String jobName, String jobGroup) throws Exception {
         List<TriggerStatusVo> triggerStatusVos = new ArrayList<>();
         List<? extends Trigger> triggers = getScheduler().getTriggersOfJob(JobKey.jobKey(jobName, jobGroup));
@@ -701,12 +882,14 @@ public class DefaultJobManager implements JobManager, DisposableBean {
 
     @Override
     public List<JobGroupStatusVo> queryForJobGroupStatus() throws Exception {
+    	
+    	
         List<JobGroupStatusVo> list = new ArrayList<>();
         for (String jobGroup : getScheduler().getJobGroupNames()) {
             JobGroupStatusVo vo = new JobGroupStatusVo();
             vo.setJobGroup(jobGroup);
             vo.setJobCount(countOfJobs(jobGroup, null));
-            Counter counter = counters.getCounter(jobGroup);
+            RuntimeCounter counter = statisticsService.summarize("all", jobGroup).getSample();
             vo.setCompletedJobCount(counter.getCount());
             vo.setRunningJobCount(counter.getRunningCount());
             vo.setErrorCount(counter.getErrorCount());

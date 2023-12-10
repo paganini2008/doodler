@@ -1,0 +1,7 @@
+- username: supporter
+  password: supporter123
+  platform: all
+  roles:
+    - ROLE_SUPPORTER
+    
+        

@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import io.doodler.common.context.ConditionalOnApplication;
+
 import io.doodler.common.security.facebook.FacebookAuthenticationToken;
 import io.doodler.common.security.facebook.FacebookClientApiService;
 import io.doodler.common.security.google.GoogleAuthenticationToken;

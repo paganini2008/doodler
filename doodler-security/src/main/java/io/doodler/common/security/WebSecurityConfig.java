@@ -1,6 +1,5 @@
 package io.doodler.common.security;
 
-import static io.doodler.common.security.SecurityConstants.AUTHORIZATION_TYPE_BASIC;
 import static io.doodler.common.security.SecurityConstants.AUTHORIZATION_TYPE_BEARER;
 import static io.doodler.common.security.SecurityConstants.FACEBOOK_API_URI;
 import static io.doodler.common.security.SecurityConstants.GOOGLE_API_URI;
@@ -10,12 +9,21 @@ import static io.doodler.common.security.SecurityConstants.MULTIPLE_LOGIN_AUTHEN
 import static io.doodler.common.security.SecurityConstants.REMEMBER_ME_KEY;
 import static io.doodler.common.security.SecurityConstants.TWITCH_API_URI;
 
+import java.io.IOException;
+import java.util.List;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Marker;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,6 +41,10 @@ import io.doodler.common.ExceptionTransferer;
 import io.doodler.common.context.ConditionalOnApplication;
 import io.doodler.common.context.ConditionalOnNotApplication;
 import io.doodler.common.feign.RestClientUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+
 import io.doodler.common.security.facebook.FacebookAuthenticationProvider;
 import io.doodler.common.security.facebook.FacebookClientApiService;
 import io.doodler.common.security.google.GoogleAuthenticationProvider;
@@ -56,11 +68,12 @@ import lombok.SneakyThrows;
         WhiteListProperties.class,
         SecurityClientProperties.class,
         RestClientProperties.class})
-@Import({HttpSecurityConfig.class, 
-	    PermissionAccessChecker.class,
-        SocialAccountService.class, 
-        LoginFailureAwareHandler.class,
-        AuthenticationExceptionAwareHandler.class, 
+@Import({HttpSecurityConfig.class,
+        PermissionAccessChecker.class,
+        SocialAccountService.class,
+        LoginFailureHandlerAware.class,
+        JwtAuthenticationFailureHandlerAware.class,
+        AuthenticationExceptionAwareHandler.class,
         AuthenticationController.class})
 @Configuration(proxyBeanMethods = false)
 public class WebSecurityConfig {
@@ -72,8 +85,14 @@ public class WebSecurityConfig {
 
     @ConditionalOnMissingBean
     @Bean
-    public LoginFailureExceptionListener loginFailureExceptionListener() {
-        return new NoopLoginFailureExceptionListener();
+    public LoginFailureListener loginFailureListener() {
+        return new NoOpLoginFailureListener();
+    }
+    
+    @ConditionalOnMissingBean
+    @Bean
+    public JwtAuthenticationFailureListener jwtAuthenticationFailureListener(Marker marker) {
+        return new LoggingJwtAuthenticationFailureListener(marker);
     }
 
     @ConditionalOnMissingBean
@@ -82,7 +101,6 @@ public class WebSecurityConfig {
         MixedTokenStrategy tokenStrategy = new MixedTokenStrategy();
         JwtTokenStrategy jwtTokenStrategy = new JwtTokenStrategy(jwtProperties);
         tokenStrategy.addTokenStrategy(AUTHORIZATION_TYPE_BEARER, jwtTokenStrategy);
-        tokenStrategy.addTokenStrategy(AUTHORIZATION_TYPE_BASIC, new BasicTokenStrategy());
         tokenStrategy.setDefaultTokenStrategy(jwtTokenStrategy);
         return tokenStrategy;
     }
@@ -99,6 +117,28 @@ public class WebSecurityConfig {
         return new PlatformUserDetailsServiceImpl(redisOperations);
     }
 
+    @SneakyThrows
+    @Autowired
+    public void configureBasicUser(PlatformUserDetailsService platformUserDetailsService) {
+        ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
+        objectMapper.findAndRegisterModules();
+        List<BasicCredentials> list = null;
+        try {
+            list = objectMapper.readValue(new ClassPathResource("users.yaml").getInputStream(),
+                    new TypeReference<List<BasicCredentials>>() {
+                    });
+        } catch (IOException ignored) {
+        }
+        if (CollectionUtils.isNotEmpty(list)) {
+            for (BasicCredentials credentials : list) {
+                platformUserDetailsService.addBasicUser(credentials.getUsername(),
+                        credentials.getPassword(),
+                        credentials.getPlatform(),
+                        credentials.getRoles());
+            }
+        }
+    }
+
     @Bean
     public AbstractRememberMeServices rememberMeServices(SecurityClientProperties securityClientProperties,
                                                          PlatformUserDetailsService userDetailsService) {
@@ -112,10 +152,11 @@ public class WebSecurityConfig {
     @ConditionalOnNotApplication(applicationNames = {LOGIN_AUTHENTICATOR, MULTIPLE_LOGIN_AUTHENTICATOR})
     @Bean
     @SneakyThrows
-    public AuthenticationManager authManager(HttpSecurity http) {
+    public AuthenticationManager authManager(HttpSecurity http, PlatformUserDetailsService userDetailsService) {
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(
                 AuthenticationManagerBuilder.class);
         authenticationManagerBuilder.authenticationProvider(new RememberMeAuthenticationProvider(REMEMBER_ME_KEY));
+        authenticationManagerBuilder.authenticationProvider(new BasicAuthenticationProvider(userDetailsService));
         return authenticationManagerBuilder.build();
     }
 
@@ -125,9 +166,9 @@ public class WebSecurityConfig {
 
         @Bean
         @SneakyThrows
-        public AuthenticationManager authManager(HttpSecurity http, 
-        		                                 SuperAdminPassword superAdminPassword,
-        		                                 PlatformUserDetailsService userDetailsService,
+        public AuthenticationManager authManager(HttpSecurity http,
+                                                 SuperAdminPassword superAdminPassword,
+                                                 PlatformUserDetailsService userDetailsService,
                                                  PasswordEncoder passwordEncoder) {
             AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(
                     AuthenticationManagerBuilder.class);
@@ -135,6 +176,7 @@ public class WebSecurityConfig {
             authenticationManagerBuilder.authenticationProvider(new SuperAdminAuthenticationProvider(superAdminPassword));
             authenticationManagerBuilder.authenticationProvider(
                     new TotpAuthenticationProvider(userDetailsService, passwordEncoder));
+            authenticationManagerBuilder.authenticationProvider(new BasicAuthenticationProvider(userDetailsService));
             return authenticationManagerBuilder.build();
         }
 
@@ -150,9 +192,10 @@ public class WebSecurityConfig {
                                                            RedisOperations<String, Object> redisOperations,
                                                            SecurityClientProperties securityClientProperties,
                                                            AbstractRememberMeServices rememberMeServices,
-                                                           PlatformUserDetailsService userDetailsService) {
+                                                           PlatformUserDetailsService userDetailsService,
+                                                           Marker marker) {
             return new WebAppAuthenticationService(authenticationManager, tokenStrategy, redisOperations,
-                    securityClientProperties, rememberMeServices, userDetailsService);
+                    securityClientProperties, rememberMeServices, userDetailsService, marker);
         }
     }
 
@@ -181,6 +224,7 @@ public class WebSecurityConfig {
                     new LineAuthenticationProvider(lineClientApiService, userDetailsService));
             authenticationManagerBuilder.authenticationProvider(
                     new TotpAuthenticationProvider(userDetailsService, passwordEncoder));
+            authenticationManagerBuilder.authenticationProvider(new BasicAuthenticationProvider(userDetailsService));
             authenticationManagerBuilder.authenticationProvider(new RememberMeAuthenticationProvider(REMEMBER_ME_KEY));
             return authenticationManagerBuilder.build();
         }
@@ -191,9 +235,10 @@ public class WebSecurityConfig {
                                                            RedisOperations<String, Object> redisOperations,
                                                            SecurityClientProperties securityClientProperties,
                                                            AbstractRememberMeServices rememberMeServices,
-                                                           PlatformUserDetailsService userDetailsService) {
+                                                           PlatformUserDetailsService userDetailsService,
+                                                           Marker marker) {
             return new WebAppAuthenticationService(authenticationManager, tokenStrategy, redisOperations,
-                    securityClientProperties, rememberMeServices, userDetailsService);
+                    securityClientProperties, rememberMeServices, userDetailsService, marker);
         }
 
         @ConditionalOnMissingBean
@@ -248,5 +293,17 @@ public class WebSecurityConfig {
     @Bean
     public HttpSecurityCustomizer noopHttpSecurityCustomizer() {
         return new NoOpHttpSecurityCustomizer();
+    }
+
+    @ConditionalOnClass(name = {"springfox.documentation.spi.service.OperationBuilderPlugin"})
+    @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE + 1000)
+    public WhiteListBuilderPlugin whiteListBuilderPlugin() {
+        return new WhiteListBuilderPlugin();
+    }
+    
+    @Bean
+    public PerRequestSecurityContextExchanger perRequestSecurityContextExchanger() {
+    	return new PerRequestSecurityContextExchanger();
     }
 }
