@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  io.doodler.common.i18n.I18nAutoConfiguration
+  com.github.doodler.common.i18n.I18nAutoConfiguration

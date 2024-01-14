@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  io.doodler.common.security.WebSecurityConfig
+  com.github.doodler.common.security.WebSecurityConfig

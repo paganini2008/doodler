@@ -1,6 +1,6 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  io.doodler.common.webmvc.BasicWebMvcConfig
+  com.github.doodler.common.webmvc.BasicWebMvcConfig
   
 org.springframework.boot.env.EnvironmentPostProcessor=\
-  io.doodler.common.webmvc.RandomServerPortConfigurator,\
-  io.doodler.common.webmvc.actuator.AdminClientEnvironmentPostProcessor
+  com.github.doodler.common.webmvc.RandomServerPortConfigurator,\
+  com.github.doodler.common.webmvc.actuator.AdminClientEnvironmentPostProcessor

@@ -16,13 +16,14 @@
         <springcloud.version>2020.0.6</springcloud.version>
         <fastjson.version>1.2.74</fastjson.version>
         <guava.version>31.1-jre</guava.version>
-        <crypto.backend.version>1.0.0-SNAPSHOT</crypto.backend.version>
+        <doodler.component.version>1.0.0-SNAPSHOT</doodler.component.version>
         <swagger.fox.version>2.9.2</swagger.fox.version>
         <io.swagger>1.5.21</io.swagger>
     </properties>
 
     <modules>
         <module>doodler-data</module>
+		<module>doodler-cache</module>
         <module>doodler-redis</module>
         <module>doodler-jdbc</module>
         <module>doodler-mybatis</module>
@@ -51,101 +52,115 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${springcloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
 
             <dependency>
                 <groupId>io.doodler</groupId>
                 <artifactId>doodler-data</artifactId>
-                <version>${crypto.backend.version}</version>
+                <version>${doodler.component.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.doodler</groupId>
                 <artifactId>doodler-redis</artifactId>
-                <version>${crypto.backend.version}</version>
+                <version>${doodler.component.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>io.doodler</groupId>
+                <artifactId>doodler-cache</artifactId>
+                <version>${doodler.component.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.doodler</groupId>
                 <artifactId>doodler-mybatis</artifactId>
-                <version>${crypto.backend.version}</version>
+                <version>${doodler.component.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.doodler</groupId>
                 <artifactId>doodler-i18n</artifactId>
-                <version>${crypto.backend.version}</version>
+                <version>${doodler.component.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.doodler</groupId>
                 <artifactId>doodler-id</artifactId>
-                <version>${crypto.backend.version}</version>
+                <version>${doodler.component.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.doodler</groupId>
                 <artifactId>doodler-security</artifactId>
-                <version>${crypto.backend.version}</version>
+                <version>${doodler.component.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.doodler</groupId>
                 <artifactId>doodler-swagger</artifactId>
-                <version>${crypto.backend.version}</version>
+                <version>${doodler.component.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.doodler</groupId>
                 <artifactId>doodler-feign</artifactId>
-                <version>${crypto.backend.version}</version>
+                <version>${doodler.component.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.doodler</groupId>
                 <artifactId>doodler-webmvc</artifactId>
-                <version>${crypto.backend.version}</version>
+                <version>${doodler.component.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.doodler</groupId>
                 <artifactId>doodler-validation</artifactId>
-                <version>${crypto.backend.version}</version>
+                <version>${doodler.component.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.doodler</groupId>
                 <artifactId>doodler-jdbc</artifactId>
-                <version>${crypto.backend.version}</version>
+                <version>${doodler.component.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.doodler</groupId>
                 <artifactId>doodler-ip</artifactId>
-                <version>${crypto.backend.version}</version>
+                <version>${doodler.component.version}</version>
             </dependency>
 			
 			<dependency>
                 <groupId>io.doodler</groupId>
                 <artifactId>doodler-websocket</artifactId>
-                <version>${crypto.backend.version}</version>
+                <version>${doodler.component.version}</version>
             </dependency>
 			
 			<dependency>
                 <groupId>io.doodler</groupId>
                 <artifactId>doodler-amqp</artifactId>
-                <version>${crypto.backend.version}</version>
+                <version>${doodler.component.version}</version>
             </dependency>
 			
 			<dependency>
                 <groupId>io.doodler</groupId>
                 <artifactId>doodler-discovery</artifactId>
-                <version>${crypto.backend.version}</version>
+                <version>${doodler.component.version}</version>
             </dependency>
             
             <dependency>
                 <groupId>io.doodler</groupId>
                 <artifactId>doodler-quartz</artifactId>
-                <version>${crypto.backend.version}</version>
+                <version>${doodler.component.version}</version>
             </dependency>
 
         </dependencies>

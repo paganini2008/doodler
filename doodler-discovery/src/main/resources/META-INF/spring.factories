@@ -1,2 +1,5 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-   io.doodler.common.discovery.DiscoveryClientConfig
+   com.github.doodler.common.discovery.DiscoveryClientConfig,\
+   com.github.doodler.common.discovery.DiscoveryClientHealthConfig,\
+   com.github.doodler.common.discovery.LoadBalancerConfig
+   

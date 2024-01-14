@@ -1,0 +1,33 @@
+package com.github.doodler.common.jdbc.page;
+
+/**
+ * 
+ * @Description: PageRequest in Generic paging tools
+ * @Author: Fred Feng
+ * @Date: 08/01/2020
+ * @Version 1.0.0
+ */
+public interface PageRequest {
+	
+	int getPageNumber();
+
+	int getPageSize();
+
+	int getOffset();
+
+	PageRequest next();
+
+	PageRequest previous();
+
+	PageRequest first();
+
+	PageRequest set(int page);
+
+	static PageRequest of(int size) {
+		return of(1, size);
+	}
+
+	static PageRequest of(int page, int size) {
+		return new SimplePageRequest(page, size);
+	}
+}

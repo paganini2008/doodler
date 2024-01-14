@@ -1,3 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  io.doodler.common.validation.ErrorCodeFinderRegistrar,\
-  io.doodler.common.validation.ValidationExceptionHandler
+  com.github.doodler.common.validation.ErrorCodeFinderRegistrar,\
+  com.github.doodler.common.validation.ValidationExceptionHandler

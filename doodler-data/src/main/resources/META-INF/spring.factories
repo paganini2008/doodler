@@ -1,7 +1,7 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-   io.doodler.common.context.ApplicationContextUtils,\
-   io.doodler.common.context.HttpRequestContextHolder,\
-   io.doodler.common.context.InstanceId,\
-   io.doodler.common.http.RestTemplateConfig,\
-   io.doodler.common.retry.RetryOperations
+   com.github.doodler.common.context.ApplicationContextUtils,\
+   com.github.doodler.common.context.HttpRequestContextHolder,\
+   com.github.doodler.common.context.InstanceId,\
+   com.github.doodler.common.http.RestTemplateConfig,\
+   com.github.doodler.common.retry.RetryOperations
    

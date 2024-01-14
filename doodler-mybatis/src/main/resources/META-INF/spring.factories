@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  io.doodler.common.mybatis.config.MybatisPlusConfig\
+  com.github.doodler.common.mybatis.config.MybatisPlusConfig\
