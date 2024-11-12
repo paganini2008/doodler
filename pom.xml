@@ -70,9 +70,6 @@
                 <scope>import</scope>
             </dependency>
 
-
-
-
             <dependency>
                 <groupId>com.github.doodler</groupId>
                 <artifactId>doodler-common-data</artifactId>
