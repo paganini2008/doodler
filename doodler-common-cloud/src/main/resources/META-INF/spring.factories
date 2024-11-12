@@ -1,0 +1,9 @@
+# AutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.github.doodler.common.cloud.DiscoveryClientConfig,\
+  com.github.doodler.common.cloud.lb.LoadBalancerConfig,\
+  com.github.doodler.common.cloud.feign.FeighClientConfig,\
+  com.github.doodler.common.cloud.redis.RedisServiceRegistryAutoConfiguration,\
+  com.github.doodler.common.cloud.redis.RedisDiscoveryAutoConfiguration,\
+  com.github.doodler.common.cloud.redis.RedisDiscoveryClientConfiguration,\
+  com.github.doodler.common.cloud.zookeeper.ZookeeperDiscoveryClientConfig

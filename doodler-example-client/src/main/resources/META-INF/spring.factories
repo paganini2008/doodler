@@ -1,0 +1,2 @@
+com.elraytech.maxibet.common.feign.RestClientCandidatesAutoConfiguration=\
+  com.github.doodler.common.example.client.RemoteExampleService

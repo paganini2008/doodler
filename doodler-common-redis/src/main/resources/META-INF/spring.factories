@@ -1,0 +1,7 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.github.doodler.common.redis.RedisConfig,\
+  com.github.doodler.common.redis.RedissonConfig,\
+  com.github.doodler.common.redis.pubsub.RedisPubSubConfig,\
+  com.github.doodler.common.redis.eventbus.RedisEventBusConfig,\
+  com.github.doodler.common.redis.RedisUtils,\
+  com.github.doodler.common.redis.RedisSchedulerLockConfig

@@ -1,0 +1,4 @@
+# AutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.github.doodler.common.election.LeaderElectionConfig,\
+  com.github.doodler.common.scheduling.MultiSchedulingConfig

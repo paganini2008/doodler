@@ -1,0 +1,99 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.github.doodler</groupId>
+        <artifactId>doodler-framework-dependencies</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>doodler-common-gateway</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+    	<jooq.version>3.14.16</jooq.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.github.doodler</groupId>
+            <artifactId>doodler-common-data</artifactId>
+        </dependency>
+
+        <dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-gateway</artifactId>
+		</dependency>
+		
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+		
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jooq</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+            </plugin>
+            
+            <!--
+            <plugin>
+			    <groupId>org.jooq</groupId>
+			    <artifactId>jooq-codegen-maven</artifactId>
+			    <version>${jooq.version}</version>
+			    <executions>
+			        <execution>
+			            <goals>
+			                <goal>generate</goal>
+			            </goals>
+			        </execution>
+			    </executions>
+			    <configuration>
+			        <jdbc>
+			            <driver>com.mysql.cj.jdbc.Driver</driver>
+			            <url>jdbc:mysql://localhost:3306/test</url>
+			            <user>fengy</user>
+			            <password>123456</password>
+			        </jdbc>
+			        <generator>
+			            <generate>
+			                <pojos>true</pojos>
+			            </generate>
+			            <database>
+			            	<name>org.jooq.meta.mysql.MySQLDatabase</name>
+			                <includes>sys_route|sys_route_file</includes>
+			                <inputSchema>test</inputSchema>
+			            </database>
+			            <target>
+			                <packageName>com.github.doodler.common.gateway.model.generated</packageName>
+			                <directory>src/main/java</directory>
+			            </target>
+			        </generator>
+			    </configuration>
+			</plugin>
+			-->
+        </plugins>
+    </build>
+</project>

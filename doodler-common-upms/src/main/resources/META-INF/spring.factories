@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.github.doodler.common.upms.SysUserLogWriterConfig,\
+  com.github.doodler.common.upms.PermissionPersistenceConfig

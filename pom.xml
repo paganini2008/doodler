@@ -3,7 +3,7 @@
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.doodler</groupId>
+    <groupId>com.github.doodler</groupId>
     <artifactId>doodler-framework-dependencies</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -11,34 +11,43 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
-        <springboot.version>2.4.13</springboot.version>
-        <springcloud.version>2020.0.6</springcloud.version>
+        <java.version>11</java.version>
+        <springboot.version>2.7.18</springboot.version>
+        <springcloud.version>2021.0.8</springcloud.version>
         <fastjson.version>1.2.74</fastjson.version>
         <guava.version>31.1-jre</guava.version>
-        <doodler.component.version>1.0.0-SNAPSHOT</doodler.component.version>
+        <doodler.backend.version>1.0.0-SNAPSHOT</doodler.backend.version>
         <swagger.fox.version>2.9.2</swagger.fox.version>
         <io.swagger>1.5.21</io.swagger>
     </properties>
 
     <modules>
-        <module>doodler-data</module>
-		<module>doodler-cache</module>
-        <module>doodler-redis</module>
-        <module>doodler-jdbc</module>
-        <module>doodler-mybatis</module>
-        <module>doodler-i18n</module>
-        <module>doodler-id</module>
-        <module>doodler-security</module>
-        <module>doodler-swagger</module>
-        <module>doodler-feign</module>
-        <module>doodler-webmvc</module>
-        <module>doodler-validation</module>
-        <module>doodler-ip</module>
-		<module>doodler-websocket</module>
-		<module>doodler-amqp</module>
-		<module>doodler-discovery</module>
-		<module>doodler-quartz</module>
+        <module>doodler-common-data</module>
+        <module>doodler-common-redis</module>
+        <module>doodler-common-log</module>
+        <module>doodler-common-jdbc</module>
+		<module>doodler-common-jpa</module>
+        <module>doodler-common-mybatis</module>
+        <module>doodler-common-i18n</module>
+        <module>doodler-common-id</module>
+        <module>doodler-common-security</module>
+        <module>doodler-common-oauth</module>
+        <module>doodler-common-swagger</module>
+        <module>doodler-common-feign</module>
+        <module>doodler-common-webmvc</module>
+        <module>doodler-common-messager</module>
+        <module>doodler-common-validation</module>
+        <module>doodler-common-ip</module>
+		<module>doodler-common-websocket</module>
+		<module>doodler-common-amqp</module>
+		<module>doodler-common-upms</module>
+		<module>doodler-common-cloud</module>
+		<module>doodler-common-cache</module>
+		<module>doodler-common-election</module>
+		<module>doodler-common-quartz</module>
+        <module>doodler-common-config</module>
+		<module>doodler-common-gateway</module>
+		<module>doodler-example-client</module>
     </modules>
 
     <dependencyManagement>
@@ -53,7 +62,7 @@
                 <scope>import</scope>
             </dependency>
             
-            <dependency>
+             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${springcloud.version}</version>
@@ -61,106 +70,163 @@
                 <scope>import</scope>
             </dependency>
 
+
+
+
             <dependency>
-                <groupId>io.doodler</groupId>
-                <artifactId>doodler-data</artifactId>
-                <version>${doodler.component.version}</version>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-data</artifactId>
+                <version>${doodler.backend.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>io.doodler</groupId>
-                <artifactId>doodler-redis</artifactId>
-                <version>${doodler.component.version}</version>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-redis</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-mybatis</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-i18n</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-id</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-security</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-log</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-swagger</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-feign</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-webmvc</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-validation</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-jdbc</artifactId>
+                <version>${doodler.backend.version}</version>
             </dependency>
             
             <dependency>
-                <groupId>io.doodler</groupId>
-                <artifactId>doodler-cache</artifactId>
-                <version>${doodler.component.version}</version>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-jpa</artifactId>
+                <version>${doodler.backend.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>io.doodler</groupId>
-                <artifactId>doodler-mybatis</artifactId>
-                <version>${doodler.component.version}</version>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-ip</artifactId>
+                <version>${doodler.backend.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>io.doodler</groupId>
-                <artifactId>doodler-i18n</artifactId>
-                <version>${doodler.component.version}</version>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-example-client</artifactId>
+                <version>${doodler.backend.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>io.doodler</groupId>
-                <artifactId>doodler-id</artifactId>
-                <version>${doodler.component.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.doodler</groupId>
-                <artifactId>doodler-security</artifactId>
-                <version>${doodler.component.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.doodler</groupId>
-                <artifactId>doodler-swagger</artifactId>
-                <version>${doodler.component.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.doodler</groupId>
-                <artifactId>doodler-feign</artifactId>
-                <version>${doodler.component.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.doodler</groupId>
-                <artifactId>doodler-webmvc</artifactId>
-                <version>${doodler.component.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.doodler</groupId>
-                <artifactId>doodler-validation</artifactId>
-                <version>${doodler.component.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.doodler</groupId>
-                <artifactId>doodler-jdbc</artifactId>
-                <version>${doodler.component.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.doodler</groupId>
-                <artifactId>doodler-ip</artifactId>
-                <version>${doodler.component.version}</version>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-messager</artifactId>
+                <version>${doodler.backend.version}</version>
             </dependency>
 			
 			<dependency>
-                <groupId>io.doodler</groupId>
-                <artifactId>doodler-websocket</artifactId>
-                <version>${doodler.component.version}</version>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-websocket</artifactId>
+                <version>${doodler.backend.version}</version>
             </dependency>
 			
 			<dependency>
-                <groupId>io.doodler</groupId>
-                <artifactId>doodler-amqp</artifactId>
-                <version>${doodler.component.version}</version>
-            </dependency>
-			
-			<dependency>
-                <groupId>io.doodler</groupId>
-                <artifactId>doodler-discovery</artifactId>
-                <version>${doodler.component.version}</version>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-amqp</artifactId>
+                <version>${doodler.backend.version}</version>
             </dependency>
             
             <dependency>
-                <groupId>io.doodler</groupId>
-                <artifactId>doodler-quartz</artifactId>
-                <version>${doodler.component.version}</version>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-upms</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+			
+			<dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-cloud</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+			
+			<dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-example-client</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-quartz</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-cache</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-election</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-config</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-gateway</artifactId>
+                <version>${doodler.backend.version}</version>
             </dependency>
 
         </dependencies>
@@ -194,7 +260,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
-            <version>4.4</version>
         </dependency>
 
         <dependency>
@@ -224,7 +289,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -237,12 +301,13 @@
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
             </plugin>
 
             <plugin>
@@ -263,4 +328,66 @@
             </plugin>
         </plugins>
     </build>
+    
+    <profiles>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<profiles.active>dev</profiles.active>
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<distributionManagement>
+				<repository>
+					<id>home-releases</id>
+					<name>Local Nexus Repository</name>
+					<url>http://127.0.0.1:8081/repository/maven-releases/</url>
+				</repository>
+				<snapshotRepository>
+					<id>home-snapshots</id>
+					<name>Local Nexus Repository</name>
+					<url>http://127.0.0.1:8081/repository/maven-snapshots/</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+
+		<profile>
+			<id>test</id>
+			<properties>
+				<profiles.active>test</profiles.active>
+			</properties>
+			<distributionManagement>
+				<repository>
+					<id>home-releases</id>
+					<name>Local Nexus Repository</name>
+					<url>http://127.0.0.1:8081/repository/maven-releases/</url>
+				</repository>
+				<snapshotRepository>
+					<id>home-snapshots</id>
+					<name>Local Nexus Repository</name>
+					<url>http://127.0.0.1:8081/repository/maven-snapshots/</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+
+		<profile>
+			<id>prod</id>
+			<properties>
+				<profiles.active>prod</profiles.active>
+			</properties>
+			<distributionManagement>
+				<repository>
+					<id>home-releases</id>
+					<name>Local Nexus Repository</name>
+					<url>http://127.0.0.1:8081/repository/maven-releases/</url>
+				</repository>
+				<snapshotRepository>
+					<id>home-snapshots</id>
+					<name>Local Nexus Repository</name>
+					<url>http://127.0.0.1:8081/repository/maven-snapshots/</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+	</profiles>
 </project>

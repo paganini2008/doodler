@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.github.doodler.common.cache.GenericCacheConfig,\
+  com.github.doodler.common.cache.CacheUtils
