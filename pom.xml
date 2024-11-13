@@ -47,6 +47,11 @@
 		<module>doodler-common-quartz</module>
         <module>doodler-common-config</module>
 		<module>doodler-common-gateway</module>
+		<module>doodler-common-timeseries</module>
+		<module>doodler-common-traffic</module>
+		<module>doodler-common-transmission</module>
+		<module>doodler-common-jta</module>
+        <module>doodler-common-aws</module>
 		<module>doodler-example-client</module>
     </modules>
 
