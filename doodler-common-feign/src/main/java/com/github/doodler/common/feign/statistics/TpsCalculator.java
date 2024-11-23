@@ -5,8 +5,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import com.github.doodler.common.utils.MapUtils;
 import com.github.doodler.common.utils.SimpleTimer;
-import com.github.doodler.common.utils.statistics.Sampler;
-import com.github.doodler.common.utils.statistics.StatisticsService;
+import com.github.doodler.timeseries.Sampler;
+import com.github.doodler.timeseries.StringSamplerService;
 
 /**
  * @Description: TpsCalculator
@@ -16,12 +16,12 @@ import com.github.doodler.common.utils.statistics.StatisticsService;
  */
 public class TpsCalculator extends SimpleTimer {
 
-    public TpsCalculator(long period, TimeUnit timeUnit, StatisticsService<HttpSample> service) {
+    public TpsCalculator(long period, TimeUnit timeUnit, StringSamplerService<HttpSample> service) {
         super(period, timeUnit);
         this.service = service;
     }
 
-    private final StatisticsService<HttpSample> service;
+    private final StringSamplerService<HttpSample> service;
     private final Map<String, Map<String, TpsUpdater>> cache = new ConcurrentHashMap<>();
 
     public void incr(String name, String identifier) {

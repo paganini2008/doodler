@@ -2,6 +2,7 @@ package com.github.doodler.common.context;
 
 import static com.github.doodler.common.Constants.REQUEST_HEADER_REQUEST_ID;
 import static com.github.doodler.common.Constants.REQUEST_HEADER_TIMESTAMP;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -16,6 +17,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -26,6 +29,7 @@ import org.springframework.util.MultiValueMap;
 
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.github.doodler.common.utils.WebUtils;
+
 import lombok.SneakyThrows;
 
 /**
@@ -35,6 +39,7 @@ import lombok.SneakyThrows;
  * @Version 1.0.0
  */
 @Component
+@ConditionalOnWebApplication(type = Type.SERVLET)
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class HttpRequestContextHolder extends ApiRealmFilter {
 
@@ -78,7 +83,7 @@ public class HttpRequestContextHolder extends ApiRealmFilter {
     }
 
     public static void setHeaderIfAbsent(String headerName, String headerValue) {
-    	setHeaderIfAbsent(headerName, () -> headerValue);
+        setHeaderIfAbsent(headerName, () -> headerValue);
     }
 
     public static void setHeaderIfAbsent(String headerName, Supplier<String> headerValue) {
@@ -105,9 +110,9 @@ public class HttpRequestContextHolder extends ApiRealmFilter {
     public static HttpHeaders getHeaders() {
         return get().getRequestHeaders();
     }
-    
+
     public static HttpHeaders getResponseHeaders() {
-    	return get().getResponseHeaders();
+        return get().getResponseHeaders();
     }
 
     public static Locale getLocale() {
@@ -126,9 +131,9 @@ public class HttpRequestContextHolder extends ApiRealmFilter {
     public static String getPath() {
         return get().getPath();
     }
-    
+
     public static void set(HttpRequestInfo httpRequestInfo) {
-    	ttl.set(httpRequestInfo);
+        ttl.set(httpRequestInfo);
     }
 
     public static void clear() {
@@ -138,7 +143,7 @@ public class HttpRequestContextHolder extends ApiRealmFilter {
     @Override
     @SneakyThrows
     protected void doInFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
-    	String path = request.getRequestURI();
+        String path = request.getRequestURI();
         String queryString = request.getQueryString();
         if (StringUtils.isNotBlank(queryString)) {
             path += "?" + queryString;
@@ -162,8 +167,8 @@ public class HttpRequestContextHolder extends ApiRealmFilter {
             httpHeaders.set(REQUEST_HEADER_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
         }
         MediaType mediaType = httpHeaders.getContentType();
-        if ((mediaType != null) && (mediaType.compareTo(MediaType.MULTIPART_FORM_DATA) != 0)
-                && (mediaType.compareTo(MediaType.APPLICATION_FORM_URLENCODED) == 0)) {
+        if ((mediaType != null) && (mediaType.compareTo(MediaType.MULTIPART_FORM_DATA) != 0) && (mediaType.compareTo(
+                MediaType.APPLICATION_FORM_URLENCODED) == 0)) {
             httpRequestInfo.setRequestBody(WebUtils.toParameterString(request));
         }
     }

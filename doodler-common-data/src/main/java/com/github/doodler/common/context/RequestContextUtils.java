@@ -1,9 +1,13 @@
 package com.github.doodler.common.context;
 
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.web.method.HandlerMethod;
@@ -18,6 +22,7 @@ import org.springframework.web.servlet.HandlerMapping;
  * @Date: 30/10/2024
  * @Version 1.0.0
  */
+@ConditionalOnWebApplication(type = Type.SERVLET)
 @Component
 public class RequestContextUtils {
 
@@ -40,15 +45,13 @@ public class RequestContextUtils {
     }
 
     public static boolean isHandlerMethod(HttpServletRequest request) throws Exception {
-        Map<String, HandlerMapping> requestMappings =
-                BeanFactoryUtils.beansOfTypeIncludingAncestors(
-                        contextHolder.getDispatcherServlet().getWebApplicationContext(),
-                        HandlerMapping.class, true, false);
+        Map<String, HandlerMapping> requestMappings = BeanFactoryUtils.beansOfTypeIncludingAncestors(
+                contextHolder.getDispatcherServlet().getWebApplicationContext(),
+                HandlerMapping.class, true, false);
         for (HandlerMapping handlerMapping : requestMappings.values()) {
             try {
                 HandlerExecutionChain handlerExecutionChain = handlerMapping.getHandler(request);
-                if (handlerExecutionChain != null
-                        && handlerExecutionChain.getHandler() instanceof HandlerMethod) {
+                if (handlerExecutionChain != null && handlerExecutionChain.getHandler() instanceof HandlerMethod) {
                     return true;
                 }
             } catch (RuntimeException ignored) {

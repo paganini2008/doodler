@@ -2,13 +2,15 @@ package com.github.doodler.common.quartz.statistics;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.github.doodler.timeseries.Metric;
+
 /**
  * @Description: RuntimeCounter
  * @Author: Fred Feng
  * @Date: 11/11/2023
  * @Version 1.0.0
  */
-public final class RuntimeCounter {
+public final class RuntimeCounter implements Metric {
 
     private final AtomicLong counter = new AtomicLong();
     private final AtomicLong errorCounter = new AtomicLong();

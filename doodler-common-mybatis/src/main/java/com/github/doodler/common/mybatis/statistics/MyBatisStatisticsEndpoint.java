@@ -7,8 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.web.annotation.RestControllerEndpoint;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
 import com.github.doodler.common.ApiResult;
-import com.github.doodler.common.utils.statistics.Sampler;
+import com.github.doodler.timeseries.Sampler;
 
 /**
  * @Description: MyBatisStatisticsEndpoint
@@ -29,22 +30,21 @@ public class MyBatisStatisticsEndpoint {
     }
 
     @GetMapping("/sequence")
-    public ApiResult<Map<String, SqlSample>> sequence(@RequestParam("identifier") String identifier) {
-        Map<String, Sampler<SqlSample>> samplers = statisticsService.sequence("sql_command", identifier);
-        return ApiResult.ok(samplers.entrySet().stream().collect(LinkedHashMap::new,
-                (m, e) -> m.put(e.getKey(), e.getValue().getSample()), LinkedHashMap::putAll));
+    public ApiResult<Map<String, Object>> sequence(@RequestParam("identifier") String identifier) {
+        Map<String, Object> data = statisticsService.sequence("sql_command", identifier, false);
+        return ApiResult.ok(data);
     }
-    
+
     @GetMapping("/summarizeAll")
     public ApiResult<Map<String, SqlSample>> summarizeAll() {
         Map<String, Sampler<SqlSample>> samplers = statisticsService.summarize("sql_command");
         return ApiResult.ok(samplers.entrySet().stream().collect(LinkedHashMap::new,
                 (m, e) -> m.put(e.getKey(), e.getValue().getSample()), LinkedHashMap::putAll));
     }
-    
+
     @GetMapping("/summarize")
     public ApiResult<SqlSample> summarize(@RequestParam("identifier") String identifier) {
-    	Sampler<SqlSample> sampler = statisticsService.summarize("sql_command", identifier);
-    	return ApiResult.<SqlSample>ok(sampler.getSample());
+        Sampler<SqlSample> sampler = statisticsService.summarize("sql_command", identifier);
+        return ApiResult.<SqlSample>ok(sampler.getSample());
     }
 }

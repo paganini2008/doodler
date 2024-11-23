@@ -1,11 +1,14 @@
 package com.github.doodler.common.cache.statistics;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.github.doodler.common.utils.TimeWindowUnit;
-import com.github.doodler.common.utils.statistics.SampleCollector;
-import com.github.doodler.common.utils.statistics.Sampler;
-import com.github.doodler.common.utils.statistics.StatisticsService;
-import com.github.doodler.common.utils.statistics.TimeWindowSampleCollector;
-import com.github.doodler.common.utils.statistics.UserSampler;
+import com.github.doodler.timeseries.LoggingOverflowDataHandler;
+import com.github.doodler.timeseries.OverflowDataHandler;
+import com.github.doodler.timeseries.Sampler;
+import com.github.doodler.timeseries.SamplerImpl;
+import com.github.doodler.timeseries.StringSamplerService;
 
 /**
  * @Description: CacheStatisticsService
@@ -13,16 +16,19 @@ import com.github.doodler.common.utils.statistics.UserSampler;
  * @Date: 25/09/2023
  * @Version 1.0.0
  */
-public class CacheStatisticsService extends StatisticsService<CacheSample> {
+public class CacheStatisticsService extends StringSamplerService<CacheSample> {
 
-	@Override
-	protected SampleCollector<CacheSample> getSampleCollector(long timestampMillis) {
-		return new TimeWindowSampleCollector<>(5, TimeWindowUnit.MINUTES,
-				() -> getEmptySampler(timestampMillis));
-	}
+    public CacheStatisticsService() {
+        this(Arrays.asList(new LoggingOverflowDataHandler<>()));
+    }
 
-	@Override
-	protected Sampler<CacheSample> getEmptySampler(long timestampMillis) {
-		return new UserSampler<CacheSample>(timestampMillis, new CacheSample());
-	}
+    public CacheStatisticsService(
+                                  List<OverflowDataHandler<String, String, CacheSample>> dataHandlers) {
+        super(5, TimeWindowUnit.MINUTES, 60, dataHandlers);
+    }
+
+    @Override
+    protected Sampler<CacheSample> getEmptySampler(String category, String dimension, long timestampMillis) {
+        return new SamplerImpl<CacheSample>(timestampMillis, new CacheSample());
+    }
 }

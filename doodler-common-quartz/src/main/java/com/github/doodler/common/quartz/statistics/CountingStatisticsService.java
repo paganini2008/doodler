@@ -1,11 +1,14 @@
 package com.github.doodler.common.quartz.statistics;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.github.doodler.common.utils.TimeWindowUnit;
-import com.github.doodler.common.utils.statistics.SampleCollector;
-import com.github.doodler.common.utils.statistics.Sampler;
-import com.github.doodler.common.utils.statistics.StatisticsService;
-import com.github.doodler.common.utils.statistics.TimeWindowSampleCollector;
-import com.github.doodler.common.utils.statistics.UserSampler;
+import com.github.doodler.timeseries.LoggingOverflowDataHandler;
+import com.github.doodler.timeseries.OverflowDataHandler;
+import com.github.doodler.timeseries.Sampler;
+import com.github.doodler.timeseries.SamplerImpl;
+import com.github.doodler.timeseries.StringSamplerService;
 
 /**
  * @Description: CountingStatisticsService
@@ -13,16 +16,18 @@ import com.github.doodler.common.utils.statistics.UserSampler;
  * @Date: 20/11/2023
  * @Version 1.0.0
  */
-public class CountingStatisticsService extends StatisticsService<RuntimeCounter> {
+public class CountingStatisticsService extends StringSamplerService<RuntimeCounter> {
 
-    @Override
-    protected SampleCollector<RuntimeCounter> getSampleCollector(long timestampMillis) {
-        return new TimeWindowSampleCollector<>(1, TimeWindowUnit.DAYS,
-                () -> getEmptySampler(timestampMillis));
+    public CountingStatisticsService() {
+        this(Arrays.asList(new LoggingOverflowDataHandler<>()));
+    }
+
+    public CountingStatisticsService(List<OverflowDataHandler<String, String, RuntimeCounter>> dataHandlers) {
+        super(5, TimeWindowUnit.MINUTES, 60, dataHandlers);
     }
 
     @Override
-    protected Sampler<RuntimeCounter> getEmptySampler(long timestampMillis) {
-        return new UserSampler<RuntimeCounter>(timestampMillis, new RuntimeCounter());
+    protected Sampler<RuntimeCounter> getEmptySampler(String category, String dimension, long timestampMillis) {
+        return new SamplerImpl<RuntimeCounter>(timestampMillis, new RuntimeCounter());
     }
 }

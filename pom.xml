@@ -52,6 +52,7 @@
 		<module>doodler-common-transmission</module>
 		<module>doodler-common-jta</module>
         <module>doodler-common-aws</module>
+        <module>doodler-common-webflux</module>
 		<module>doodler-example-client</module>
     </modules>
 
@@ -228,6 +229,18 @@
             <dependency>
                 <groupId>com.github.doodler</groupId>
                 <artifactId>doodler-common-gateway</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-timeseries</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-webflux</artifactId>
                 <version>${doodler.backend.version}</version>
             </dependency>
 

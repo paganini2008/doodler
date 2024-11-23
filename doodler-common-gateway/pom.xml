@@ -22,26 +22,30 @@
             <groupId>com.github.doodler</groupId>
             <artifactId>doodler-common-data</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>com.github.doodler</groupId>
+            <artifactId>doodler-common-timeseries</artifactId>
+        </dependency>
 
         <dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-gateway</artifactId>
 		</dependency>
 		
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+		
+	      <dependency>
+	        <groupId>org.springframework.boot</groupId>
+	        <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+	    </dependency>
+		
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-		
-		<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jooq</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <scope>provided</scope>
         </dependency>
         
     </dependencies>

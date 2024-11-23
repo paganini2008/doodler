@@ -8,9 +8,9 @@ package com.github.doodler.common.utils;
  */
 public interface RemovalListener<V> {
 
-    default void onRemoval(Object key, V value) {
+    default void onRemoval(Object elderKey, V elderValue) {
     }
 
-    default void onRemoval(V value) {
+    default void onRemoval(V elderValue) {
     }
 }

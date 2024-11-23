@@ -14,7 +14,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.TimeZone;
+
 import com.github.doodler.common.Constants;
+
 import lombok.experimental.UtilityClass;
 
 /**
@@ -100,13 +103,24 @@ public class DateUtils {
         return LocalDateTime.parse(str, DateTimeFormatter.ofPattern(datePattern));
     }
 
-    public LocalDateTime toLocalDateTime(Date date) {
-        return toLocalDateTime(date, null);
+    public LocalDate toLocalDate(Date date, TimeZone timeZone) {
+        return toLocalDate(date, timeZone, null);
     }
 
-    public LocalDateTime toLocalDateTime(Date date, LocalDateTime defaultValue) {
+    public LocalDate toLocalDate(Date date, TimeZone timeZone, LocalDate defaultValue) {
         if (date != null) {
-            return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            return date.toInstant().atZone(timeZone.toZoneId()).toLocalDate();
+        }
+        return defaultValue;
+    }
+
+    public LocalDateTime toLocalDateTime(Date date, TimeZone timeZone) {
+        return toLocalDateTime(date, timeZone, null);
+    }
+
+    public LocalDateTime toLocalDateTime(Date date, TimeZone timeZone, LocalDateTime defaultValue) {
+        if (date != null) {
+            return date.toInstant().atZone(timeZone.toZoneId()).toLocalDateTime();
         }
         return defaultValue;
     }

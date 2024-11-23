@@ -5,8 +5,10 @@ import java.util.function.ToDoubleFunction;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+
 import com.github.doodler.common.context.MetricsCollector;
 import com.github.doodler.common.feign.RestClientMetadataCollector;
+
 import cn.hutool.core.net.NetUtil;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -44,7 +46,8 @@ public class RestClientStatisticsMetricsCollector implements MetricsCollector {
                     "rest.client.execution.success.percent",
                     "Rest client execution success percent",
                     applicationName,
-                    statisticsService -> statisticsService.sampler("all", applicationName).getSample().getSuccessPercent());
+                    statisticsService -> 100 - statisticsService.sampler("all",
+                            applicationName).getSample().getFailurePercent());
 
             createGauge(restClientStatisticsService,
                     "rest.client.execution.slow.percent",
@@ -56,30 +59,28 @@ public class RestClientStatisticsMetricsCollector implements MetricsCollector {
                     "rest.client.execution.average.time",
                     "Rest client execution average time",
                     applicationName,
-                    statisticsService -> statisticsService.sampler("all", applicationName).getSample().getAverageExecutionTime());
+                    statisticsService -> statisticsService.sampler("all",
+                            applicationName).getSample().getAverageExecutionTime());
 
             createGauge(restClientStatisticsService,
                     "rest.client.execution.average.tps",
                     "Rest client execution average tps",
                     applicationName,
                     statisticsService -> statisticsService.sampler("all", applicationName).getSample().getTps());
-            
+
             createGauge(restClientStatisticsService,
                     "rest.client.execution.api.concurrents",
                     "Rest client api concurrents",
                     applicationName,
-                    statisticsService -> statisticsService.sampler("all", applicationName).getSample().getConcurrentCount());
+                    statisticsService -> statisticsService.sampler("all",
+                            applicationName).getSample().getConcurrentCount());
         });
     }
 
     private void createGauge(RestClientStatisticsService weakRef, String metric, String help, String applicationName,
                              ToDoubleFunction<RestClientStatisticsService> measure) {
-        Gauge.builder(metric, weakRef, measure)
-                .description(help)
-                .tag("env", env)
-                .tag("instance", localHost + ":" + port)
-                .tag("service_id", applicationName)
-                .register(this.registry);
+        Gauge.builder(metric, weakRef, measure).description(help).tag("env", env).tag("instance", localHost + ":" +
+                port).tag("service_id", applicationName).register(this.registry);
     }
 
     @EventListener(ApplicationReadyEvent.class)

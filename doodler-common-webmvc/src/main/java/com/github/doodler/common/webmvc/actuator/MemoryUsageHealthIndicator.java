@@ -2,12 +2,15 @@ package com.github.doodler.common.webmvc.actuator;
 
 import java.text.DecimalFormat;
 import java.time.Instant;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.commons.io.FileUtils;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health.Builder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+
 import com.github.doodler.common.utils.TimeWindowMap;
 import com.github.doodler.common.utils.TimeWindowUnit;
 
@@ -21,7 +24,8 @@ import com.github.doodler.common.utils.TimeWindowUnit;
 @Component
 public class MemoryUsageHealthIndicator extends AbstractHealthIndicator {
 
-    private final TimeWindowMap<AtomicInteger> counter = new TimeWindowMap<>(5, TimeWindowUnit.MINUTES);
+    private final TimeWindowMap<AtomicInteger> counter = new TimeWindowMap<>(5, TimeWindowUnit.MINUTES,
+            TimeZone.getDefault(), 60);
 
     @Override
     protected void doHealthCheck(Builder builder) throws Exception {

@@ -47,6 +47,11 @@
 			<artifactId>doodler-common-data</artifactId>
 		</dependency>
 		
+        <dependency>
+            <groupId>com.github.doodler</groupId>
+            <artifactId>doodler-common-timeseries</artifactId>
+        </dependency>
+		
 		<dependency>
 			<groupId>com.github.doodler</groupId>
 			<artifactId>doodler-common-id</artifactId>

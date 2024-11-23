@@ -2,6 +2,7 @@ package com.github.doodler.common.utils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -201,5 +202,15 @@ public class MapUtils {
                 map.remove(key);
             }
         }
+    }
+
+    public static <K, V> Map<K, V> reverse(Map<K, V> map) {
+        if (isEmpty(map)) {
+            return Collections.emptyMap();
+        }
+        List<Map.Entry<K, V>> entries = new ArrayList<Map.Entry<K, V>>(map.entrySet());
+        Collections.reverse(entries);
+        return entries.stream().collect(LinkedHashMap::new, (m, e) -> m.put(e.getKey(), e.getValue()),
+                LinkedHashMap::putAll);
     }
 }

@@ -8,8 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.web.annotation.RestControllerEndpoint;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
 import com.github.doodler.common.ApiResult;
-import com.github.doodler.common.utils.statistics.Sampler;
+import com.github.doodler.timeseries.Sampler;
 
 /**
  * @Description: RestClientStatisticEndpoint
@@ -27,31 +28,29 @@ public class RestClientStatisticsEndpoint {
     private LatestRequestHistoryCollector latestRequestHistoryCollector;
 
     @GetMapping("/sampler")
-    public ApiResult<HttpSample> sampler(@RequestParam("name") String name, @RequestParam("identifier") String identifier) {
-        Sampler<HttpSample> sampler = statisticsService.sampler(name, identifier, System.currentTimeMillis());
+    public ApiResult<HttpSample> sampler(@RequestParam("catalog") String catalog,
+                                         @RequestParam("dimension") String dimension) {
+        Sampler<HttpSample> sampler = statisticsService.sampler(catalog, dimension, System.currentTimeMillis());
         return ApiResult.ok(sampler.getSample());
     }
 
     @GetMapping("/sequence")
-    public ApiResult<Map<String, HttpSample>> sequence(@RequestParam("name") String name,
-                                                       @RequestParam("identifier") String identifier) {
-        Map<String, Sampler<HttpSample>> samplers = statisticsService.sequence(name, identifier);
-        return ApiResult.ok(
-                samplers.entrySet().stream().collect(LinkedHashMap::new,
-                        (m, e) -> m.put(e.getKey(), e.getValue().getSample()),
-                        LinkedHashMap::putAll));
+    public ApiResult<Map<String, Object>> sequence(@RequestParam("catalog") String catalog,
+                                                   @RequestParam("dimension") String dimension) {
+        Map<String, Object> data = statisticsService.sequence(catalog, dimension, false);
+        return ApiResult.ok(data);
     }
-    
+
     @GetMapping("/summarize")
-    public ApiResult<HttpSample> summarize(@RequestParam("name") String name,
-                                                       @RequestParam("identifier") String identifier) {
-    	Sampler<HttpSample> sampler = statisticsService.summarize(name, identifier);
+    public ApiResult<HttpSample> summarize(@RequestParam("catalog") String catalog,
+                                           @RequestParam("dimension") String dimension) {
+        Sampler<HttpSample> sampler = statisticsService.summarize(catalog, dimension);
         return ApiResult.ok(sampler.getSample());
     }
-    
+
     @GetMapping("/summarizeAll")
     public ApiResult<Map<String, HttpSample>> summarizeAll(@RequestParam("name") String name) {
-    	Map<String, Sampler<HttpSample>> samplers = statisticsService.summarize(name);
+        Map<String, Sampler<HttpSample>> samplers = statisticsService.summarize(name);
         return ApiResult.ok(
                 samplers.entrySet().stream().collect(LinkedHashMap::new,
                         (m, e) -> m.put(e.getKey(), e.getValue().getSample()),

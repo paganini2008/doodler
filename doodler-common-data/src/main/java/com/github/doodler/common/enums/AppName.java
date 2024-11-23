@@ -3,24 +3,14 @@ package com.github.doodler.common.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-/**
- * Description:
- *
- * @author: Vincent
- * Date: 1/1/2023 1:37 pm
- */
 public enum AppName implements EnumConstant {
 
-    AGGREGATION("crypto-aggregation-service", "aggregation", "/agg"),
-    PAYMENT("crypto-payment-service", "payment", "/pm"),
-    GAMING("crypto-gaming-service", "gaming", "/gd"),
-    USER("crypto-user-service", "user", "/website"),
-    GAME("crypto-game-service", "game", "/gm"),
-    UPMS("crypto-upms-service", "upms", "/upms"),
-    COMMON("crypto-common-service", "common", "/common"),
-    NEWSLETTER("crypto-newsletter-service", "newsletter", "/news"),
-    PROMOTION("crypto-promotion-service", "promotion", "/po"),
-    CHAT("crypto-chat-service", "chat", "/chat");
+    AGGREGATION("crypto-aggregation-service", "aggregation", "/agg"), PAYMENT("crypto-payment-service", "payment",
+            "/pm"), GAMING("crypto-gaming-service", "gaming", "/gd"), USER("crypto-user-service", "user", "/website"), GAME(
+                    "crypto-game-service", "game", "/gm"), UPMS("crypto-upms-service", "upms", "/upms"), COMMON(
+                            "crypto-common-service", "common", "/common"), NEWSLETTER("crypto-newsletter-service",
+                                    "newsletter", "/news"), PROMOTION("crypto-promotion-service", "promotion", "/po"), CHAT(
+                                            "crypto-chat-service", "chat", "/chat");
 
     private final String fullName;
     private final String shortName;

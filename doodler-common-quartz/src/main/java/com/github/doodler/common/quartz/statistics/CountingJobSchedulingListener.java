@@ -1,9 +1,11 @@
 package com.github.doodler.common.quartz.statistics;
 
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
+
 import com.github.doodler.common.quartz.executor.JobSignature;
 import com.github.doodler.common.quartz.scheduler.JobSchedulingListener;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * @Description: CountingJobSchedulingListener
@@ -18,14 +20,14 @@ public class CountingJobSchedulingListener implements JobSchedulingListener {
 
     @Override
     public void beforeScheduling(long startTime, JobSignature jobSignature) {
-        statisticsService.prepare("all", jobSignature.getJobGroup(), startTime, sampler -> {
+        statisticsService.update("all", jobSignature.getJobGroup(), startTime, sampler -> {
             sampler.getSample().incrementRunningCount();
         });
     }
 
     @Override
     public void afterScheduling(long startTime, JobSignature jobSignature, Throwable reason) {
-        statisticsService.prepare("all", jobSignature.getJobGroup(), startTime, sampler -> {
+        statisticsService.update("all", jobSignature.getJobGroup(), startTime, sampler -> {
             sampler.getSample().decrementRunningCount();
             sampler.getSample().incrementCount();
             if (reason != null) {
@@ -36,7 +38,7 @@ public class CountingJobSchedulingListener implements JobSchedulingListener {
 
     @Override
     public void afterScheduling(long startTime, JobSignature jobSignature, String[] reasons) {
-        statisticsService.prepare("all", jobSignature.getJobGroup(), startTime, sampler -> {
+        statisticsService.update("all", jobSignature.getJobGroup(), startTime, sampler -> {
             sampler.getSample().decrementRunningCount();
             sampler.getSample().incrementCount();
             if (ArrayUtils.isNotEmpty(reasons)) {

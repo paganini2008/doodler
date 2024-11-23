@@ -4,13 +4,15 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.concurrent.atomic.LongAdder;
 
+import com.github.doodler.timeseries.Metric;
+
 /**
  * @Description: CacheSample
  * @Author: Fred Feng
  * @Date: 26/01/2023
  * @Version 1.0.0
  */
-public class CacheSample {
+public class CacheSample implements Metric {
 
     final LongAdder gets = new LongAdder();
     final LongAdder hits = new LongAdder();
