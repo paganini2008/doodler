@@ -17,6 +17,9 @@ import lombok.ToString;
 @Setter
 public class HttpComponentProperties {
 
+    private int connectionTimeout = 10 * 1000;
+    private int readTimeout = 60 * 1000;
+    private Proxy proxy = new Proxy();
     private Okhttp okhttp = new Okhttp();
 
     @Getter
@@ -30,6 +33,18 @@ public class HttpComponentProperties {
         private long readTimeout = 60;
         private int maxIdleConnections = 100;
         private long keepAliveDuration = 60;
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    public static class Proxy {
+
+        private String host;
+        private int port;
+        private String username;
+        private String password;
+
     }
 
 }

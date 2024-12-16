@@ -15,6 +15,8 @@ public interface Constants {
     String VERSION = "1.0.0-SNAPSHOT";
     String DEFAULT_CLUSTER_NAME = "mycluster";
 
+    String NEWLINE = System.getProperty("line.separator");
+
     int SERVER_PORT_START_WITH = 39000;
     int SERVER_PORT_END_WITH = 40000;
     String REQUEST_HEADER_REQUEST_ID = "__request_id__";

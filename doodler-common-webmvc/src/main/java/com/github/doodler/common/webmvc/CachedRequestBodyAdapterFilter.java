@@ -1,16 +1,13 @@
 package com.github.doodler.common.webmvc;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
@@ -19,10 +16,12 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.GenericFilterBean;
+
 import com.github.doodler.common.context.ApiRealmFilter;
 import com.github.doodler.common.context.HttpRequestContextHolder;
 import com.github.doodler.common.context.HttpRequestInfo;
+
+import lombok.SneakyThrows;
 
 /**
  * @Description: CachedRequestBodyAdapterFilter
@@ -37,7 +36,7 @@ public class CachedRequestBodyAdapterFilter extends ApiRealmFilter {
 
     @Override
     @SneakyThrows
-    protected void doInFilter(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain filterChain){
+    protected void doInFilter(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain filterChain) {
         ServletRequest requestWrapper = null;
         if (hasRequestBody(httpRequest)) {
             requestWrapper = new CachedRequestBodyServletRequest(httpRequest);
@@ -56,12 +55,7 @@ public class CachedRequestBodyAdapterFilter extends ApiRealmFilter {
 
     private String getPayload(InputStream input) {
         StringBuilder str = new StringBuilder();
-        LineIterator it;
-        try {
-            it = IOUtils.lineIterator(input, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            return null;
-        }
+        LineIterator it = IOUtils.lineIterator(input, StandardCharsets.UTF_8);
         while (it.hasNext()) {
             str.append(it.next().trim());
         }
