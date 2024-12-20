@@ -1,4 +1,4 @@
-package com.github.doodler.gateway;
+package com.github.doodler.common.gateway;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.github.doodler.gateway;
+package com.github.doodler.common.gateway;
 
 import java.util.function.Predicate;
 import org.springframework.cloud.gateway.config.GatewayProperties;
