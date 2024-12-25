@@ -5,7 +5,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
 import org.springframework.context.annotation.Conditional;
 
 /**
@@ -19,7 +18,7 @@ import org.springframework.context.annotation.Conditional;
 @Documented
 @Conditional(OnNotApplicationCondition.class)
 public @interface ConditionalOnNotApplication {
-	
-	String[] applicationNames();
+
+    String[] value();
 
 }

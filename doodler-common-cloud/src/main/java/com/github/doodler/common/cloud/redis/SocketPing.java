@@ -27,8 +27,9 @@ public class SocketPing implements Ping {
     @Override
     public boolean isAlive(ServiceInstance instance) {
         try {
-            return NetUtils.canAccess(usePublicIp ? ((ApplicationInstance) instance).getPublicIp()
-                    : instance.getHost(), instance.getPort(), timeout);
+            return NetUtils
+                    .canAccess(usePublicIp ? ((ApplicationInstance) instance).getExternalHost()
+                            : instance.getHost(), instance.getPort(), timeout);
         } catch (Exception e) {
             return false;
         }

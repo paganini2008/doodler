@@ -248,6 +248,12 @@
             
             <dependency>
                 <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-elasticsearch</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.github.doodler</groupId>
                 <artifactId>doodler-common-webflux</artifactId>
                 <version>${doodler.backend.version}</version>
             </dependency>
@@ -284,6 +290,11 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
         </dependency>
+        
+        <dependency>
+	        <groupId>commons-codec</groupId>
+	        <artifactId>commons-codec</artifactId>
+	    </dependency>
 
         <dependency>
             <groupId>cn.hutool</groupId>

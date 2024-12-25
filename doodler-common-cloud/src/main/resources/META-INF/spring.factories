@@ -6,4 +6,4 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   com.github.doodler.common.cloud.redis.RedisServiceRegistryAutoConfiguration,\
   com.github.doodler.common.cloud.redis.RedisDiscoveryAutoConfiguration,\
   com.github.doodler.common.cloud.redis.RedisDiscoveryClientConfiguration,\
-  com.github.doodler.common.cloud.zookeeper.ZookeeperDiscoveryClientConfig
+  com.github.doodler.common.cloud.redis.RedisReactiveDiscoveryClientConfiguration

@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public final class DefaultInstanceIdImpl implements InstanceId, InitializingBean {
 
-    private static final String DEFAULT_ID_PATTERN = "INS-%s@%s:%s/%s";
+    private static final String DEFAULT_ID_PATTERN = "INS-%s@%s:%s@%s";
 
     private final AtomicBoolean standby = new AtomicBoolean();
 

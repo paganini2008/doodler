@@ -1,30 +1,25 @@
 package com.github.doodler.common.ip;
 
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.cache.interceptor.KeyGenerator;
-import org.springframework.stereotype.Component;
+import org.springframework.util.DigestUtils;
 
 /**
+ * 
  * @Description: GeoCachedKeyGenerator
  * @Author: Fred Feng
- * @Date: 20/04/2023
+ * @Date: 24/12/2024
  * @Version 1.0.0
  */
-@Component("geoCacheKeyGenerator")
 public class GeoCachedKeyGenerator implements KeyGenerator {
-	
-	private final static Base64.Encoder encoder = Base64.getEncoder();
 
     @Override
     public Object generate(Object target, Method method, Object... params) {
         if (ArrayUtils.isEmpty(params)) {
             throw new IllegalArgumentException("Ip must be required");
         }
-        String ip = (String) params[0];
-        return encoder.encodeToString(ip.getBytes(StandardCharsets.UTF_8));
+        String ipAddr = (String) params[0];
+        return DigestUtils.md5DigestAsHex(ipAddr.getBytes());
     }
 }

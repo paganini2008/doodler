@@ -1,5 +1,13 @@
 package com.github.doodler.common.ws;
 
+import org.slf4j.Marker;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.doodler.common.context.ConditionalOnApplication;
 import com.github.doodler.common.context.InstanceId;
@@ -12,14 +20,6 @@ import com.github.doodler.common.ws.handler.UserSessionContext;
 import com.github.doodler.common.ws.newsletter.SimpleWsMessageService;
 import com.github.doodler.common.ws.security.WsUserSecurityCustomizer;
 import io.micrometer.core.instrument.MeterRegistry;
-import org.slf4j.Marker;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisOperations;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
  * @Description: WsServerConfig
@@ -42,18 +42,23 @@ public class WsServerConfig {
     }
 
     @Bean
-    public StdOutMessageWriter stdOutMessageWriter(WsMessageFanoutAdviceContainer messageFanoutAdviceContainer) {
+    public StdOutMessageWriter stdOutMessageWriter(
+            WsMessageFanoutAdviceContainer messageFanoutAdviceContainer) {
         return new StdOutMessageWriter(messageFanoutAdviceContainer);
     }
 
     @Bean
-    public OnlineNumberAccumulator onlineNumberAccumulator(RedisOperations<String, Object> redisOperations) {
-//        RedisAtomicInteger websiteCounter = RedisCounterUtils.getRedisIntegerCounter("online-number:website",
-//                redisConnectionFactory, 0);
-//        RedisAtomicInteger userCounter = RedisCounterUtils.getRedisIntegerCounter("online-number:user",
-//                redisConnectionFactory, 0);
-//        RedisAtomicInteger chatCounter = RedisCounterUtils.getRedisIntegerCounter("online-number:chat",
-//                redisConnectionFactory, 0);
+    public OnlineNumberAccumulator onlineNumberAccumulator(
+            RedisOperations<String, Object> redisOperations) {
+        // RedisAtomicInteger websiteCounter =
+        // RedisCounterUtils.getRedisIntegerCounter("online-number:website",
+        // redisConnectionFactory, 0);
+        // RedisAtomicInteger userCounter =
+        // RedisCounterUtils.getRedisIntegerCounter("online-number:user",
+        // redisConnectionFactory, 0);
+        // RedisAtomicInteger chatCounter =
+        // RedisCounterUtils.getRedisIntegerCounter("online-number:chat",
+        // redisConnectionFactory, 0);
         return new OnlineNumberAccumulator(redisOperations);
     }
 
@@ -74,10 +79,10 @@ public class WsServerConfig {
 
     @Bean
     public SimpleWsMessageService simpleWsMessageService(SessionContext sessionContext,
-                                                         UserSessionContext userSessionContext,
-                                                         RedisPubSubService redisPubSubService,
-                                                         Marker marker) {
-        return new SimpleWsMessageService(sessionContext, userSessionContext, redisPubSubService, marker);
+            UserSessionContext userSessionContext, RedisPubSubService redisPubSubService,
+            Marker marker) {
+        return new SimpleWsMessageService(sessionContext, userSessionContext, redisPubSubService,
+                marker);
     }
 
     @ConditionalOnMissingBean
@@ -93,45 +98,40 @@ public class WsServerConfig {
     }
 
     @Bean
-    public ChannelWsHandler channelWsHandler(InstanceId instanceId,
-                                             SessionContext sessionContext,
-                                             WsStateChangeListenerContainer listenerContainer,
-                                             WsMessageFanoutAdviceContainer adviceContainer,
-                                             WsCodecFactory wsCodecFactory,
-                                             RedisPubSubService redisPubSubService) {
+    public ChannelWsHandler channelWsHandler(InstanceId instanceId, SessionContext sessionContext,
+            WsStateChangeListenerContainer listenerContainer,
+            WsMessageFanoutAdviceContainer adviceContainer, WsCodecFactory wsCodecFactory,
+            RedisPubSubService redisPubSubService) {
         return new ChannelWsHandler(instanceId, sessionContext, listenerContainer, adviceContainer,
-                wsCodecFactory,
-                redisPubSubService);
+                wsCodecFactory, redisPubSubService);
     }
 
     @Bean
     public UserChannelWsHandler userChannelWsHandler(InstanceId instanceId,
-                                                     UserSessionContext sessionContext,
-                                                     WsStateChangeListenerContainer listenerContainer,
-                                                     WsMessageFanoutAdviceContainer adviceContainer,
-                                                     WsCodecFactory wsCodecFactory,
-                                                     RedisPubSubService redisPubSubService) {
-        return new UserChannelWsHandler(instanceId, sessionContext, listenerContainer, adviceContainer,
-                wsCodecFactory, redisPubSubService);
+            UserSessionContext sessionContext, WsStateChangeListenerContainer listenerContainer,
+            WsMessageFanoutAdviceContainer adviceContainer, WsCodecFactory wsCodecFactory,
+            RedisPubSubService redisPubSubService) {
+        return new UserChannelWsHandler(instanceId, sessionContext, listenerContainer,
+                adviceContainer, wsCodecFactory, redisPubSubService);
     }
 
     @ConditionalOnProperty("ws.server.keepalive.enabled")
     @Bean
     public KeepAliveBeater keepAliveBeater(SessionContext sessionContext,
-                                           UserSessionContext userSessionContext,
-                                           WsServerProperties serverConfig) {
+            UserSessionContext userSessionContext, WsServerProperties serverConfig) {
         return new KeepAliveBeater(sessionContext, userSessionContext, serverConfig);
     }
 
     @Bean
-    public MetricsCollector wsMetricsCollector(OnlineNumberAccumulator onlineNumberAccumulator, MeterRegistry registry) {
+    public MetricsCollector wsMetricsCollector(OnlineNumberAccumulator onlineNumberAccumulator,
+            MeterRegistry registry) {
         return new WsMetricsCollector(onlineNumberAccumulator, registry);
     }
 
-    @ConditionalOnApplication(applicationNames = {"crypto-newsletter-service", "crypto-chat-service"})
+    @ConditionalOnApplication(value = {"crypto-newsletter-service", "crypto-chat-service"})
     @Bean
     public WsUserSecurityCustomizer wsUserSecurityCustomizer(WsServerProperties serverConfig,
-                                                             UserDetailsService userDetailsService) {
+            UserDetailsService userDetailsService) {
         return new WsUserSecurityCustomizer(serverConfig, userDetailsService);
     }
 }

@@ -1,7 +1,6 @@
 package com.github.doodler.common.webmvc;
 
 import java.util.concurrent.ThreadPoolExecutor;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -35,13 +34,14 @@ public class ThreadPoolConfig {
     @Value("${spring.application.name}")
     private String applicatonName;
 
-    //@Bean
+    // @Bean
     public RequestContextTaskDecorator requestContextTaskDecorator() {
         return new RequestContextTaskDecorator();
     }
 
     @Bean
-    public TaskExecutorCustomizer taskExecutorCustomizer(TaskExecutionProperties properties, ErrorHandler errorHandler) {
+    public TaskExecutorCustomizer taskExecutorCustomizer(TaskExecutionProperties properties,
+            ErrorHandler errorHandler) {
         return executor -> {
             TaskExecutionProperties.Pool pool = properties.getPool();
             executor.setCorePoolSize(Math.min(pool.getCoreSize(), 200));
@@ -55,7 +55,8 @@ public class ThreadPoolConfig {
     }
 
     @Bean
-    public TaskSchedulerCustomizer taskSchedulerCustomizer(TaskSchedulingProperties properties, ErrorHandler errorHandler) {
+    public TaskSchedulerCustomizer taskSchedulerCustomizer(TaskSchedulingProperties properties,
+            ErrorHandler errorHandler) {
         return scheduler -> {
             scheduler.setPoolSize(Math.min(properties.getPool().getSize(), 20));
             scheduler.setAwaitTerminationSeconds(60);
@@ -72,20 +73,22 @@ public class ThreadPoolConfig {
     }
 
     @Bean
-    public ApplicationEventMulticaster applicationEventMulticaster(ConfigurableListableBeanFactory beanFactory,
-                                                                   TaskExecutor taskExecutor,
-                                                                   ErrorHandler errorHandler) {
-        SimpleApplicationEventMulticaster multicaster = new SimpleApplicationEventMulticaster(beanFactory);
+    public ApplicationEventMulticaster applicationEventMulticaster(
+            ConfigurableListableBeanFactory beanFactory, TaskExecutor taskExecutor,
+            ErrorHandler errorHandler) {
+        SimpleApplicationEventMulticaster multicaster =
+                new SimpleApplicationEventMulticaster(beanFactory);
         multicaster.setTaskExecutor(taskExecutor);
         multicaster.setErrorHandler(errorHandler);
         return multicaster;
     }
 
-    @ConditionalOnNotApplication(applicationNames = {"crypto-job-service"})
+    @ConditionalOnNotApplication(value = {"crypto-job-service"})
     @Bean
-    public ThreadPoolMetricsCollector threadPoolMetricsCollector(ThreadPoolTaskExecutor taskExecutor,
-                                                                 @Autowired(required = false) ThreadPoolTaskScheduler taskScheduler,
-                                                                 MeterRegistry registry) {
+    public ThreadPoolMetricsCollector threadPoolMetricsCollector(
+            ThreadPoolTaskExecutor taskExecutor,
+            @Autowired(required = false) ThreadPoolTaskScheduler taskScheduler,
+            MeterRegistry registry) {
         return new ThreadPoolMetricsCollector(taskExecutor, taskScheduler, registry);
     }
 }

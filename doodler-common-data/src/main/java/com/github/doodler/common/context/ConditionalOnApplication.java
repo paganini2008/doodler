@@ -19,5 +19,5 @@ import org.springframework.context.annotation.Conditional;
 @Conditional(OnApplicationCondition.class)
 public @interface ConditionalOnApplication {
 
-	String[] applicationNames();
+    String[] value();
 }

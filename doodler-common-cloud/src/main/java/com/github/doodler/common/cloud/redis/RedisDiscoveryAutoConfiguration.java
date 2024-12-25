@@ -40,7 +40,7 @@ public class RedisDiscoveryAutoConfiguration {
     @Bean
     public ServiceInstanceManager defaultServiceInstanceManager(
             RedisConnectionFactory redisConnectionFactory, Ping heartbeater) {
-        return new RedisServiceInstanceManager(redisConnectionFactory, heartbeater);
+        return new RedisServiceInstanceManager(redisConnectionFactory, 30, heartbeater);
     }
 
     @Bean

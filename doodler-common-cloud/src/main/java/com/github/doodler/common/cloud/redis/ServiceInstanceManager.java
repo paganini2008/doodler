@@ -3,7 +3,6 @@ package com.github.doodler.common.cloud.redis;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.cloud.client.ServiceInstance;
 
 /**

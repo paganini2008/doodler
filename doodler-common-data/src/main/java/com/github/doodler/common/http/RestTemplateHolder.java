@@ -14,14 +14,14 @@ import com.github.doodler.common.retry.RetryableRestTemplate;
  */
 public class RestTemplateHolder {
 
-    private RestTemplate defaultRestTemplate;
-    private RetryableRestTemplate retryableRestTemplate;
+    private final RestTemplate defaultRestTemplate;
+    private final RetryableRestTemplate retryableRestTemplate;
 
     public RestTemplateHolder(RestTemplateCustomizer... customizers) {
         defaultRestTemplate =
                 new RestTemplateBuilder(customizers).configure(new StringRestTemplate());
         retryableRestTemplate =
-                new RestTemplateBuilder(customizers).configure(new RetryableRestTemplate());
+                new RestTemplateBuilder(customizers).configure(new RetryableRestTemplate(3));
     }
 
     public RestTemplate getDefaultRestTemplate() {

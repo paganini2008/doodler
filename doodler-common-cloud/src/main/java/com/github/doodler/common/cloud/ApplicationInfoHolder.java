@@ -49,7 +49,10 @@ public class ApplicationInfoHolder implements InitializingBean {
         this.info = new ApplicationInfo(instanceId.get(), applicationName, getHostAddress(),
                 NetUtils.getExternalIp(), serverProperties.getPort(),
                 serverProperties.getSsl() != null ? serverProperties.getSsl().isEnabled() : false,
-                weight, contextPath.getContextPath(), managementServerProperties.getPort(),
+                weight, contextPath.getContextPath(),
+                managementServerProperties.getPort() != null
+                        ? managementServerProperties.getPort().intValue()
+                        : 0,
                 managementServerProperties.getBasePath());
     }
 

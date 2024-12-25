@@ -1,14 +1,14 @@
 package com.github.doodler.common.ip;
 
 import java.math.BigDecimal;
-
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
 /**
+ * 
  * @Description: GeoLocationVo
  * @Author: Fred Feng
- * @Date: 23/11/2022
+ * @Date: 24/12/2024
  * @Version 1.0.0
  */
 @ApiModel(description = "Geo Location Info")
@@ -16,7 +16,7 @@ import lombok.Data;
 public class GeoLocationVo {
 
     public static final GeoLocationVo EMPTY = new GeoLocationVo();
-    
+
     private String status;
     private String country;
     private String countryCode;
@@ -31,5 +31,5 @@ public class GeoLocationVo {
     private String org;
     private String as;
     private String query;
-    
+
 }

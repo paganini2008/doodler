@@ -20,10 +20,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class PageVo<T> {
+public class PageVo {
 
     @ApiModelProperty("Data list")
-    private List<T> content;
+    private List<?> content;
 
     @ApiModelProperty("Current page")
     private int page;

@@ -16,13 +16,12 @@ import com.github.doodler.common.utils.DecryptionUtils;
  * @Version 1.0.0
  */
 @Profile({"dev", "test", "prod"})
-@ConditionalOnApplication(applicationNames = {"crypto-upms-service", "crypto-user-service"})
+@ConditionalOnApplication(value = {"crypto-upms-service", "crypto-user-service"})
 @Component
 public class PasswordDecryptor {
 
-    private static final SimpleErrorCode PASSWORD_DECRYPTION_FAILURE = new SimpleErrorCode("PASSWORD_DECRYPTION_FAILURE",
-            1001100,
-            "Password can't be decrypted");
+    private static final SimpleErrorCode PASSWORD_DECRYPTION_FAILURE = new SimpleErrorCode(
+            "PASSWORD_DECRYPTION_FAILURE", 1001100, "Password can't be decrypted");
 
     @Value("${server.securityKey}")
     private String securityKey;

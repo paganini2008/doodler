@@ -44,8 +44,9 @@ public class RedisServiceInstanceManager extends SimpleTimer
     private final Map<String, Set<String>> keepAliveMap = new HashMap<>();
     private final Map<String, Set<String>> maintainanceMap = new HashMap<>();
 
-    public RedisServiceInstanceManager(RedisConnectionFactory redisConnectionFactory, Ping ping) {
-        super(30, 30, TimeUnit.SECONDS);
+    public RedisServiceInstanceManager(RedisConnectionFactory redisConnectionFactory,
+            int keepAliveInterval, Ping ping) {
+        super(keepAliveInterval, keepAliveInterval, TimeUnit.SECONDS);
 
         Jackson2JsonRedisSerializer<ApplicationInstance> jackson2JsonRedisSerializer =
                 new Jackson2JsonRedisSerializer<>(ApplicationInstance.class);

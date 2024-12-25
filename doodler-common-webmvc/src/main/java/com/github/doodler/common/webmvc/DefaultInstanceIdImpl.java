@@ -1,13 +1,14 @@
 package com.github.doodler.common.webmvc;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.hashids.Hashids;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import com.github.doodler.common.context.InstanceId;
-import com.github.doodler.common.utils.IdUtils;
+import com.github.doodler.common.utils.IpUtils;
 import com.github.doodler.common.utils.NetUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public final class DefaultInstanceIdImpl implements InstanceId, InitializingBean {
 
-    private static final String DEFAULT_ID_PATTERN = "INS-%s@%s:%s/%s";
+    private static final String DEFAULT_ID_PATTERN = "INS-%s@%s";
 
     private final AtomicBoolean standby = new AtomicBoolean();
 
@@ -35,8 +36,15 @@ public final class DefaultInstanceIdImpl implements InstanceId, InitializingBean
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.id = String.format(DEFAULT_ID_PATTERN, IdUtils.getShortUuid(),
-                NetUtils.getLocalHostAddress(), port, applicationName);
+        String localAddress;
+        try {
+            localAddress = NetUtils.getLocalHostAddress();
+        } catch (Exception e) {
+            localAddress = "127.0.0.1";
+        }
+        long value = IpUtils.ipToLong(localAddress) + port;
+        String hash = new Hashids().encode(value);
+        this.id = String.format(DEFAULT_ID_PATTERN, hash, applicationName);
     }
 
     public String get() {

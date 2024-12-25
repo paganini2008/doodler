@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +16,6 @@ import com.github.doodler.common.cloud.ApplicationInfo;
 import com.github.doodler.common.cloud.ApplicationInfoHolder;
 import com.github.doodler.common.cloud.ApplicationInfoManager;
 import com.github.doodler.common.cloud.redis.CloudConstants;
-import com.github.doodler.common.context.ENC;
 import com.github.doodler.common.utils.JacksonUtils;
 import lombok.RequiredArgsConstructor;
 
@@ -59,7 +59,7 @@ public class ZookeeperApplicationInfoManager implements ApplicationInfoManager {
         if (StringUtils.isBlank(appInfoString)) {
             return null;
         }
-        appInfoString = ENC.decrypt(appInfoString);
+        appInfoString = new String(Base64.decodeBase64(appInfoString));
         return JacksonUtils.parseJson(appInfoString, ApplicationInfo.class);
     }
 

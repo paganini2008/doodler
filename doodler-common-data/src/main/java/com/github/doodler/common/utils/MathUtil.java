@@ -3,6 +3,13 @@ package com.github.doodler.common.utils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+/**
+ * 
+ * @Description: MathUtil
+ * @Author: Fred Feng
+ * @Date: 25/12/2024
+ * @Version 1.0.0
+ */
 public class MathUtil {
 
     private static final String DEFAULT_DIGITS = "0";

@@ -1,7 +1,7 @@
 package com.github.doodler.common.webmvc;
 
-import static com.github.doodler.common.Constants.SERVER_PORT_END_WITH;
-import static com.github.doodler.common.Constants.SERVER_PORT_START_WITH;
+import static com.github.doodler.common.Constants.SERVER_PORT_FROM;
+import static com.github.doodler.common.Constants.SERVER_PORT_TO;
 import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +39,7 @@ public class JmxConfig {
             rmiHostName = NetUtils.getLocalHostAddress();
         }
         if (rmiPort == null) {
-            rmiPort = NetUtils.getRandomPort(SERVER_PORT_START_WITH, SERVER_PORT_END_WITH);
+            rmiPort = NetUtils.getRandomPort(SERVER_PORT_FROM, SERVER_PORT_TO);
         }
     }
 

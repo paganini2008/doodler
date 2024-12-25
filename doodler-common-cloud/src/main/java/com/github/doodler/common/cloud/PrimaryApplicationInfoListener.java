@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -26,7 +25,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class PrimaryApplicationInfoListener implements ApplicationEventPublisherAware, ManagedBeanLifeCycle {
+public class PrimaryApplicationInfoListener
+        implements ApplicationEventPublisherAware, ManagedBeanLifeCycle {
 
     private final ApplicationInfoManager applicationInfoManager;
 
@@ -45,10 +45,12 @@ public class PrimaryApplicationInfoListener implements ApplicationEventPublisher
 
     private void selectPrimary() {
         final String applicationName = applicationInfoHolder.get().getServiceId();
-        Collection<ApplicationInfo> candidates = applicationInfoManager.getApplicationInfos(applicationName);
+        Collection<ApplicationInfo> candidates =
+                applicationInfoManager.getApplicationInfos(applicationName);
         if (CollectionUtils.isEmpty(candidates)) {
             if (log.isWarnEnabled()) {
-                log.warn("No primary application selected because of no available applications for name: {}",
+                log.warn(
+                        "No primary application selected because of no available applications for name: {}",
                         applicationName);
             }
         } else {
@@ -61,22 +63,23 @@ public class PrimaryApplicationInfoListener implements ApplicationEventPublisher
         if (CollectionUtils.isEmpty(event.getAffects())) {
             return;
         }
-        List<ApplicationInfo> offlineApplicationInfos = event.getAffects().stream().filter(
-                a -> a.getAffectedType() == AffectedType.OFFLINE).map(a -> a.getApplicationInfo()).collect(
-                        Collectors.toList());
-        List<ApplicationInfo> noneApplicationInfos = event.getAffects().stream().filter(
-                a -> a.getAffectedType() == AffectedType.NONE).map(a -> a.getApplicationInfo()).collect(
-                        Collectors.toList());
+        List<ApplicationInfo> offlineApplicationInfos =
+                event.getAffects().stream().filter(a -> a.getAffectedType() == AffectedType.OFFLINE)
+                        .map(a -> a.getApplicationInfo()).collect(Collectors.toList());
+        List<ApplicationInfo> noneApplicationInfos =
+                event.getAffects().stream().filter(a -> a.getAffectedType() == AffectedType.NONE)
+                        .map(a -> a.getApplicationInfo()).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(offlineApplicationInfos)) {
             ApplicationInfo primary = applicationInfoHolder.getPrimary();
             if (offlineApplicationInfos.contains(primary)) {
-                Collection<ApplicationInfo> candidates = applicationInfoManager.getApplicationInfos(
-                        primary.getServiceId());
+                Collection<ApplicationInfo> candidates =
+                        applicationInfoManager.getApplicationInfos(primary.getServiceId());
                 candidates = new ArrayList<>(candidates);
                 candidates.removeAll(offlineApplicationInfos);
                 if (CollectionUtils.isEmpty(candidates)) {
                     if (log.isWarnEnabled()) {
-                        log.warn("No primary application selected because of no available applications for name: {}",
+                        log.warn(
+                                "No primary application selected because of no available applications for name: {}",
                                 primary.getServiceId());
                     }
                 } else {
@@ -86,8 +89,8 @@ public class PrimaryApplicationInfoListener implements ApplicationEventPublisher
         } else if (CollectionUtils.isNotEmpty(noneApplicationInfos)) {
             ApplicationInfo primary = applicationInfoHolder.getPrimary();
             if (noneApplicationInfos.contains(primary)) {
-                applicationEventPublisher.publishEvent(
-                        new SecondaryApplicationInfoRefreshEvent(this, primary));
+                applicationEventPublisher
+                        .publishEvent(new SecondaryApplicationInfoRefreshEvent(this, primary));
             }
         }
 
@@ -108,8 +111,8 @@ public class PrimaryApplicationInfoListener implements ApplicationEventPublisher
             if (log.isInfoEnabled()) {
                 log.info("{} is secondary.", applicationInfoHolder.get());
             }
-            applicationEventPublisher.publishEvent(
-                    new SecondaryApplicationInfoRefreshEvent(this, applicationInfoHolder.getPrimary()));
+            applicationEventPublisher.publishEvent(new SecondaryApplicationInfoRefreshEvent(this,
+                    applicationInfoHolder.getPrimary()));
         }
     }
 

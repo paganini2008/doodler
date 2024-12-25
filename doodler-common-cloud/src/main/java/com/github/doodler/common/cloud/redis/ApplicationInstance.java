@@ -40,15 +40,13 @@ public class ApplicationInstance implements Cloneable, ServiceInstance {
 
     private boolean secure;
 
-    private int managementPort;
+    private int actuatorPort;
 
-    private String publicIp;
+    private String externalHost;
 
     private String contextPath;
 
-    private String apiContextPath;
-
-    private String managementContextPath;
+    private String actuatorContextPath;
 
     private Map<String, String> metadata;
 
@@ -94,9 +92,9 @@ public class ApplicationInstance implements Cloneable, ServiceInstance {
     }
 
     @SneakyThrows
-    public URI createManagementUri(boolean usePublicIp, String... paths) {
+    public URI createActuatorUri(boolean usePublicIp, String... paths) {
         URI uri = URI.create(
-                String.format("%s://%s", getScheme(), getHostString(usePublicIp, managementPort)));
+                String.format("%s://%s", getScheme(), getHostString(usePublicIp, actuatorPort)));
         if (ArrayUtils.isNotEmpty(paths)) {
             URL url = uri.toURL();
             url = new URL(url, String.join("/", paths));
@@ -108,7 +106,7 @@ public class ApplicationInstance implements Cloneable, ServiceInstance {
     private String getHostString(boolean usePublicIp, int port) {
         String uri;
         if (usePublicIp) {
-            uri = publicIp + ":" + port;
+            uri = externalHost + ":" + port;
         } else {
             if ("localhost".equals(host) || "127.0.0.1".equals(host) || NetUtil.isInnerIP(host)) {
                 uri = host + ":" + port;

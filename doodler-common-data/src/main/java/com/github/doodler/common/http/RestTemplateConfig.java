@@ -3,7 +3,7 @@ package com.github.doodler.common.http;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.time.Duration;
-import java.util.List;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -15,7 +15,6 @@ import org.springframework.boot.web.client.RestTemplateCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import okhttp3.Authenticator;
@@ -40,9 +39,9 @@ public class RestTemplateConfig {
     @ConditionalOnMissingBean(name = "defaultRestTemplateCustomizer")
     @Bean
     public RestTemplateCustomizer defaultRestTemplateCustomizer(
-            ClientHttpRequestFactory clientHttpRequestFactory,
-            List<ClientHttpRequestInterceptor> interceptors) {
-        return new DefaultRestTemplateCustomizer(clientHttpRequestFactory, interceptors);
+            ClientHttpRequestFactory clientHttpRequestFactory) {
+        return new DefaultRestTemplateCustomizer(clientHttpRequestFactory,
+                Arrays.asList(new LoggingHttpRequestInterceptor()));
     }
 
     @ConditionalOnMissingBean
@@ -55,7 +54,8 @@ public class RestTemplateConfig {
                                 httpConfig.getOkhttp().getKeepAliveDuration(), TimeUnit.SECONDS))
                         .connectTimeout(
                                 Duration.ofSeconds(httpConfig.getOkhttp().getConnectionTimeout()))
-                        .readTimeout(Duration.ofSeconds(httpConfig.getOkhttp().getReadTimeout()));
+                        .readTimeout(Duration.ofSeconds(httpConfig.getOkhttp().getReadTimeout()))
+                        .writeTimeout(Duration.ofSeconds(httpConfig.getOkhttp().getWriteTimeout()));
         if (httpConfig.getProxy() != null && StringUtils.isNotBlank(httpConfig.getProxy().getHost())
                 && httpConfig.getProxy().getPort() > 0) {
             HttpComponentProperties.Proxy proxyConfig = httpConfig.getProxy();

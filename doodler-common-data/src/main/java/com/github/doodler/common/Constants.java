@@ -17,8 +17,8 @@ public interface Constants {
 
     String NEWLINE = System.getProperty("line.separator");
 
-    int SERVER_PORT_START_WITH = 39000;
-    int SERVER_PORT_END_WITH = 40000;
+    int SERVER_PORT_FROM = 50000;
+    int SERVER_PORT_TO = 60000;
     String REQUEST_HEADER_REQUEST_ID = "__request_id__";
     String REQUEST_HEADER_TIMESTAMP = "__timestamp__";
     String REQUEST_HEADER_TRACES = "__traces__";

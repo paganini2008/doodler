@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import com.github.doodler.common.context.ConditionalOnNotApplication;
 import com.github.doodler.common.context.MessageLocalization;
 import com.github.doodler.common.feign.RestClientBeanDefinitionRegistrarSupport;
 import com.github.doodler.common.feign.RestClientCandidatesAutoConfiguration;
@@ -18,6 +19,7 @@ import com.github.doodler.common.i18n.I18nAutoConfiguration.I18nRestClientRegist
  * @Date: 22/05/2023
  * @Version 1.0.0
  */
+@ConditionalOnNotApplication("doodler-common-service")
 @ConditionalOnClass({RestClientCandidatesAutoConfiguration.class})
 @Import({RestClientCandidatesAutoConfiguration.class, I18nRestClientRegistrar.class})
 @Configuration(proxyBeanMethods = false)

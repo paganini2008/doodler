@@ -19,14 +19,16 @@ public class OnApplicationCondition extends SpringBootCondition {
     private static final ConditionMessage EMPYT_MESSAGE = ConditionMessage.empty();
 
     @Override
-    public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        Map<String, Object> annotationAttributes = metadata.getAnnotationAttributes(
-                ConditionalOnApplication.class.getName());
-        String[] applicationNames = (String[]) annotationAttributes.get("applicationNames");
+    public ConditionOutcome getMatchOutcome(ConditionContext context,
+            AnnotatedTypeMetadata metadata) {
+        Map<String, Object> annotationAttributes =
+                metadata.getAnnotationAttributes(ConditionalOnApplication.class.getName());
+        String[] applicationNames = (String[]) annotationAttributes.get("value");
         if (applicationNames == null || applicationNames.length == 0) {
             return ConditionOutcome.noMatch(EMPYT_MESSAGE);
         }
-        String applicationName = context.getEnvironment().getRequiredProperty("spring.application.name");
+        String applicationName =
+                context.getEnvironment().getRequiredProperty("spring.application.name");
         if (ArrayUtils.contains(applicationNames, applicationName)) {
             return ConditionOutcome.match(EMPYT_MESSAGE);
         }

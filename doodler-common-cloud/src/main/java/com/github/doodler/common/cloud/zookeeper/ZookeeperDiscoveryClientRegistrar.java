@@ -2,6 +2,7 @@ package com.github.doodler.common.cloud.zookeeper;
 
 import static com.github.doodler.common.cloud.redis.CloudConstants.METADATA_APPLICATION_INFO;
 import java.util.Map;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cloud.zookeeper.serviceregistry.ServiceInstanceRegistration;
@@ -10,7 +11,6 @@ import org.springframework.context.event.EventListener;
 import com.github.doodler.common.cloud.ApplicationInfo;
 import com.github.doodler.common.cloud.ApplicationInfoRegisteredEvent;
 import com.github.doodler.common.cloud.DiscoveryClientRegistrar;
-import com.github.doodler.common.context.ENC;
 import com.github.doodler.common.utils.JacksonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -35,7 +35,7 @@ public class ZookeeperDiscoveryClientRegistrar implements DiscoveryClientRegistr
         Map<String, String> metadata = registration.getMetadata();
         String appInfoString = metadata.get(METADATA_APPLICATION_INFO);
         if (StringUtils.isNotBlank(appInfoString)) {
-            appInfoString = ENC.decrypt(appInfoString);
+            appInfoString = new String(Base64.decodeBase64(appInfoString));
             applicationEventPublisher.publishEvent(new ApplicationInfoRegisteredEvent(this,
                     JacksonUtils.parseJson(appInfoString, ApplicationInfo.class)));
         }

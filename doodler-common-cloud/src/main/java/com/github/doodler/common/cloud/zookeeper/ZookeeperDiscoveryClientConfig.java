@@ -1,5 +1,6 @@
 package com.github.doodler.common.cloud.zookeeper;
 
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -14,7 +15,6 @@ import com.github.doodler.common.cloud.ApplicationInfoHolder;
 import com.github.doodler.common.cloud.ApplicationInfoManager;
 import com.github.doodler.common.cloud.DiscoveryClientRegistrar;
 import com.github.doodler.common.cloud.redis.CloudConstants;
-import com.github.doodler.common.context.ENC;
 import com.github.doodler.common.utils.JacksonUtils;
 
 /**
@@ -35,7 +35,7 @@ public class ZookeeperDiscoveryClientConfig {
         ApplicationInfo applicationInfo = applicationInfoHolder.get();
         config.setInstanceId(applicationInfo.getInstanceId());
         String appInfoStr = JacksonUtils.toJsonString(applicationInfo);
-        appInfoStr = ENC.encrypt(appInfoStr);
+        appInfoStr = Base64.encodeBase64String(appInfoStr.getBytes());
         config.getMetadata().put(CloudConstants.METADATA_APPLICATION_INFO, appInfoStr);
     }
 

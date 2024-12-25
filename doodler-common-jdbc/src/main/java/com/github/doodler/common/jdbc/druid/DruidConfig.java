@@ -17,7 +17,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 /**
  * @Description: DruidConfig
  * @Author: Fred Feng
- * @Date: 15/11/2022 13:15
+ * @Date: 15/11/2022
  * @Version 1.0.0
  */
 @ConditionalOnClass({DruidDataSource.class})
@@ -48,7 +48,7 @@ public class DruidConfig {
         return filterRegistrationBean;
     }
 
-    @ConditionalOnNotApplication(applicationNames = {"crypto-job-service"})
+    @ConditionalOnNotApplication(value = {"crypto-job-service"})
     @Bean
     public DruidMetricsCollector druidMetricsCollector(DataSource dataSource,
             MeterRegistry meterRegistry) {

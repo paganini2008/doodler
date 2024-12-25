@@ -1,16 +1,16 @@
 package com.github.doodler.common.http;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
 import org.springframework.boot.web.client.RestTemplateCustomizer;
 import org.springframework.core.Ordered;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
-
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -26,27 +26,43 @@ public class DefaultRestTemplateCustomizer implements RestTemplateCustomizer, Or
     private final ClientHttpRequestFactory clientHttpRequestFactory;
     private final List<ClientHttpRequestInterceptor> interceptors;
 
+    private Charset charset = StandardCharsets.UTF_8;
+
+    public void setCharset(Charset charset) {
+        this.charset = charset;
+    }
+
     @Override
     public void customize(RestTemplate restTemplate) {
+        ClientHttpRequestFactory clientHttpRequestFactory = this.clientHttpRequestFactory;
+        if (!(clientHttpRequestFactory instanceof BufferingClientHttpRequestFactory)) {
+            clientHttpRequestFactory =
+                    new BufferingClientHttpRequestFactory(clientHttpRequestFactory);
+        }
         restTemplate.setRequestFactory(clientHttpRequestFactory);
-        restTemplate.setInterceptors(interceptors);
+        if (interceptors != null) {
+            restTemplate.getInterceptors().addAll(interceptors);
+        }
+        List<HttpMessageConverter<?>> list = restTemplate.getMessageConverters();
+        for (HttpMessageConverter<?> converter : list) {
+            if (converter instanceof StringHttpMessageConverter) {
+                if (!((StringHttpMessageConverter) converter).getDefaultCharset().equals(charset)) {
+                    ((StringHttpMessageConverter) converter).setDefaultCharset(charset);
+                }
+                break;
+            }
+        }
 
         applySettings(restTemplate);
     }
 
-    protected void applySettings(RestTemplate restTemplate) {
-        List<HttpMessageConverter<?>> list = restTemplate.getMessageConverters();
-        for (HttpMessageConverter<?> converter : list) {
-            if (converter instanceof StringHttpMessageConverter) {
-                ((StringHttpMessageConverter) converter).setDefaultCharset(StandardCharsets.UTF_8);
-                break;
-            }
-        }
-    }
+    protected void applySettings(RestTemplate restTemplate) {}
 
     @Override
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE;
     }
+
+
 
 }
