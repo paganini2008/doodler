@@ -254,6 +254,12 @@
             
             <dependency>
                 <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-traffic</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.github.doodler</groupId>
                 <artifactId>doodler-common-webflux</artifactId>
                 <version>${doodler.backend.version}</version>
             </dependency>

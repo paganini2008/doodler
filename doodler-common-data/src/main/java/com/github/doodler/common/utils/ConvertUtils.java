@@ -1,6 +1,5 @@
 package com.github.doodler.common.utils;
 
-import lombok.experimental.UtilityClass;
 import static com.github.doodler.common.utils.GenericConverterFactorys.DATE_TO_LOCAL_DATE;
 import static com.github.doodler.common.utils.GenericConverterFactorys.DATE_TO_LOCAL_DATE_TIME;
 import static com.github.doodler.common.utils.GenericConverterFactorys.DATE_TO_LOCAL_TIME;
@@ -23,6 +22,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.converter.ConverterFactory;
 import org.springframework.core.convert.support.DefaultConversionService;
+import lombok.experimental.UtilityClass;
 
 /**
  * @Description: ConvertUtils
@@ -33,7 +33,8 @@ import org.springframework.core.convert.support.DefaultConversionService;
 @UtilityClass
 public class ConvertUtils {
 
-    private static final DefaultConversionService conversionService = new DefaultConversionService();
+    private static final DefaultConversionService conversionService =
+            new DefaultConversionService();
 
     static {
         applyDefaultSettings(conversionService);
@@ -79,6 +80,11 @@ public class ConvertUtils {
     }
 
     public <T> T convert(Object source, Class<T> targetType) {
-        return conversionService.convert(source, targetType);
+        try {
+            return targetType.cast(source);
+        } catch (RuntimeException e) {
+            return conversionService.convert(source, targetType);
+        }
+
     }
 }
