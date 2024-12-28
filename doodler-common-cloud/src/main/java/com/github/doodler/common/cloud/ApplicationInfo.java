@@ -1,11 +1,16 @@
 package com.github.doodler.common.cloud;
 
 import java.io.Serializable;
+import java.util.Map;
+import org.springframework.lang.Nullable;
 import com.github.doodler.common.utils.NetUtils;
 import cn.hutool.core.net.NetUtil;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * 
@@ -16,7 +21,10 @@ import lombok.NoArgsConstructor;
  */
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode(exclude = {"metadata"})
 public class ApplicationInfo implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 5025375997544999194L;
@@ -40,6 +48,8 @@ public class ApplicationInfo implements Serializable, Cloneable {
     private int actuatorPort;
 
     private String actuatorContextPath;
+
+    private @Nullable Map<String, String> metadata;
 
     public String getApplicationName() {
         return serviceId;

@@ -5,9 +5,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ErrorHandler;
 import com.github.doodler.common.context.ManagedBeanLifeCycle;
@@ -18,7 +19,8 @@ import com.github.doodler.common.context.ManagedBeanLifeCycle;
  * @Date: 14/02/2023
  * @Version 1.0.0
  */
-public abstract class SimpleTimer implements Runnable, ManagedBeanLifeCycle {
+public abstract class SimpleTimer
+        implements Runnable, ManagedBeanLifeCycle, ApplicationListener<ApplicationReadyEvent> {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -26,7 +28,7 @@ public abstract class SimpleTimer implements Runnable, ManagedBeanLifeCycle {
     private final long period;
     private final TimeUnit timeUnit;
     private final AtomicBoolean running;
-    private final AtomicBoolean enabled;
+    private final AtomicBoolean quickStart;
 
     public SimpleTimer(long period, TimeUnit timeUnit) {
         this(period, period, timeUnit);
@@ -36,11 +38,11 @@ public abstract class SimpleTimer implements Runnable, ManagedBeanLifeCycle {
         this(initialDelay, period, timeUnit, true);
     }
 
-    protected SimpleTimer(long initialDelay, long period, TimeUnit timeUnit, boolean enabled) {
+    protected SimpleTimer(long initialDelay, long period, TimeUnit timeUnit, boolean quickStart) {
         this.initialDelay = initialDelay;
         this.period = period;
         this.timeUnit = timeUnit;
-        this.enabled = new AtomicBoolean(enabled);
+        this.quickStart = new AtomicBoolean(quickStart);
         this.running = new AtomicBoolean(false);
     }
 
@@ -74,11 +76,10 @@ public abstract class SimpleTimer implements Runnable, ManagedBeanLifeCycle {
             }
             this.future = executor.scheduleWithFixedDelay(this, initialDelay, period, timeUnit);
             if (log.isInfoEnabled()) {
-                log.info("Periodically run {} with parameters: {}, {}, {}", getClass().getSimpleName(), initialDelay,
-                        period, timeUnit);
+                log.info("Periodically run {} with parameters: {}, {}, {}",
+                        getClass().getSimpleName(), initialDelay, period, timeUnit);
             }
         }
-        enabled.set(true);
         if (runImmediatedly) {
             run();
         }
@@ -101,12 +102,12 @@ public abstract class SimpleTimer implements Runnable, ManagedBeanLifeCycle {
         if (autoClose && executor != null) {
             ExecutorUtils.gracefulShutdown(executor, 60000L);
         }
-        enabled.set(false);
+        quickStart.set(false);
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (enabled.get()) {
+        if (quickStart.get()) {
             start();
         }
     }
@@ -147,8 +148,15 @@ public abstract class SimpleTimer implements Runnable, ManagedBeanLifeCycle {
         return true;
     }
 
-    protected void handleCancellation(@Nullable Exception reason) {
-    }
+    protected void handleCancellation(@Nullable Exception reason) {}
 
     public abstract boolean change() throws Exception;
+
+    @Override
+    public void onApplicationEvent(ApplicationReadyEvent event) {
+        if (!quickStart.get()) {
+            start();
+        }
+    }
+
 }

@@ -15,9 +15,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.TimeZone;
-
+import java.util.concurrent.TimeUnit;
 import com.github.doodler.common.Constants;
-
 import lombok.experimental.UtilityClass;
 
 /**
@@ -30,9 +29,11 @@ import lombok.experimental.UtilityClass;
 public class DateUtils {
 
     public static DateTimeFormatter DTF_YMD = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    public static DateTimeFormatter DTF_YMD_HMS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    public static DateTimeFormatter DTF_YMD_HMS =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     public static DateTimeFormatter DTF_YMDHMS = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-    public static DateTimeFormatter DTF_IOS = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    public static DateTimeFormatter DTF_IOS =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     public Date toDate(LocalDate date) {
         return toDate(date, null);
@@ -40,7 +41,8 @@ public class DateUtils {
 
     public Date toDate(LocalDate date, Date defaultValue) {
         if (date != null) {
-            return Date.from(date.atTime(LocalTime.of(0, 0, 0)).atZone(ZoneId.systemDefault()).toInstant());
+            return Date.from(
+                    date.atTime(LocalTime.of(0, 0, 0)).atZone(ZoneId.systemDefault()).toInstant());
         }
         return defaultValue;
     }
@@ -69,8 +71,7 @@ public class DateUtils {
 
     public Date toDate(String str) {
         try {
-            return org.apache.commons.lang3.time.DateUtils.parseDate(str,
-                    Locale.ENGLISH,
+            return org.apache.commons.lang3.time.DateUtils.parseDate(str, Locale.ENGLISH,
                     Constants.SUPPORTED_DATE_TIME_PATTERNS);
         } catch (ParseException e) {
             throw new DateTimeException(e.getMessage(), e);
@@ -139,14 +140,38 @@ public class DateUtils {
         return new DateIterator(from, amount, calendarField, to);
     }
 
-    public Iterator<LocalDate> localDateIterator(LocalDate startDate, int amount, ChronoUnit chronoUnit,
-                                                 LocalDate endDate) {
+    public Iterator<LocalDate> localDateIterator(LocalDate startDate, int amount,
+            ChronoUnit chronoUnit, LocalDate endDate) {
         return new LocalDateIterator(startDate, amount, chronoUnit, endDate);
     }
 
-    public Iterator<LocalDateTime> localDateTimeIterator(LocalDateTime startTime, int amount, ChronoUnit chronoUnit,
-                                                         LocalDateTime endTime) {
+    public Iterator<LocalDateTime> localDateTimeIterator(LocalDateTime startTime, int amount,
+            ChronoUnit chronoUnit, LocalDateTime endTime) {
         return new LocalDateTimeIterator(startTime, amount, chronoUnit, endTime);
+    }
+
+    public static long converToSecond(long interval, TimeUnit timeUnit) {
+        if (interval < 0) {
+            throw new IllegalArgumentException("interval < 0");
+        }
+        return timeUnit != TimeUnit.SECONDS ? TimeUnit.SECONDS.convert(interval, timeUnit)
+                : interval;
+    }
+
+    public static long convertToMillis(long interval, TimeUnit timeUnit) {
+        if (interval < 0) {
+            throw new IllegalArgumentException("interval < 0");
+        }
+        return timeUnit != TimeUnit.MILLISECONDS ? TimeUnit.MILLISECONDS.convert(interval, timeUnit)
+                : interval;
+    }
+
+    public static long convertToNanos(long interval, TimeUnit timeUnit) {
+        if (interval < 0) {
+            throw new IllegalArgumentException("interval < 0");
+        }
+        return timeUnit != TimeUnit.NANOSECONDS ? TimeUnit.NANOSECONDS.convert(interval, timeUnit)
+                : interval;
     }
 
     static class DateIterator implements Iterator<Date> {
@@ -185,7 +210,8 @@ public class DateUtils {
         private final ChronoUnit chronoUnit;
         private final LocalDate endDate;
 
-        public LocalDateIterator(LocalDate startDate, int amount, ChronoUnit chronoUnit, LocalDate endDate) {
+        public LocalDateIterator(LocalDate startDate, int amount, ChronoUnit chronoUnit,
+                LocalDate endDate) {
             this.startDate = startDate;
             this.amount = amount;
             this.chronoUnit = chronoUnit;
@@ -199,7 +225,8 @@ public class DateUtils {
 
         @Override
         public LocalDate next() {
-            LocalDate copy = LocalDate.of(startDate.getYear(), startDate.getMonth(), startDate.getDayOfMonth());
+            LocalDate copy = LocalDate.of(startDate.getYear(), startDate.getMonth(),
+                    startDate.getDayOfMonth());
             startDate = startDate.plus(amount, chronoUnit);
             return copy;
         }
@@ -212,7 +239,8 @@ public class DateUtils {
         private final ChronoUnit chronoUnit;
         private final LocalDateTime endTime;
 
-        LocalDateTimeIterator(LocalDateTime startTime, int amount, ChronoUnit chronoUnit, LocalDateTime endTime) {
+        LocalDateTimeIterator(LocalDateTime startTime, int amount, ChronoUnit chronoUnit,
+                LocalDateTime endTime) {
             this.startTime = startTime;
             this.amount = amount;
             this.chronoUnit = chronoUnit;

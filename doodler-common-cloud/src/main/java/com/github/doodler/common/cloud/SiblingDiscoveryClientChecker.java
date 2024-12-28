@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IteratorUtils;
 import org.springframework.context.ApplicationEventPublisher;
@@ -18,9 +17,9 @@ import org.springframework.context.ApplicationEventPublisher;
  */
 public class SiblingDiscoveryClientChecker extends DiscoveryClientChecker {
 
-    public SiblingDiscoveryClientChecker(long initialDelay, long checkInterval,
-                                         ApplicationInfoManager applicationInfoManager) {
-        super(initialDelay, checkInterval);
+    public SiblingDiscoveryClientChecker(long initialDelay, long checkInterval, boolean quickStart,
+            ApplicationInfoManager applicationInfoManager) {
+        super(initialDelay, checkInterval, quickStart);
         this.applicationInfoManager = applicationInfoManager;
     }
 
@@ -33,7 +32,8 @@ public class SiblingDiscoveryClientChecker extends DiscoveryClientChecker {
 
     @Override
     protected Map<String, Collection<ApplicationInfo>> fetchApplicationInfos() {
-        Collection<ApplicationInfo> applicationInfos = applicationInfoManager.getSiblingApplicationInfos();
+        Collection<ApplicationInfo> applicationInfos =
+                applicationInfoManager.getSiblingApplicationInfos();
         if (CollectionUtils.isEmpty(applicationInfos)) {
             return Collections.emptyMap();
         }
@@ -44,8 +44,9 @@ public class SiblingDiscoveryClientChecker extends DiscoveryClientChecker {
 
     @Override
     protected void handleAffectedApplicationInfos(Collection<AffectedApplicationInfo> affects,
-                                                  ApplicationEventPublisher applicationEventPublisher) {
-        applicationEventPublisher.publishEvent(new SiblingApplicationInfoChangeEvent(this, affects));
+            ApplicationEventPublisher applicationEventPublisher) {
+        applicationEventPublisher
+                .publishEvent(new SiblingApplicationInfoChangeEvent(this, affects));
     }
 
 }

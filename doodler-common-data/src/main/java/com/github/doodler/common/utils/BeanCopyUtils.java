@@ -12,16 +12,16 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import lombok.experimental.UtilityClass;
-import ma.glasnost.orika.MapperFactory;
-import ma.glasnost.orika.impl.DefaultMapperFactory;
-import ma.glasnost.orika.metadata.ClassMapBuilder;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.convert.ConversionService;
+import lombok.experimental.UtilityClass;
+import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.impl.DefaultMapperFactory;
+import ma.glasnost.orika.metadata.ClassMapBuilder;
 
 /**
  * @Description: BeanCopyUtils
@@ -56,19 +56,21 @@ public class BeanCopyUtils {
         }
     }
 
-    public Map<String, PropertyDescriptor> getPropertyDescriptors(Class<?> beanClass, PropertyFilter filter) {
+    public Map<String, PropertyDescriptor> getPropertyDescriptors(Class<?> beanClass,
+            PropertyFilter filter) {
         PropertyDescriptor[] pds = PropertyUtils.getPropertyDescriptors(beanClass);
         if (ArrayUtils.isEmpty(pds)) {
             return Collections.emptyMap();
         }
-        return Arrays.stream(pds).filter(pd -> (filter == null) || (filter.accept(beanClass, pd.getName(), pd)))
-                .collect(Collectors.toMap(PropertyDescriptor::getName, Function.identity(), (a, b) -> a,
-                        LinkedHashMap::new));
+        return Arrays.stream(pds)
+                .filter(pd -> (filter == null) || (filter.accept(beanClass, pd.getName(), pd)))
+                .collect(Collectors.toMap(PropertyDescriptor::getName, Function.identity(),
+                        (a, b) -> a, LinkedHashMap::new));
     }
 
     private void hardCopyProperties(Object original, Map<String, PropertyDescriptor> originalMap,
-                                    Object destination, Map<String, PropertyDescriptor> destinationMap,
-                                    boolean retainNonNull, ConversionService conversionService)
+            Object destination, Map<String, PropertyDescriptor> destinationMap,
+            boolean retainNonNull, ConversionService conversionService)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         String propertyName;
         Object propertyValue;
@@ -96,7 +98,8 @@ public class BeanCopyUtils {
                     Class<?> sourcePropertyType = originalMap.get(propertyName).getPropertyType();
                     if (conversionService.canConvert(sourcePropertyType, targetPropertyType)) {
                         try {
-                            propertyValue = conversionService.convert(propertyValue, targetPropertyType);
+                            propertyValue =
+                                    conversionService.convert(propertyValue, targetPropertyType);
                         } catch (RuntimeException ignored) {
                             propertyValue = null;
                         }
@@ -115,16 +118,21 @@ public class BeanCopyUtils {
         return populateBean(original, destination, filter, true);
     }
 
-    public <S, T> T populateBean(S original, T destination, PropertyFilter filter, boolean retainNonNull) {
-        return populateBean(original, destination, filter, retainNonNull, ConvertUtils.getDefaultConversionService());
+    public <S, T> T populateBean(S original, T destination, PropertyFilter filter,
+            boolean retainNonNull) {
+        return populateBean(original, destination, filter, retainNonNull,
+                ConvertUtils.getDefaultConversionService());
     }
 
-    public <S, T> T populateBean(S original, T destination, PropertyFilter filter, boolean retainNonNull,
-                                 ConversionService conversionService) {
-        Map<String, PropertyDescriptor> originalMap = getPropertyDescriptors(original.getClass(), filter);
-        Map<String, PropertyDescriptor> destinationMap = getPropertyDescriptors(destination.getClass(), filter);
+    public <S, T> T populateBean(S original, T destination, PropertyFilter filter,
+            boolean retainNonNull, ConversionService conversionService) {
+        Map<String, PropertyDescriptor> originalMap =
+                getPropertyDescriptors(original.getClass(), filter);
+        Map<String, PropertyDescriptor> destinationMap =
+                getPropertyDescriptors(destination.getClass(), filter);
         try {
-            hardCopyProperties(original, originalMap, destination, destinationMap, retainNonNull, conversionService);
+            hardCopyProperties(original, originalMap, destination, destinationMap, retainNonNull,
+                    conversionService);
         } catch (Exception e) {
             throw new IllegalStateException(e.getMessage(), e);
         }

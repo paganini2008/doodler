@@ -13,6 +13,6 @@ public interface CloudConstants {
     final String DOWN = "DOWN";
     final String UNKNOWN = "UNKNOWN";
 
-    String METADATA_APPLICATION_INFO = "applicationInfo";
+    String METADATA_APPLICATION_INFO = "APPLICATION_INFO";
 
 }

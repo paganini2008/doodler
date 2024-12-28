@@ -1,4 +1,4 @@
-package com.github.doodler.common.transmission;
+package com.github.doodler.common.transmitter;
 
 import java.net.SocketAddress;
 

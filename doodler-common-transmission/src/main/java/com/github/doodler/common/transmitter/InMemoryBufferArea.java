@@ -1,4 +1,4 @@
-package com.github.doodler.common.transmission;
+package com.github.doodler.common.transmitter;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -18,12 +18,12 @@ import com.github.doodler.common.utils.RemovalListener;
  * @Date: 26/12/2024
  * @Version 1.0.0
  */
-public class InMemoryBufferArea implements BufferArea, RemovalListener<Bucket> {
+public class InMemoryBufferArea implements BufferArea, RemovalListener<Packet> {
 
     private final int maxSize;
     private final BufferArea overflowArea;
 
-    private final Map<String, List<Bucket>> cache;
+    private final Map<String, List<Packet>> cache;
 
     public InMemoryBufferArea() {
         this(256, null);
@@ -36,16 +36,16 @@ public class InMemoryBufferArea implements BufferArea, RemovalListener<Bucket> {
     }
 
     @Override
-    public void put(String collection, Bucket bucket) {
-        List<Bucket> list = MapUtils.getOrCreate(cache, collection,
+    public void put(String collection, Packet packet) {
+        List<Packet> list = MapUtils.getOrCreate(cache, collection,
                 () -> new NamedLruList(collection, maxSize, this));
-        list.add(bucket);
+        list.add(packet);
     }
 
     @Override
     public long size(String collection) {
         long n = 0;
-        List<Bucket> list = cache.get(collection);
+        List<Packet> list = cache.get(collection);
         if (list != null) {
             n += list.size();
         }
@@ -56,25 +56,25 @@ public class InMemoryBufferArea implements BufferArea, RemovalListener<Bucket> {
     }
 
     @Override
-    public Bucket poll(String collection) {
+    public Packet poll(String collection) {
         if (overflowArea != null && overflowArea.size(collection) > 0) {
             return overflowArea.poll(collection);
         }
-        List<Bucket> list = cache.get(collection);
+        List<Packet> list = cache.get(collection);
         return CollectionUtils.isNotEmpty(list) ? list.remove(0) : null;
     }
 
     @Override
-    public Collection<Bucket> poll(String collection, int batchSize) {
+    public Collection<Packet> poll(String collection, int batchSize) {
         if (batchSize == 1) {
             return Collections.singletonList(poll(collection));
         }
         if (overflowArea != null && overflowArea.size(collection) > 0) {
             return overflowArea.poll(collection, batchSize);
         }
-        List<Bucket> list = cache.get(collection);
+        List<Packet> list = cache.get(collection);
         if (CollectionUtils.isNotEmpty(list)) {
-            List<Bucket> sublist = list.subList(0, Math.min(batchSize, list.size()));
+            List<Packet> sublist = list.subList(0, Math.min(batchSize, list.size()));
             list.removeAll(sublist);
             return Collections.unmodifiableCollection(sublist);
         }
@@ -82,7 +82,7 @@ public class InMemoryBufferArea implements BufferArea, RemovalListener<Bucket> {
     }
 
     @Override
-    public void onRemoval(Object elderKey, Bucket elderValue) {
+    public void onRemoval(Object elderKey, Packet elderValue) {
         if (overflowArea == null) {
             return;
         }
@@ -90,13 +90,20 @@ public class InMemoryBufferArea implements BufferArea, RemovalListener<Bucket> {
         overflowArea.put(collection, elderValue);
     }
 
-    private static class NamedLruList extends LruList<Bucket> {
+    /**
+     * 
+     * @Description: NamedLruList
+     * @Author: Fred Feng
+     * @Date: 28/12/2024
+     * @Version 1.0.0
+     */
+    private static class NamedLruList extends LruList<Packet> {
 
         public NamedLruList(final String collection, final int maxSize,
-                final RemovalListener<Bucket> removalListener) {
-            super(new CopyOnWriteArrayList<>(), maxSize, new RemovalListener<Bucket>() {
+                final RemovalListener<Packet> removalListener) {
+            super(new CopyOnWriteArrayList<>(), maxSize, new RemovalListener<Packet>() {
                 @Override
-                public void onRemoval(Object elderKey, Bucket elderValue) {
+                public void onRemoval(Object elderKey, Packet elderValue) {
                     removalListener.onRemoval(collection, elderValue);
                 }
             });

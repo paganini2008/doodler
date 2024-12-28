@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -23,10 +22,11 @@ import lombok.Getter;
  * @Date: 02/05/2024
  * @Version 1.0.0
  */
-public abstract class DiscoveryClientChecker extends SimpleTimer implements ApplicationEventPublisherAware {
+public abstract class DiscoveryClientChecker extends SimpleTimer
+        implements ApplicationEventPublisherAware {
 
-    public DiscoveryClientChecker(long initialDelay, long checkInterval) {
-        super(initialDelay, checkInterval, TimeUnit.SECONDS);
+    public DiscoveryClientChecker(long initialDelay, long checkInterval, boolean quickStart) {
+        super(initialDelay, checkInterval, TimeUnit.SECONDS, quickStart);
     }
 
     @Getter
@@ -60,38 +60,44 @@ public abstract class DiscoveryClientChecker extends SimpleTimer implements Appl
 
     protected abstract Map<String, Collection<ApplicationInfo>> fetchApplicationInfos();
 
-    protected abstract void handleAffectedApplicationInfos(Collection<AffectedApplicationInfo> affects,
-                                                           ApplicationEventPublisher applicationEventPublisher);
+    protected abstract void handleAffectedApplicationInfos(
+            Collection<AffectedApplicationInfo> affects,
+            ApplicationEventPublisher applicationEventPublisher);
 
     private AffectedType getAffectedType(String affectedApplicationName,
-                                         Map<String, Collection<ApplicationInfo>> snapshots) {
-        if (latestSnapshots.containsKey(affectedApplicationName) && !snapshots.containsKey(affectedApplicationName)) {
+            Map<String, Collection<ApplicationInfo>> snapshots) {
+        if (latestSnapshots.containsKey(affectedApplicationName)
+                && !snapshots.containsKey(affectedApplicationName)) {
             return AffectedType.OFFLINE;
-        } else if (!latestSnapshots.containsKey(affectedApplicationName) &&
-                snapshots.containsKey(affectedApplicationName)) {
-                    return AffectedType.ONLINE;
-                }
+        } else if (!latestSnapshots.containsKey(affectedApplicationName)
+                && snapshots.containsKey(affectedApplicationName)) {
+            return AffectedType.ONLINE;
+        }
         return AffectedType.NONE;
     }
 
     private AffectedType getAffectedType(ApplicationInfo affectedApplicationInfo,
-                                         Collection<ApplicationInfo> lastApplicationInfos,
-                                         Collection<ApplicationInfo> applicationInfos) {
-        if (lastApplicationInfos.contains(affectedApplicationInfo) && !applicationInfos.contains(affectedApplicationInfo)) {
+            Collection<ApplicationInfo> lastApplicationInfos,
+            Collection<ApplicationInfo> applicationInfos) {
+        if (lastApplicationInfos.contains(affectedApplicationInfo)
+                && !applicationInfos.contains(affectedApplicationInfo)) {
             return AffectedType.OFFLINE;
-        } else if (!lastApplicationInfos.contains(affectedApplicationInfo) &&
-                applicationInfos.contains(affectedApplicationInfo)) {
-                    return AffectedType.ONLINE;
-                }
+        } else if (!lastApplicationInfos.contains(affectedApplicationInfo)
+                && applicationInfos.contains(affectedApplicationInfo)) {
+            return AffectedType.ONLINE;
+        }
         return AffectedType.NONE;
     }
 
-    private List<AffectedApplicationInfo> hasChanged(Map<String, Collection<ApplicationInfo>> snapshots) {
+    private List<AffectedApplicationInfo> hasChanged(
+            Map<String, Collection<ApplicationInfo>> snapshots) {
         List<AffectedApplicationInfo> affected = new ArrayList<>();
         Set<String> applicationNames = snapshots.keySet();
-        Set<String> lastApplicationNames = MapUtils.isNotEmpty(latestSnapshots) ? latestSnapshots.keySet() :
-                Collections.emptySet();
-        Collection<String> affectedApplicationNames = CollectionUtils.disjunction(applicationNames, lastApplicationNames);
+        Set<String> lastApplicationNames =
+                MapUtils.isNotEmpty(latestSnapshots) ? latestSnapshots.keySet()
+                        : Collections.emptySet();
+        Collection<String> affectedApplicationNames =
+                CollectionUtils.disjunction(applicationNames, lastApplicationNames);
         if (CollectionUtils.isNotEmpty(affectedApplicationNames)) {
             Collection<ApplicationInfo> set = Collections.emptySet();
             AffectedType affectedType;
@@ -117,14 +123,16 @@ public abstract class DiscoveryClientChecker extends SimpleTimer implements Appl
         for (Map.Entry<String, Collection<ApplicationInfo>> entry : snapshots.entrySet()) {
             applicationName = entry.getKey();
             applicationInfos = entry.getValue();
-            lastApplicationInfos = latestSnapshots.containsKey(applicationName) ? latestSnapshots.get(applicationName) :
-                    Collections.emptySet();
-            Collection<ApplicationInfo> affectedApplicationInfos = CollectionUtils.disjunction(applicationInfos,
-                    lastApplicationInfos);
+            lastApplicationInfos = latestSnapshots.containsKey(applicationName)
+                    ? latestSnapshots.get(applicationName)
+                    : Collections.emptySet();
+            Collection<ApplicationInfo> affectedApplicationInfos =
+                    CollectionUtils.disjunction(applicationInfos, lastApplicationInfos);
             if (CollectionUtils.isNotEmpty(affectedApplicationInfos)) {
                 for (ApplicationInfo applicationInfo : affectedApplicationInfos) {
                     AffectedApplicationInfo affectedInfo = new AffectedApplicationInfo();
-                    affectedInfo.setAffectedType(getAffectedType(applicationInfo, lastApplicationInfos, applicationInfos));
+                    affectedInfo.setAffectedType(getAffectedType(applicationInfo,
+                            lastApplicationInfos, applicationInfos));
                     affectedInfo.setApplicationInfo(applicationInfo);
                     affected.add(affectedInfo);
                 }

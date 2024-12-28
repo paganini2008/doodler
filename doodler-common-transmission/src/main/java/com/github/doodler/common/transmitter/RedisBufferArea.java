@@ -1,4 +1,4 @@
-package com.github.doodler.common.transmission;
+package com.github.doodler.common.transmitter;
 
 import static com.github.doodler.common.Constants.ISO8601_DATE_TIME_PATTERN;
 import java.text.SimpleDateFormat;
@@ -23,16 +23,17 @@ import com.github.doodler.common.utils.JacksonUtils;
  * @Date: 26/12/2024
  * @Version 1.0.0
  */
-
 public class RedisBufferArea implements BufferArea {
 
-    private final String namespace;
-    private final RedisTemplate<String, Bucket> redisTemplate;
+    private final TransmitterBufferProperties bufferProperties;
+    private final RedisTemplate<String, Packet> redisTemplate;
 
-    public RedisBufferArea(String namespace, RedisConnectionFactory redisConnectionFactory) {
-        this.namespace = namespace;
+    public RedisBufferArea(TransmitterBufferProperties bufferProperties,
+            RedisConnectionFactory redisConnectionFactory) {
+        this.bufferProperties = bufferProperties;
+
         Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = jsonRedisSerializer();
-        RedisTemplate<String, Bucket> redisTemplate = new RedisTemplate<>();
+        RedisTemplate<String, Packet> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         redisTemplate.setKeySerializer(RedisSerializer.string());
         redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
@@ -58,12 +59,12 @@ public class RedisBufferArea implements BufferArea {
     }
 
     @Override
-    public void put(String collection, Bucket bucket) {
+    public void put(String collection, Packet bucket) {
         redisTemplate.opsForList().leftPush(keyFor(collection), bucket);
     }
 
     private String keyFor(String collection) {
-        return namespace + ":" + collection;
+        return bufferProperties.getRedis().getNamespace() + ":" + collection;
     }
 
     @Override
@@ -72,16 +73,16 @@ public class RedisBufferArea implements BufferArea {
     }
 
     @Override
-    public Bucket poll(String collection) {
+    public Packet poll(String collection) {
         return redisTemplate.opsForList().leftPop(keyFor(collection));
     }
 
     @Override
-    public Collection<Bucket> poll(String collection, int batchSize) {
+    public Collection<Packet> poll(String collection, int batchSize) {
         if (batchSize == 1) {
             return Collections.singletonList(poll(collection));
         }
-        List<Bucket> results = redisTemplate.opsForList().leftPop(keyFor(collection), batchSize);
+        List<Packet> results = redisTemplate.opsForList().leftPop(keyFor(collection), batchSize);
         return results != null && results.size() > 0 ? Collections.unmodifiableCollection(results)
                 : Collections.emptyList();
     }

@@ -1,6 +1,8 @@
 package com.github.doodler.common.cloud.zookeeper;
 
-import org.apache.commons.codec.binary.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -14,8 +16,7 @@ import com.github.doodler.common.cloud.ApplicationInfo;
 import com.github.doodler.common.cloud.ApplicationInfoHolder;
 import com.github.doodler.common.cloud.ApplicationInfoManager;
 import com.github.doodler.common.cloud.DiscoveryClientRegistrar;
-import com.github.doodler.common.cloud.redis.CloudConstants;
-import com.github.doodler.common.utils.JacksonUtils;
+import com.github.doodler.common.cloud.MetadataCollector;
 
 /**
  * 
@@ -31,12 +32,16 @@ public class ZookeeperDiscoveryClientConfig {
 
     @Autowired
     public void configureApplicationInfo(ApplicationInfoHolder applicationInfoHolder,
-            ZookeeperDiscoveryProperties config) {
+            ZookeeperDiscoveryProperties config, List<MetadataCollector> metadataCollectors) {
         ApplicationInfo applicationInfo = applicationInfoHolder.get();
         config.setInstanceId(applicationInfo.getInstanceId());
-        String appInfoStr = JacksonUtils.toJsonString(applicationInfo);
-        appInfoStr = Base64.encodeBase64String(appInfoStr.getBytes());
-        config.getMetadata().put(CloudConstants.METADATA_APPLICATION_INFO, appInfoStr);
+        if (metadataCollectors != null) {
+            Map<String, String> mergedMap = metadataCollectors.stream()
+                    .map(MetadataCollector::getInitialData).flatMap(map -> map.entrySet().stream())
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                            (existing, replacement) -> replacement));
+            config.getMetadata().putAll(mergedMap);
+        }
     }
 
     @Bean

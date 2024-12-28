@@ -1,4 +1,4 @@
-package com.github.doodler.common.transmission;
+package com.github.doodler.common.transmitter;
 
 import java.util.Collection;
 
@@ -11,12 +11,12 @@ import java.util.Collection;
  */
 public interface BufferArea {
 
-    void put(String collection, Bucket bucket);
+    void put(String collection, Packet bucket);
 
     long size(String collection);
 
-    Bucket poll(String collection);
+    Packet poll(String collection);
 
-    Collection<Bucket> poll(String collection, int batchSize);
+    Collection<Packet> poll(String collection, int batchSize);
 
 }

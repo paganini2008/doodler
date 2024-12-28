@@ -2,7 +2,6 @@ package com.github.doodler.common.cloud;
 
 import java.util.Collection;
 import java.util.Map;
-
 import org.springframework.context.ApplicationEventPublisher;
 
 /**
@@ -16,10 +15,9 @@ public class ExclusiveDiscoveryClientChecker extends DiscoveryClientChecker {
 
     private final ApplicationInfoManager applicationInfoManager;
 
-    public ExclusiveDiscoveryClientChecker(long initialDelay,
-                                           long checkInterval,
-                                           ApplicationInfoManager applicationInfoManager) {
-        super(initialDelay, checkInterval);
+    public ExclusiveDiscoveryClientChecker(long initialDelay, long checkInterval,
+            boolean quickStart, ApplicationInfoManager applicationInfoManager) {
+        super(initialDelay, checkInterval, quickStart);
         this.applicationInfoManager = applicationInfoManager;
     }
 
@@ -35,7 +33,7 @@ public class ExclusiveDiscoveryClientChecker extends DiscoveryClientChecker {
 
     @Override
     protected void handleAffectedApplicationInfos(Collection<AffectedApplicationInfo> affects,
-                                                  ApplicationEventPublisher applicationEventPublisher) {
+            ApplicationEventPublisher applicationEventPublisher) {
         applicationEventPublisher.publishEvent(new DiscoveryClientChangeEvent(this, affects));
     }
 

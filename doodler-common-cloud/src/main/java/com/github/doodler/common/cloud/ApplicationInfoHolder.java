@@ -1,5 +1,6 @@
 package com.github.doodler.common.cloud;
 
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.lang.Nullable;
 import com.github.doodler.common.context.ContextPath;
 import com.github.doodler.common.context.InstanceId;
 import com.github.doodler.common.utils.NetUtils;
+import lombok.Setter;
 
 /**
  * @Description: ApplicationInfoHolder
@@ -42,7 +44,11 @@ public class ApplicationInfoHolder implements InitializingBean {
 
     private ApplicationInfo info;
 
+    @Setter
     private @Nullable ApplicationInfo primary;
+
+    @Setter
+    private @Nullable Map<String, String> metadata;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -53,11 +59,7 @@ public class ApplicationInfoHolder implements InitializingBean {
                 managementServerProperties.getPort() != null
                         ? managementServerProperties.getPort().intValue()
                         : 0,
-                managementServerProperties.getBasePath());
-    }
-
-    public void setPrimary(ApplicationInfo primary) {
-        this.primary = primary;
+                managementServerProperties.getBasePath(), metadata);
     }
 
     public ApplicationInfo getPrimary() {

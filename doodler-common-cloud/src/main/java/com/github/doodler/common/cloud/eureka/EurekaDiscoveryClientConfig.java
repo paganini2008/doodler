@@ -1,5 +1,6 @@
 package com.github.doodler.common.cloud.eureka;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -8,9 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.github.doodler.common.cloud.ApplicationInfoHolder;
 import com.github.doodler.common.cloud.ApplicationInfoManager;
-import com.github.doodler.common.cloud.DiscoveryClientChecker;
 import com.github.doodler.common.cloud.DiscoveryClientService;
-import com.github.doodler.common.cloud.SiblingDiscoveryClientChecker;
+import com.github.doodler.common.cloud.MetadataCollector;
 import com.github.doodler.common.context.InstanceId;
 import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.EurekaClient;
@@ -28,14 +28,17 @@ public class EurekaDiscoveryClientConfig {
 
     @Bean
     public ApplicationInfoManager applicationInfoManager(EurekaClient eurekaClient,
-                                                         com.netflix.appinfo.ApplicationInfoManager appInfoManager,
-                                                         ApplicationInfoHolder applicationInfoHolder) {
-        return new EurekaApplicationInfoManager(eurekaClient, appInfoManager, applicationInfoHolder);
+            com.netflix.appinfo.ApplicationInfoManager appInfoManager,
+            ApplicationInfoHolder applicationInfoHolder,
+            List<MetadataCollector> metadataCollectors) {
+        return new EurekaApplicationInfoManager(eurekaClient, appInfoManager, applicationInfoHolder,
+                metadataCollectors);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public DiscoveryClientService eurekaDiscoveryClientService(ApplicationInfoManager applicationInfoManager) {
+    public DiscoveryClientService eurekaDiscoveryClientService(
+            ApplicationInfoManager applicationInfoManager) {
         return new EurekaDiscoveryClientService(applicationInfoManager);
     }
 
@@ -44,14 +47,8 @@ public class EurekaDiscoveryClientConfig {
         return new EurekaDiscoveryClientRegistrar();
     }
 
-    @Bean("eurekaSiblingDiscoveryClientChecker")
-    public DiscoveryClientChecker eurekaSiblingDiscoveryClientChecker(ApplicationInfoManager applicationInfoManager) {
-        return new SiblingDiscoveryClientChecker(60, 30, applicationInfoManager);
-    }
-
     @Autowired
-    public void setInstanceId(InstanceId instanceId,
-                              EurekaInstanceConfigBean configBean) {
+    public void setInstanceId(InstanceId instanceId, EurekaInstanceConfigBean configBean) {
         configBean.setInstanceId(instanceId.get());
     }
 

@@ -20,50 +20,49 @@ import com.github.doodler.common.utils.SimpleTimer;
  */
 public class RedisCacheNameFinder extends SimpleTimer {
 
-	private final RedisCacheLoader redisCacheLoader;
+    private final RedisCacheLoader redisCacheLoader;
 
-	public RedisCacheNameFinder(long period, TimeUnit timeUnit, RedisCacheLoader redisCacheLoader) {
-		super(period, timeUnit);
-		this.redisCacheLoader = redisCacheLoader;
-	}
+    public RedisCacheNameFinder(long period, TimeUnit timeUnit, RedisCacheLoader redisCacheLoader) {
+        super(period, timeUnit);
+        this.redisCacheLoader = redisCacheLoader;
+    }
 
-	private final Map<String, String> cacheNameAndApplicationNames = new HashMap<>();
-	private final Map<String, List<String>> applicationNameAndCacheNames = new HashMap<>();
+    private final Map<String, String> cacheNameAndApplicationNames = new HashMap<>();
+    private final Map<String, List<String>> applicationNameAndCacheNames = new HashMap<>();
 
-	public String getApplicationName(String cacheName) {
-		return cacheNameAndApplicationNames.get(cacheName);
-	}
+    public String getApplicationName(String cacheName) {
+        return cacheNameAndApplicationNames.get(cacheName);
+    }
 
-	public List<String> getCacheNames(String applicationName) {
-		return applicationNameAndCacheNames.get(applicationName);
-	}
+    public List<String> getCacheNames(String applicationName) {
+        return applicationNameAndCacheNames.get(applicationName);
+    }
 
-	@Override
-	public boolean change() throws Exception {
-		Map<String, String> cacheNames = new HashMap<>();
-		for (AppName appName : AppName.values()) {
-			String applicationName = appName.getFullName();
-			Set<String> names = redisCacheLoader.getCacheNames(
-					applicationName, null);
-			names.forEach(name -> {
-				cacheNames.put(name, applicationName);
-			});
-		}
-		cacheNameAndApplicationNames.clear();
-		cacheNameAndApplicationNames.putAll(cacheNames);
+    @Override
+    public boolean change() throws Exception {
+        Map<String, String> cacheNames = new HashMap<>();
+        for (AppName appName : AppName.values()) {
+            String applicationName = appName.getFullName();
+            Set<String> names = redisCacheLoader.getCacheNames(applicationName, null);
+            names.forEach(name -> {
+                cacheNames.put(name, applicationName);
+            });
+        }
+        cacheNameAndApplicationNames.clear();
+        cacheNameAndApplicationNames.putAll(cacheNames);
 
-		Map<String, List<String>> map = new HashMap<>();
-		for (Map.Entry<String, String> entry : cacheNames.entrySet()) {
-			List<String> list = MapUtils.getOrCreate(map, entry.getValue(), ArrayList::new);
-			list.add(entry.getKey());
-		}
-		applicationNameAndCacheNames.clear();
-		applicationNameAndCacheNames.putAll(map);
-		return true;
-	}
+        Map<String, List<String>> map = new HashMap<>();
+        for (Map.Entry<String, String> entry : cacheNames.entrySet()) {
+            List<String> list = MapUtils.getOrCreate(map, entry.getValue(), ArrayList::new);
+            list.add(entry.getKey());
+        }
+        applicationNameAndCacheNames.clear();
+        applicationNameAndCacheNames.putAll(map);
+        return true;
+    }
 
-	@EventListener(ApplicationReadyEvent.class)
-	public void onApplicationReady() {
-		run();
-	}
+    @EventListener(ApplicationReadyEvent.class)
+    public void onApplicationReadyEvent() {
+        run();
+    }
 }

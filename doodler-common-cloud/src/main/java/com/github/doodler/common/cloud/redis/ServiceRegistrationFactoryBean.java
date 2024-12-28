@@ -1,10 +1,14 @@
 package com.github.doodler.common.cloud.redis;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import com.github.doodler.common.cloud.ApplicationInfo;
 import com.github.doodler.common.cloud.ApplicationInfoHolder;
+import com.github.doodler.common.cloud.MetadataCollector;
 import com.github.doodler.common.context.ContextPath;
 import lombok.RequiredArgsConstructor;
 
@@ -21,8 +25,7 @@ public class ServiceRegistrationFactoryBean implements FactoryBean<ServiceRegist
     @Autowired
     private ApplicationInfoHolder applicationInfoHolder;
 
-    @Autowired(required = false)
-    private MetadataCollector metadataCollector;
+    private List<MetadataCollector> metadataCollectors;
 
     @Value("${spring.application.weight:1}")
     private int weight;
@@ -48,8 +51,12 @@ public class ServiceRegistrationFactoryBean implements FactoryBean<ServiceRegist
         redisRegistration.setActuatorPort(applicationInfo.getActuatorPort());
         redisRegistration.setWeight(weight);
         redisRegistration.setRegisterSelf(registerSelf);
-        if (metadataCollector != null) {
-            redisRegistration.setMetadata(metadataCollector.getMetadataMap());
+        if (metadataCollectors != null) {
+            Map<String, String> mergedMap = metadataCollectors.stream()
+                    .map(MetadataCollector::getInitialData).flatMap(map -> map.entrySet().stream())
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                            (existing, replacement) -> replacement));
+            redisRegistration.getMetadata().putAll(mergedMap);
         }
         return redisRegistration;
     }
