@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
@@ -46,14 +47,14 @@ public class ZookeeperApplicationInfoManager implements ApplicationInfoManager {
             List<ServiceInstance> serviceInstances =
                     zookeeperDiscoveryClient.getInstances(serviceId);
             if (includedSelf || (!includedSelf && !serviceId.equalsIgnoreCase(applicationName))) {
-                results.put(serviceId, serviceInstances.stream().map(this::convert)
+                results.put(serviceId, serviceInstances.stream().map(this::convert2ApplicationInfo)
                         .filter(i -> i != null).collect(Collectors.toList()));
             }
         }
         return results;
     }
 
-    private ApplicationInfo convert(ServiceInstance serviceInstance) {
+    private ApplicationInfo convert2ApplicationInfo(ServiceInstance serviceInstance) {
         String appInfoString =
                 serviceInstance.getMetadata().get(CloudConstants.METADATA_APPLICATION_INFO);
         if (StringUtils.isBlank(appInfoString)) {
@@ -76,6 +77,22 @@ public class ZookeeperApplicationInfoManager implements ApplicationInfoManager {
         }
         return instanceInfos.stream().filter(info -> applicationInfoHolder.get().isSibling(info))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, String> getMetadata() {
+        ApplicationInfo applicationInfo = applicationInfoHolder.get();
+        List<ServiceInstance> serviceInstances =
+                zookeeperDiscoveryClient.getInstances(applicationInfo.getServiceId());
+        if (CollectionUtils.isEmpty(serviceInstances)) {
+            return Collections.emptyMap();
+        }
+        Optional<ServiceInstance> opt = serviceInstances.stream()
+                .filter(i -> i.getInstanceId().equals(applicationInfo.getInstanceId())).findFirst();
+        if (opt.isPresent()) {
+            return opt.get().getMetadata();
+        }
+        return Collections.emptyMap();
     }
 
 }

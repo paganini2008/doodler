@@ -139,20 +139,33 @@ public class RedisServiceInstanceManager extends SimpleTimer
         Optional<ApplicationInstance> op =
                 instances.stream().filter(i -> i.equals(instance)).findFirst();
         if (op.isPresent()) {
-            ApplicationInstance existed = op.get();
-            if (existed.getMetadata() != null) {
-                existed.getMetadata().putAll(metadata);
+            ApplicationInstance existedInstance = op.get();
+            if (existedInstance.getMetadata() != null) {
+                existedInstance.getMetadata().putAll(metadata);
             } else {
-                existed.setMetadata(metadata);
+                existedInstance.setMetadata(metadata);
             }
-            int index = instances.indexOf(existed);
+            int index = instances.indexOf(existedInstance);
             if (index != -1) {
-                redisTemplate.opsForList().set(key, index, existed);
+                redisTemplate.opsForList().set(key, index, existedInstance);
                 if (log.isInfoEnabled()) {
-                    log.info("Update application instance '{}'", existed);
+                    log.info("Update metadata of application instance '{}'", existedInstance);
                 }
             }
         }
+    }
+
+    @Override
+    public Map<String, String> getMetadata(ServiceInstance instance) {
+        String key = getKey(instance.getServiceId());
+        List<ApplicationInstance> instances = redisTemplate.opsForList().range(key, 0, -1);
+        Optional<ApplicationInstance> op =
+                instances.stream().filter(i -> i.equals(instance)).findFirst();
+        if (op.isPresent()) {
+            ApplicationInstance existedInstance = op.get();
+            return existedInstance.getMetadata();
+        }
+        return Collections.emptyMap();
     }
 
     @Override
@@ -257,5 +270,7 @@ public class RedisServiceInstanceManager extends SimpleTimer
         Set<String> results = maintainanceMap.get(applicationInstance.getServiceId());
         return results != null && results.contains(applicationInstance.getInstanceId());
     }
+
+
 
 }

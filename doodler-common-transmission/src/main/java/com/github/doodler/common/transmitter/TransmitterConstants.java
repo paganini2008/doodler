@@ -9,6 +9,6 @@ package com.github.doodler.common.transmitter;
  */
 public interface TransmitterConstants {
 
-    String TRANSMITTER_SERVER_LOCATION = "TRANSMITTER_SERVER_LOCATION";
+    String TRANSMITTER_SERVER_LOCATION = "TRANSMITTER-SERVER-LOCATION";
 
 }

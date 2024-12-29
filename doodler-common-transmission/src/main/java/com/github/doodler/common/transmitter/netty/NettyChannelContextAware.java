@@ -11,10 +11,15 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.github.doodler.common.transmitter;
+package com.github.doodler.common.transmitter.netty;
 
 import java.net.SocketAddress;
+import com.github.doodler.common.transmitter.ChannelContext;
+import com.github.doodler.common.transmitter.ChannelEvent;
 import com.github.doodler.common.transmitter.ChannelEvent.EventType;
+import com.github.doodler.common.transmitter.ChannelEventListener;
+import com.github.doodler.common.transmitter.ConnectionKeeper;
+import com.github.doodler.common.transmitter.Packet;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -29,15 +34,15 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 public abstract class NettyChannelContextAware extends ChannelInboundHandlerAdapter
         implements ChannelContext<Channel> {
 
-    private ConnectionWatcher connectionWatcher;
+    private ConnectionKeeper connectionKeeper;
     private ChannelEventListener<Channel> channelEventListener;
 
-    public ConnectionWatcher getConnectionWatcher() {
-        return connectionWatcher;
+    public ConnectionKeeper getConnectionKeeper() {
+        return connectionKeeper;
     }
 
-    public void setConnectionWatcher(ConnectionWatcher connectionWatcher) {
-        this.connectionWatcher = connectionWatcher;
+    public void setConnectionKeeper(ConnectionKeeper connectionKeeper) {
+        this.connectionKeeper = connectionKeeper;
     }
 
     @Override
@@ -96,8 +101,8 @@ public abstract class NettyChannelContextAware extends ChannelInboundHandlerAdap
     }
 
     private void fireReconnectionIfNecessary(SocketAddress remoteAddress) {
-        if (connectionWatcher != null) {
-            connectionWatcher.reconnect(remoteAddress);
+        if (connectionKeeper != null) {
+            connectionKeeper.reconnect(remoteAddress);
         }
     }
 

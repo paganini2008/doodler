@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.github.doodler.common.transmitter.utils;
+package com.github.doodler.common.transmitter.serializer;
 
 import org.nustaq.serialization.FSTConfiguration;
 import com.github.doodler.common.transmitter.Packet;

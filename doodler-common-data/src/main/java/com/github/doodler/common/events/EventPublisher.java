@@ -1,4 +1,4 @@
-package com.github.doodler.common.transmitter;
+package com.github.doodler.common.events;
 
 import java.util.Collection;
 

@@ -24,6 +24,8 @@ public interface ServiceInstanceManager {
 
     String getInstanceStatus(ServiceInstance instance);
 
+    Map<String, String> getMetadata(ServiceInstance instance);
+
     void setInstanceStatus(ServiceInstance instance, String status);
 
     void registerInstance(ServiceInstance instance);

@@ -16,6 +16,7 @@ public class TransmitterNioProperties {
 
     private NioClient client;
     private NioServer server;
+    private boolean connectWithSelf = true;
 
     @Data
     public static class NioClient {

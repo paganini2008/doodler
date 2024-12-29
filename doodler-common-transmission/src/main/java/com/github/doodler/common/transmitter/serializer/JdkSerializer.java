@@ -1,4 +1,4 @@
-package com.github.doodler.common.transmitter.utils;
+package com.github.doodler.common.transmitter.serializer;
 
 import org.apache.commons.lang3.SerializationUtils;
 import com.github.doodler.common.transmitter.Packet;

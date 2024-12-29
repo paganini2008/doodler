@@ -1,10 +1,16 @@
-package com.github.doodler.common.transmitter;
+package com.github.doodler.common.transmitter.netty;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.github.doodler.common.transmitter.KeepAlivePolicy;
+import com.github.doodler.common.transmitter.MessageCodecFactory;
+import com.github.doodler.common.transmitter.NioServer;
+import com.github.doodler.common.transmitter.TransmitterNioProperties;
+import com.github.doodler.common.transmitter.TransportClientException;
 import com.github.doodler.common.utils.NetUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -35,17 +41,24 @@ public class NettyServer implements NioServer {
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
-    private final TransmitterNioProperties transmitterProperties;
-    private final NettyServerHandler serverHandler;
-    private final MessageCodecFactory codecFactory;
-    private final KeepAlivePolicy keepAlivePolicy;
+    @Autowired
+    private TransmitterNioProperties nioProperties;
+
+    @Autowired
+    private NettyServerHandler serverHandler;
+
+    @Autowired
+    private MessageCodecFactory codecFactory;
+
+    @Autowired
+    private KeepAlivePolicy keepAlivePolicy;
 
     @Override
     public SocketAddress start() {
         if (isStarted()) {
-            throw new IllegalStateException("Netty has been started.");
+            throw new IllegalStateException("NettyServer has been started.");
         }
-        TransmitterNioProperties.NioServer serverConfig = transmitterProperties.getServer();
+        TransmitterNioProperties.NioServer serverConfig = nioProperties.getServer();
         final int nThreads = serverConfig.getThreadCount() > 0 ? serverConfig.getThreadCount()
                 : Runtime.getRuntime().availableProcessors() * 2;
         bossGroup = new NioEventLoopGroup(nThreads);
@@ -89,7 +102,7 @@ public class NettyServer implements NioServer {
             return;
         }
         if (!isStarted()) {
-            return;
+            throw new IllegalStateException("NettyServer is not started.");
         }
         try {
             Future<?> workerFuture = workerGroup.shutdownGracefully();
@@ -97,7 +110,7 @@ public class NettyServer implements NioServer {
             bossFuture.await();
             workerFuture.await();
             started.set(false);
-            log.info("Netty is stoped successfully.");
+            log.info("NettyServer has been stoped successfully.");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

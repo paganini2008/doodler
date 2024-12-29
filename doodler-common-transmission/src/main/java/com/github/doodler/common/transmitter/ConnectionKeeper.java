@@ -7,18 +7,18 @@ import com.github.doodler.common.utils.ThreadUtils;
 
 /**
  * 
- * @Description: ConnectionWatcher
+ * @Description: ConnectionKeeper
  * @Author: Fred Feng
  * @Date: 27/12/2024
  * @Version 1.0.0
  */
-public final class ConnectionWatcher {
+public final class ConnectionKeeper {
 
     private final int checkInterval;
     private final TimeUnit timeUnit;
     private final NioConnection connection;
 
-    public ConnectionWatcher(int checkInterval, TimeUnit timeUnit, NioConnection connection) {
+    public ConnectionKeeper(int checkInterval, TimeUnit timeUnit, NioConnection connection) {
         this.checkInterval = checkInterval;
         this.timeUnit = timeUnit;
         this.connection = connection;
@@ -30,11 +30,11 @@ public final class ConnectionWatcher {
         observable.notifyObservers(remoteAddress);
     }
 
-    public void watch(final SocketAddress remoteAddress, final HandshakeCallback callback) {
+    public void keep(final SocketAddress remoteAddress, final HandshakeCallback callback) {
         observable.addObserver((ob, arg) -> {
             do {
                 ThreadUtils.sleep(checkInterval, timeUnit);
-                connection.connect(remoteAddress, callback);
+                connection.connect((SocketAddress) arg, callback);
             } while (!connection.isConnected(remoteAddress));
         });
     }

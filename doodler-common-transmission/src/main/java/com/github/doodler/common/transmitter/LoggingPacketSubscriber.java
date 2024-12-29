@@ -1,5 +1,6 @@
 package com.github.doodler.common.transmitter;
 
+import com.github.doodler.common.events.EventSubscriber;
 import lombok.extern.slf4j.Slf4j;
 
 /**

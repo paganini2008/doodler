@@ -1,5 +1,7 @@
-package com.github.doodler.common.transmitter;
+package com.github.doodler.common.transmitter.netty;
 
+import com.github.doodler.common.transmitter.KeepAlivePolicy;
+import com.github.doodler.common.transmitter.Packet;
 import io.netty.channel.ChannelHandlerContext;
 
 /**

@@ -35,6 +35,10 @@ public class NioServerBootstrap implements ManagedBeanLifeCycle, MetadataCollect
         return Map.of(TransmitterConstants.TRANSMITTER_SERVER_LOCATION, serverLocation);
     }
 
+    public InetSocketAddress getLocalAddress() {
+        return localAddress;
+    }
+
     @Override
     public void destroy() throws Exception {
         if (nioServer != null) {
@@ -46,5 +50,6 @@ public class NioServerBootstrap implements ManagedBeanLifeCycle, MetadataCollect
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE;
     }
+
 
 }

@@ -1,8 +1,18 @@
-package com.github.doodler.common.transmitter;
+package com.github.doodler.common.transmitter.netty;
 
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.github.doodler.common.transmitter.ChannelEventListener;
+import com.github.doodler.common.transmitter.ConnectionKeeper;
+import com.github.doodler.common.transmitter.HandshakeCallback;
+import com.github.doodler.common.transmitter.MessageCodecFactory;
+import com.github.doodler.common.transmitter.NioClient;
+import com.github.doodler.common.transmitter.Packet;
+import com.github.doodler.common.transmitter.Partitioner;
+import com.github.doodler.common.transmitter.TransmitterNioProperties;
+import com.github.doodler.common.transmitter.TransportClientException;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -28,18 +38,21 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NettyClient implements NioClient {
 
-    private final TransmitterNioProperties transmitterProperties;
-    private final MessageCodecFactory messageCodecFactory;
-
     private final NettyChannelContext channelContext = new NettyChannelContext();
     private final AtomicBoolean opened = new AtomicBoolean(false);
     private EventLoopGroup workerGroup;
     private Bootstrap bootstrap;
 
+    @Autowired
+    private TransmitterNioProperties nioProperties;
 
+    @Autowired
+    private MessageCodecFactory codecFactory;
+
+    @Override
     public void watchConnection(int checkInterval, TimeUnit timeUnit) {
         this.channelContext
-                .setConnectionWatcher(new ConnectionWatcher(checkInterval, timeUnit, this));
+                .setConnectionKeeper(new ConnectionKeeper(checkInterval, timeUnit, this));
     }
 
     public void setChannelEventListener(ChannelEventListener<Channel> channelEventListener) {
@@ -47,7 +60,7 @@ public class NettyClient implements NioClient {
     }
 
     public void open() {
-        TransmitterNioProperties.NioClient clientConfig = transmitterProperties.getClient();
+        TransmitterNioProperties.NioClient clientConfig = nioProperties.getClient();
         final int nThreads = clientConfig.getThreadCount() > 0 ? clientConfig.getThreadCount()
                 : Runtime.getRuntime().availableProcessors() * 2;
         workerGroup = new NioEventLoopGroup(nThreads);
@@ -64,8 +77,7 @@ public class NettyClient implements NioClient {
                         clientConfig.getWriterIdleTimeout(), clientConfig.getAllIdleTimeout(),
                         TimeUnit.SECONDS));
                 pipeline.addLast(new NettyClientKeepAlivePolicy());
-                pipeline.addLast(messageCodecFactory.getEncoder(),
-                        messageCodecFactory.getDecoder());
+                pipeline.addLast(codecFactory.getEncoder(), codecFactory.getDecoder());
                 pipeline.addLast(channelContext);
             }
         });
@@ -86,10 +98,10 @@ public class NettyClient implements NioClient {
                     .addListener(new GenericFutureListener<ChannelFuture>() {
                         public void operationComplete(ChannelFuture future) throws Exception {
                             if (future.isSuccess()) {
-                                ConnectionWatcher connectionWatcher =
-                                        channelContext.getConnectionWatcher();
-                                if (connectionWatcher != null) {
-                                    connectionWatcher.watch(remoteAddress, handshakeCallback);
+                                ConnectionKeeper connectionKeeper =
+                                        channelContext.getConnectionKeeper();
+                                if (connectionKeeper != null) {
+                                    connectionKeeper.keep(remoteAddress, handshakeCallback);
                                 }
                                 if (handshakeCallback != null) {
                                     handshakeCallback.operationComplete(remoteAddress);

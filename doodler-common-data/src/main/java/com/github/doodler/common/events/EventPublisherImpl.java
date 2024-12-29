@@ -1,20 +1,15 @@
-package com.github.doodler.common.transmitter;
+package com.github.doodler.common.events;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import org.apache.commons.collections4.CollectionUtils;
-import com.github.doodler.common.utils.ExecutorUtils;
-import com.github.doodler.common.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -135,31 +130,31 @@ public class EventPublisherImpl<T>
 
     }
 
-    public static void main(String[] args) throws IOException {
-        Executor executor = Executors.newFixedThreadPool(10);
-        EventPublisher<Packet> eventPublisher =
-                new EventPublisherImpl<>(executor, 256, 10, 100, new InMemoryBuffer<>(500), 5000);
-        eventPublisher.subscribe(Arrays.asList(new EventSubscriber<Packet>() {
-
-            @Override
-            public void consume(Packet item) {
-                System.out.println(ThreadUtils.currentThreadName() + " Received: " + item);
-                ThreadUtils.randomSleep(500);
-            }
-
-            @Override
-            public void handleError(Throwable e) {
-                e.printStackTrace();
-            }
-
-
-        }));
-        for (int i = 0; i < 1000; i++) {
-            eventPublisher.publish(Packet.byString("Item_" + i));
-        }
-        System.in.read();
-        eventPublisher.destroy();
-        ExecutorUtils.gracefulShutdown(executor, 60000);
-    }
+    // public static void main(String[] args) throws IOException {
+    // Executor executor = Executors.newFixedThreadPool(10);
+    // EventPublisher<Packet> eventPublisher =
+    // new EventPublisherImpl<>(executor, 256, 10, 100, new InMemoryBuffer<>(500), 5000);
+    // eventPublisher.subscribe(Arrays.asList(new EventSubscriber<Packet>() {
+    //
+    // @Override
+    // public void consume(Packet item) {
+    // System.out.println(ThreadUtils.currentThreadName() + " Received: " + item);
+    // ThreadUtils.randomSleep(500);
+    // }
+    //
+    // @Override
+    // public void handleError(Throwable e) {
+    // e.printStackTrace();
+    // }
+    //
+    //
+    // }));
+    // for (int i = 0; i < 1000; i++) {
+    // eventPublisher.publish(Packet.byString("Item_" + i));
+    // }
+    // System.in.read();
+    // eventPublisher.destroy();
+    // ExecutorUtils.gracefulShutdown(executor, 60000);
+    // }
 
 }

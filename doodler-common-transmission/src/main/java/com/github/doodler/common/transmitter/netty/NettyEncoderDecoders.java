@@ -1,7 +1,9 @@
-package com.github.doodler.common.transmitter;
+package com.github.doodler.common.transmitter.netty;
 
 import java.util.List;
-import com.github.doodler.common.transmitter.utils.Serializer;
+import com.github.doodler.common.transmitter.Packet;
+import com.github.doodler.common.transmitter.TransportClientException;
+import com.github.doodler.common.transmitter.serializer.Serializer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;

@@ -59,6 +59,11 @@ public class EurekaApplicationInfoManager implements ApplicationInfoManager, Man
     }
 
     @Override
+    public Map<String, String> getMetadata() {
+        return appInfoManager.getInfo().getMetadata();
+    }
+
+    @Override
     public Collection<ApplicationInfo> getApplicationInfos(String applicationName) {
         List<InstanceInfo> instanceInfos =
                 eurekaClient.getInstancesByVipAddress(applicationName, false);
@@ -92,12 +97,12 @@ public class EurekaApplicationInfoManager implements ApplicationInfoManager, Man
                 (a, b) -> LangUtils.compareTo(b.getLeaseInfo().getServiceUpTimestamp(),
                         a.getLeaseInfo().getServiceUpTimestamp()));
         List<ApplicationInfo> appInfos =
-                copy.stream().map(info -> createApplicationInfo(info)).filter(info -> info != null)
+                copy.stream().map(info -> getApplicationInfo(info)).filter(info -> info != null)
                         .collect(Collectors.toCollection(CopyOnWriteArrayList::new));
         return appInfos;
     }
 
-    protected ApplicationInfo createApplicationInfo(InstanceInfo info) {
+    protected ApplicationInfo getApplicationInfo(InstanceInfo info) {
         String json = info.getMetadata().get(CloudConstants.METADATA_APPLICATION_INFO);
         if (StringUtils.isBlank(json)) {
             return null;

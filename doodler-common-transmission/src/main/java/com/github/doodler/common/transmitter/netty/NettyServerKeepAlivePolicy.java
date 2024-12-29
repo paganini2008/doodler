@@ -1,6 +1,11 @@
-package com.github.doodler.common.transmitter;
+package com.github.doodler.common.transmitter.netty;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import com.github.doodler.common.transmitter.ChannelEvent;
+import com.github.doodler.common.transmitter.ChannelEventListener;
+import com.github.doodler.common.transmitter.KeepAlivePolicy;
+import com.github.doodler.common.transmitter.Packet;
+import com.github.doodler.common.transmitter.TransmitterNioProperties;
 import com.github.doodler.common.transmitter.ChannelEvent.EventType;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;

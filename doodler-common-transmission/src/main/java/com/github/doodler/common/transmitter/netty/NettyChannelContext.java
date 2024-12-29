@@ -1,9 +1,11 @@
-package com.github.doodler.common.transmitter;
+package com.github.doodler.common.transmitter.netty;
 
 import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import com.github.doodler.common.transmitter.ChannelContext;
+import com.github.doodler.common.transmitter.Partitioner;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
 import lombok.extern.slf4j.Slf4j;
@@ -13,11 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 public class NettyChannelContext extends NettyChannelContextAware
         implements ChannelContext<Channel> {
 
-    private final List<Channel> holder = new CopyOnWriteArrayList<Channel>();
+    private final List<Channel> channelHolds = new CopyOnWriteArrayList<Channel>();
 
     public void addChannel(Channel channel, int weight) {
         for (int i = 0; i < weight; i++) {
-            holder.add(channel);
+            channelHolds.add(channel);
         }
         if (log.isTraceEnabled()) {
             log.trace("Current channel size: " + countOfChannels());
@@ -25,7 +27,7 @@ public class NettyChannelContext extends NettyChannelContextAware
     }
 
     public Channel getChannel(SocketAddress address) {
-        for (Channel channel : holder) {
+        for (Channel channel : channelHolds) {
             if (channel.remoteAddress() != null && channel.remoteAddress().equals(address)) {
                 return channel;
             }
@@ -34,23 +36,23 @@ public class NettyChannelContext extends NettyChannelContextAware
     }
 
     public void removeChannel(SocketAddress address) {
-        for (Channel channel : holder) {
+        for (Channel channel : channelHolds) {
             if (channel.remoteAddress() != null && channel.remoteAddress().equals(address)) {
-                holder.remove(channel);
+                channelHolds.remove(channel);
             }
         }
     }
 
     public int countOfChannels() {
-        return holder.size();
+        return channelHolds.size();
     }
 
     public Channel selectChannel(Object data, Partitioner partitioner) {
-        return holder.isEmpty() ? null : partitioner.selectChannel(data, holder);
+        return channelHolds.isEmpty() ? null : partitioner.selectChannel(data, channelHolds);
     }
 
     public Collection<Channel> getChannels() {
-        return holder;
+        return channelHolds;
     }
 
 }

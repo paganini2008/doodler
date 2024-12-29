@@ -1,4 +1,4 @@
-package com.github.doodler.common.transmitter.utils;
+package com.github.doodler.common.transmitter.serializer;
 
 import java.io.IOException;
 import com.fasterxml.jackson.databind.ObjectMapper;

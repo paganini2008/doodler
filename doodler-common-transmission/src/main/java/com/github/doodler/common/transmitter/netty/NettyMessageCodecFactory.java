@@ -1,7 +1,8 @@
-package com.github.doodler.common.transmitter;
+package com.github.doodler.common.transmitter.netty;
 
-import com.github.doodler.common.transmitter.utils.KryoSerializer;
-import com.github.doodler.common.transmitter.utils.Serializer;
+import com.github.doodler.common.transmitter.MessageCodecFactory;
+import com.github.doodler.common.transmitter.serializer.KryoSerializer;
+import com.github.doodler.common.transmitter.serializer.Serializer;
 import io.netty.channel.ChannelHandler;
 
 /**

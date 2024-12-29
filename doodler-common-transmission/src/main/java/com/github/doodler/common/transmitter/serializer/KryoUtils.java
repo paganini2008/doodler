@@ -1,5 +1,5 @@
 
-package com.github.doodler.common.transmitter.utils;
+package com.github.doodler.common.transmitter.serializer;
 
 import static org.apache.commons.io.IOUtils.closeQuietly;
 import java.io.ByteArrayInputStream;

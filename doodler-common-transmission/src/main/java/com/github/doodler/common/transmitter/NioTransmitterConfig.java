@@ -10,8 +10,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import com.github.doodler.common.transmitter.utils.KryoSerializer;
-import com.github.doodler.common.transmitter.utils.Serializer;
+import com.github.doodler.common.cloud.ApplicationInfoManager;
+import com.github.doodler.common.events.Buffer;
+import com.github.doodler.common.events.EventPublisher;
+import com.github.doodler.common.events.EventPublisherImpl;
+import com.github.doodler.common.events.EventSubscriber;
+import com.github.doodler.common.transmitter.netty.NettyChannelEventListener;
+import com.github.doodler.common.transmitter.netty.NettyClient;
+import com.github.doodler.common.transmitter.netty.NettyMessageCodecFactory;
+import com.github.doodler.common.transmitter.netty.NettyServer;
+import com.github.doodler.common.transmitter.netty.NettyServerHandler;
+import com.github.doodler.common.transmitter.netty.NettyServerKeepAlivePolicy;
+import com.github.doodler.common.transmitter.serializer.KryoSerializer;
+import com.github.doodler.common.transmitter.serializer.Serializer;
+import io.netty.channel.Channel;
 
 /**
  * 
@@ -23,6 +35,9 @@ import com.github.doodler.common.transmitter.utils.Serializer;
 @EnableConfigurationProperties({TransmitterNioProperties.class, TransmitterEventProperties.class})
 @Configuration(proxyBeanMethods = false)
 public class NioTransmitterConfig {
+
+    @Autowired
+    private TransmitterNioProperties nioProperties;
 
     @Autowired
     private TransmitterEventProperties eventProperties;
@@ -41,8 +56,9 @@ public class NioTransmitterConfig {
     }
 
     @Bean
-    public NioClientBootstrap nioClientBootstrap(NioClient nioClient) {
-        return new NioClientBootstrap(nioClient);
+    public NioClientBootstrap nioClientBootstrap(NioClient nioClient,
+            ApplicationInfoManager applicationInfoManager) {
+        return new NioClientBootstrap(nioProperties, nioClient, applicationInfoManager);
     }
 
     @ConditionalOnMissingBean
@@ -77,6 +93,46 @@ public class NioTransmitterConfig {
     @Bean
     public LoggingPacketSubscriber loggingPacketSubscriber() {
         return new LoggingPacketSubscriber();
+    }
+
+
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnProperty(name = "doodler.transmitter.nio.selection", havingValue = "netty",
+            matchIfMissing = true)
+    public static class NettyTransportConfig {
+
+        @Bean(initMethod = "open", destroyMethod = "close")
+        public NioClient nioClient(MessageCodecFactory codecFactory) {
+            return new NettyClient();
+        }
+
+        @Bean
+        public NioServer nioServer() {
+            return new NettyServer();
+        }
+
+        @ConditionalOnMissingBean
+        @Bean
+        public KeepAlivePolicy keepAlivePolicy() {
+            return new NettyServerKeepAlivePolicy();
+        }
+
+        @ConditionalOnMissingBean
+        @Bean
+        public MessageCodecFactory codecFactory(Serializer serializer) {
+            return new NettyMessageCodecFactory(serializer);
+        }
+
+        @Bean
+        public NettyServerHandler serverHandler() {
+            return new NettyServerHandler();
+        }
+
+        @ConditionalOnMissingBean(ChannelEventListener.class)
+        @Bean
+        public ChannelEventListener<Channel> channelEventListener() {
+            return new NettyChannelEventListener();
+        }
     }
 
 }
