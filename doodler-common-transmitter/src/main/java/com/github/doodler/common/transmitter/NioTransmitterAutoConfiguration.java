@@ -27,14 +27,14 @@ import io.netty.channel.Channel;
 
 /**
  * 
- * @Description: NioTransmitterConfig
+ * @Description: NioTransmitterAutoConfiguration
  * @Author: Fred Feng
  * @Date: 28/12/2024
  * @Version 1.0.0
  */
 @EnableConfigurationProperties({TransmitterNioProperties.class, TransmitterEventProperties.class})
 @Configuration(proxyBeanMethods = false)
-public class NioTransmitterConfig {
+public class NioTransmitterAutoConfiguration {
 
     @Autowired
     private TransmitterNioProperties nioProperties;
@@ -128,7 +128,7 @@ public class NioTransmitterConfig {
             return new NettyServerHandler();
         }
 
-        @ConditionalOnMissingBean(ChannelEventListener.class)
+        @ConditionalOnMissingBean
         @Bean
         public ChannelEventListener<Channel> channelEventListener() {
             return new NettyChannelEventListener();

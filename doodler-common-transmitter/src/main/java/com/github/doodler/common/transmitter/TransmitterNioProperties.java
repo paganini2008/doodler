@@ -14,8 +14,8 @@ import lombok.Data;
 @Data
 public class TransmitterNioProperties {
 
-    private NioClient client;
-    private NioServer server;
+    private NioClient client = new NioClient();
+    private NioServer server = new NioServer();
     private boolean connectWithSelf = true;
 
     @Data

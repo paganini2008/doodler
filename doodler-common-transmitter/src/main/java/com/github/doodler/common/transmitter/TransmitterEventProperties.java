@@ -19,8 +19,8 @@ public class TransmitterEventProperties {
     private long timeout = 100L;
     private long bufferCleanInterval = 5L * 1000;
 
-    private InMemoryBuffer memory;
-    private RedisBuffer redis;
+    private InMemoryBuffer memory = new InMemoryBuffer();
+    private RedisBuffer redis = new RedisBuffer();
 
     @Data
     public static class InMemoryBuffer {

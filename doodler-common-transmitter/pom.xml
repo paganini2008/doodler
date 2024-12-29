@@ -10,7 +10,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>doodler-common-transmission</artifactId>
+    <artifactId>doodler-common-transmitter</artifactId>
     <packaging>jar</packaging>
     
     <properties>

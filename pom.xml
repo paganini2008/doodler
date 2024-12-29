@@ -49,7 +49,7 @@
 		<module>doodler-common-gateway</module>
 		<module>doodler-common-timeseries</module>
 		<module>doodler-common-traffic</module>
-		<module>doodler-common-transmission</module>
+		<module>doodler-common-transmitter</module>
 		<module>doodler-common-jta</module>
         <module>doodler-common-hazelcast</module>
 		<module>doodler-common-elasticsearch</module>
@@ -243,6 +243,12 @@
             <dependency>
                 <groupId>com.github.doodler</groupId>
                 <artifactId>doodler-common-hazelcast</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+            
+             <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-transmitter</artifactId>
                 <version>${doodler.backend.version}</version>
             </dependency>
             
