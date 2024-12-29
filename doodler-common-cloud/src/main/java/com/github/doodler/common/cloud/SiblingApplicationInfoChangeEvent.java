@@ -13,14 +13,17 @@ public class SiblingApplicationInfoChangeEvent extends ApplicationEvent {
 
     private static final long serialVersionUID = -4880922361101293113L;
 
-    public SiblingApplicationInfoChangeEvent(Object source, Collection<AffectedApplicationInfo> affects) {
+    public SiblingApplicationInfoChangeEvent(Object source,
+            Collection<AffectedApplicationInfo> affectedApplications) {
         super(source);
-        this.affects = affects;
+        this.affectedApplications = affectedApplications;
     }
 
-    private final Collection<AffectedApplicationInfo> affects;
+    private final Collection<AffectedApplicationInfo> affectedApplications;
 
-    public Collection<AffectedApplicationInfo> getAffects() {
-        return affects;
+    public Collection<AffectedApplicationInfo> getAffectedApplications() {
+        return affectedApplications;
     }
+
+
 }

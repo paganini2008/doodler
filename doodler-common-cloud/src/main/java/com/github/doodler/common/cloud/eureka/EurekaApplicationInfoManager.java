@@ -49,12 +49,12 @@ public class EurekaApplicationInfoManager implements ApplicationInfoManager, Man
                     .map(MetadataCollector::getInitialData).flatMap(map -> map.entrySet().stream())
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                             (existing, replacement) -> replacement));
-            saveMetadata(mergedMap);
+            updateMetadata(mergedMap);
         }
     }
 
     @Override
-    public void saveMetadata(Map<String, String> data) {
+    public void updateMetadata(Map<String, String> data) {
         appInfoManager.registerAppMetadata(data);
     }
 

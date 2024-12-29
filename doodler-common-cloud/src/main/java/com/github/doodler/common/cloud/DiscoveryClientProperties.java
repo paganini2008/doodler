@@ -14,8 +14,8 @@ import lombok.Data;
 @ConfigurationProperties("doodler.cloud")
 public class DiscoveryClientProperties {
 
-    private SiblingChecker siblingChecker;
-    private ExclusiveChecker exclusiveChecker;
+    private SiblingChecker sibling = new SiblingChecker();
+    private ExclusiveChecker exclusive = new ExclusiveChecker();
 
     @Data
     public static class SiblingChecker {

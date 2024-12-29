@@ -31,8 +31,7 @@ public class DiscoveryClientConfig {
     public DiscoveryClientChecker siblingDiscoveryClientChecker(
             ApplicationInfoManager applicationInfoManager) {
         return new SiblingDiscoveryClientChecker(60, 30,
-                discoveryClientProperties.getSiblingChecker().isQuickStart(),
-                applicationInfoManager);
+                discoveryClientProperties.getSibling().isQuickStart(), applicationInfoManager);
     }
 
     @Bean
@@ -45,8 +44,7 @@ public class DiscoveryClientConfig {
     public DiscoveryClientChecker exclusiveDiscoveryClientChecker(
             ApplicationInfoManager applicationInfoManager) {
         return new ExclusiveDiscoveryClientChecker(60, 30,
-                discoveryClientProperties.getExclusiveChecker().isQuickStart(),
-                applicationInfoManager);
+                discoveryClientProperties.getExclusive().isQuickStart(), applicationInfoManager);
     }
 
     @ConditionalOnMissingBean

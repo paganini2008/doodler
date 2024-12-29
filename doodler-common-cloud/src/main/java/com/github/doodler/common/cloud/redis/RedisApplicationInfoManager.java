@@ -52,7 +52,7 @@ public class RedisApplicationInfoManager implements ApplicationInfoManager {
     }
 
     @Override
-    public void saveMetadata(Map<String, String> data) {
+    public void updateMetadata(Map<String, String> data) {
         org.springframework.cloud.client.ServiceInstance serviceInstance =
                 BeanCopyUtils.copyBean(applicationInfoHolder.get(), ApplicationInstance.class);
         serviceInstanceManager.updateMetadata(serviceInstance, data);

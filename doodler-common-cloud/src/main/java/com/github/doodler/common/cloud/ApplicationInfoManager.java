@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public interface ApplicationInfoManager {
 
-    default void saveMetadata(Map<String, String> data) {
+    default void updateMetadata(Map<String, String> data) {
         throw new UnsupportedOperationException("saveMetadata");
     }
 

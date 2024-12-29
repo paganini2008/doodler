@@ -1,7 +1,7 @@
 package com.github.doodler.common.cloud;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: SiblingApplicationInfoListener
@@ -15,7 +15,7 @@ public class SiblingApplicationInfoListener {
     @EventListener({SiblingApplicationInfoChangeEvent.class})
     public void handleSiblingApplicationInfoChangeEvent(SiblingApplicationInfoChangeEvent event) {
         if (log.isTraceEnabled()) {
-            event.getAffects().forEach(app -> {
+            event.getAffectedApplications().forEach(app -> {
                 log.trace(app.toString());
             });
         }

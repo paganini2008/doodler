@@ -25,6 +25,7 @@ public class ServiceRegistrationFactoryBean implements FactoryBean<ServiceRegist
     @Autowired
     private ApplicationInfoHolder applicationInfoHolder;
 
+    @Autowired
     private List<MetadataCollector> metadataCollectors;
 
     @Value("${spring.application.weight:1}")

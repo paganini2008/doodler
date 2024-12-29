@@ -60,15 +60,15 @@ public class PrimaryApplicationInfoListener
 
     @EventListener(SiblingApplicationInfoChangeEvent.class)
     public void onSiblingApplicationInfoChange(SiblingApplicationInfoChangeEvent event) {
-        if (CollectionUtils.isEmpty(event.getAffects())) {
+        if (CollectionUtils.isEmpty(event.getAffectedApplications())) {
             return;
         }
-        List<ApplicationInfo> offlineApplicationInfos =
-                event.getAffects().stream().filter(a -> a.getAffectedType() == AffectedType.OFFLINE)
-                        .map(a -> a.getApplicationInfo()).collect(Collectors.toList());
-        List<ApplicationInfo> noneApplicationInfos =
-                event.getAffects().stream().filter(a -> a.getAffectedType() == AffectedType.NONE)
-                        .map(a -> a.getApplicationInfo()).collect(Collectors.toList());
+        List<ApplicationInfo> offlineApplicationInfos = event.getAffectedApplications().stream()
+                .filter(a -> a.getAffectedType() == AffectedType.OFFLINE)
+                .map(a -> a.getApplicationInfo()).collect(Collectors.toList());
+        List<ApplicationInfo> noneApplicationInfos = event.getAffectedApplications().stream()
+                .filter(a -> a.getAffectedType() == AffectedType.NONE)
+                .map(a -> a.getApplicationInfo()).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(offlineApplicationInfos)) {
             ApplicationInfo primary = applicationInfoHolder.getPrimary();
             if (offlineApplicationInfos.contains(primary)) {
