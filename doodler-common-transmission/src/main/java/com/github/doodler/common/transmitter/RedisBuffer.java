@@ -18,19 +18,18 @@ import com.github.doodler.common.utils.JacksonUtils;
 
 /**
  * 
- * @Description: RedisBufferArea
+ * @Description: RedisBuffer
  * @Author: Fred Feng
  * @Date: 26/12/2024
  * @Version 1.0.0
  */
-public class RedisBufferArea implements BufferArea {
+public class RedisBuffer implements Buffer<Packet> {
 
-    private final TransmitterBufferProperties bufferProperties;
+    private final String namespace;
     private final RedisTemplate<String, Packet> redisTemplate;
 
-    public RedisBufferArea(TransmitterBufferProperties bufferProperties,
-            RedisConnectionFactory redisConnectionFactory) {
-        this.bufferProperties = bufferProperties;
+    public RedisBuffer(String namespace, RedisConnectionFactory redisConnectionFactory) {
+        this.namespace = namespace;
 
         Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = jsonRedisSerializer();
         RedisTemplate<String, Packet> redisTemplate = new RedisTemplate<>();
@@ -59,30 +58,31 @@ public class RedisBufferArea implements BufferArea {
     }
 
     @Override
-    public void put(String collection, Packet bucket) {
-        redisTemplate.opsForList().leftPush(keyFor(collection), bucket);
+    public void put(Packet packet) {
+        redisTemplate.opsForList().leftPush(getKey(namespace), packet);
     }
 
-    private String keyFor(String collection) {
-        return bufferProperties.getRedis().getNamespace() + ":" + collection;
-    }
-
-    @Override
-    public long size(String collection) {
-        return redisTemplate.opsForList().size(keyFor(collection));
+    protected String getKey(String namespace) {
+        return namespace;
     }
 
     @Override
-    public Packet poll(String collection) {
-        return redisTemplate.opsForList().leftPop(keyFor(collection));
+    public int size() {
+        Number result = redisTemplate.opsForList().size(getKey(namespace));
+        return result != null ? result.intValue() : 0;
     }
 
     @Override
-    public Collection<Packet> poll(String collection, int batchSize) {
-        if (batchSize == 1) {
-            return Collections.singletonList(poll(collection));
+    public Packet poll() {
+        return redisTemplate.opsForList().leftPop(getKey(namespace));
+    }
+
+    @Override
+    public Collection<Packet> poll(int fetchSize) {
+        if (fetchSize == 1) {
+            return Collections.singletonList(poll());
         }
-        List<Packet> results = redisTemplate.opsForList().leftPop(keyFor(collection), batchSize);
+        List<Packet> results = redisTemplate.opsForList().leftPop(getKey(namespace), fetchSize);
         return results != null && results.size() > 0 ? Collections.unmodifiableCollection(results)
                 : Collections.emptyList();
     }

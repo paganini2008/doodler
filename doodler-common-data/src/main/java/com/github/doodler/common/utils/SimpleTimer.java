@@ -109,6 +109,8 @@ public abstract class SimpleTimer
     public void afterPropertiesSet() throws Exception {
         if (quickStart.get()) {
             start();
+        } else {
+            log.info("{} will start working after application being ready");
         }
     }
 

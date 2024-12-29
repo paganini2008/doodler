@@ -2,7 +2,6 @@ package com.github.doodler.common.transmitter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import com.github.doodler.common.transmitter.ChannelEvent.EventType;
-import com.github.doodler.common.utils.LangUtils;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
@@ -21,11 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
     @Autowired
-    private BufferArea bufferArea;
-
-    @Autowired
-    private TransmitterBufferProperties bufferProperties;
-
+    private EventPublisher<Packet> eventPublisher;
 
     @Autowired(required = false)
     private ChannelEventListener<Channel> channelEventListener;
@@ -51,10 +46,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object message) throws Exception {
-        Packet packet = (Packet) message;
-        String collectionName = LangUtils.coalesce(packet.getCollection(),
-                bufferProperties.getDefaultCollectionName());
-        bufferArea.put(collectionName, packet);
+        eventPublisher.publish((Packet) message);
     }
 
     private void fireChannelEvent(Channel channel, EventType eventType, Throwable cause) {
