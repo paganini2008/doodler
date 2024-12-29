@@ -80,6 +80,9 @@ public class ConvertUtils {
     }
 
     public <T> T convert(Object source, Class<T> targetType) {
+        if (source == null) {
+            return null;
+        }
         try {
             return targetType.cast(source);
         } catch (RuntimeException e) {

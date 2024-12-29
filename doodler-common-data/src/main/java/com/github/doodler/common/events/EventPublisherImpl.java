@@ -105,8 +105,6 @@ public class EventPublisherImpl<T>
                 return;
             }
             int lag = publisher.estimateMaximumLag();
-            System.out.println("EventPublisher performance: " + lag + "\t"
-                    + publisher.getMaxBufferCapacity() + "\t" + buffer.size());
             if (log.isTraceEnabled()) {
                 log.trace("EventPublisher performance: {}/{}/{}", lag,
                         publisher.getMaxBufferCapacity(), buffer.size());
