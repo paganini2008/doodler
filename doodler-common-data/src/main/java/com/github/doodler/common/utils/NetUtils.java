@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
+import lombok.experimental.UtilityClass;
 
 /**
  * @Description: NetUtils
@@ -22,7 +23,8 @@ import org.apache.commons.lang3.StringUtils;
  * @Date: 15/11/2022
  * @Version 1.0.0
  */
-public abstract class NetUtils {
+@UtilityClass
+public class NetUtils {
 
     public static final String LOCALHOST = "127.0.0.1";
 
@@ -209,6 +211,20 @@ public abstract class NetUtils {
             }
         }
         return defaultValue;
+    }
+
+    public InetSocketAddress parse(String serverLocation) {
+        int index = serverLocation.indexOf(":");
+        if (index == -1) {
+            throw new IllegalArgumentException("Cannot parse: " + serverLocation);
+        }
+        String hostName = serverLocation.substring(0, index);
+        int port = Integer.parseInt(serverLocation.substring(index + 1));
+        return new InetSocketAddress(hostName, port);
+    }
+
+    public String toExternalString(InetSocketAddress socketAddress) {
+        return socketAddress.getHostString() + ":" + socketAddress.getPort();
     }
 
     public static void main(String[] args) {

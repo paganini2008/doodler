@@ -76,8 +76,9 @@ public abstract class SimpleTimer
             }
             this.future = executor.scheduleWithFixedDelay(this, initialDelay, period, timeUnit);
             if (log.isInfoEnabled()) {
-                log.info("Periodically run {} with parameters: {}, {}, {}",
-                        getClass().getSimpleName(), initialDelay, period, timeUnit);
+                log.info(
+                        "{} will be running periodically with initialDelay: {}, period: {}, timeUnit: {}",
+                        getClass().getName(), initialDelay, period, timeUnit);
             }
         }
         if (runImmediatedly) {

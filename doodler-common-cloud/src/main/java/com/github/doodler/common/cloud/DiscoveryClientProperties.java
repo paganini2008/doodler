@@ -20,7 +20,7 @@ public class DiscoveryClientProperties {
     @Data
     public static class SiblingChecker {
 
-        private boolean quickStart = true;
+        private boolean quickStart = false;
 
     }
 

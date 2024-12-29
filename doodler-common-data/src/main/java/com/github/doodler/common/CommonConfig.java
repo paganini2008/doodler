@@ -3,7 +3,7 @@ package com.github.doodler.common;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
+import com.github.doodler.common.context.BeanReflectionService;
 import com.github.doodler.common.context.ContextPath;
 
 /**
@@ -25,6 +25,11 @@ public class CommonConfig {
     @Bean
     public ExceptionTransformer exceptionTransferer() {
         return new DefaultExceptionTransformer();
+    }
+
+    @Bean
+    public BeanReflectionService beanReflectionService() {
+        return new BeanReflectionService();
     }
 
 }
