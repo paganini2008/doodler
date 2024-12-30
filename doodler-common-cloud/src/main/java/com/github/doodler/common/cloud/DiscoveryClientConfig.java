@@ -26,9 +26,15 @@ public class DiscoveryClientConfig {
         return new ApplicationInfoHolder();
     }
 
+    @ConditionalOnApplicationClusterEnabled
+    @Bean
+    public SiblingApplicationCondition clusterSiblingApplicationCondition() {
+        return new ClusterSiblingApplicationCondition();
+    }
+
     @ConditionalOnMissingBean
     @Bean
-    public SiblingApplicationCondition siblingApplicationCondition() {
+    public SiblingApplicationCondition defaultSiblingApplicationCondition() {
         return new DefaultSiblingApplicationCondition();
     }
 

@@ -9,9 +9,11 @@ import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.cloud.client.ConditionalOnDiscoveryEnabled;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import com.github.doodler.common.cloud.ApplicationInfoHolder;
 import com.github.doodler.common.cloud.ApplicationInfoManager;
+import com.github.doodler.common.cloud.ConditionalOnApplicationClusterEnabled;
 import com.github.doodler.common.cloud.DiscoveryClientRegistrar;
 import com.github.doodler.common.cloud.SiblingApplicationCondition;
 
@@ -36,6 +38,13 @@ public class RedisDiscoveryAutoConfiguration {
     @Bean
     public Ping ping(@Value("${discovery.client.ping.usePublicIp:false}") boolean usePublicIp) {
         return new HttpPing(usePublicIp);
+    }
+
+    @ConditionalOnApplicationClusterEnabled
+    @Primary
+    @Bean
+    public SiblingApplicationCondition clusterSiblingApplicationCondition() {
+        return new InternalClusterSiblingApplicationCondition();
     }
 
     @Bean

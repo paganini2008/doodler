@@ -5,12 +5,12 @@ import com.github.doodler.common.cloud.ClusterSiblingApplicationCondition;
 
 /**
  * 
- * @Description: InternalSiblingApplicationCondition
+ * @Description: InternalClusterSiblingApplicationCondition
  * @Author: Fred Feng
  * @Date: 30/12/2024
  * @Version 1.0.0
  */
-public class InternalSiblingApplicationCondition extends ClusterSiblingApplicationCondition {
+public class InternalClusterSiblingApplicationCondition extends ClusterSiblingApplicationCondition {
 
     @Override
     public boolean isSiblingApplication(ServiceInstance self, ServiceInstance other) {
