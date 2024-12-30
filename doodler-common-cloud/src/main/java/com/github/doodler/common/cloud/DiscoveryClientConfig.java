@@ -26,6 +26,12 @@ public class DiscoveryClientConfig {
         return new ApplicationInfoHolder();
     }
 
+    @ConditionalOnMissingBean
+    @Bean
+    public SiblingApplicationCondition siblingApplicationCondition() {
+        return new DefaultSiblingApplicationCondition();
+    }
+
     @ConditionalOnMissingBean(name = "siblingDiscoveryClientChecker")
     @Bean("siblingDiscoveryClientChecker")
     public DiscoveryClientChecker siblingDiscoveryClientChecker(

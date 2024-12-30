@@ -16,6 +16,7 @@ import org.springframework.cloud.zookeeper.discovery.ZookeeperDiscoveryClient;
 import com.github.doodler.common.cloud.ApplicationInfo;
 import com.github.doodler.common.cloud.ApplicationInfoHolder;
 import com.github.doodler.common.cloud.ApplicationInfoManager;
+import com.github.doodler.common.cloud.SiblingApplicationCondition;
 import com.github.doodler.common.cloud.redis.CloudConstants;
 import com.github.doodler.common.utils.JacksonUtils;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class ZookeeperApplicationInfoManager implements ApplicationInfoManager {
 
     private final ZookeeperDiscoveryClient zookeeperDiscoveryClient;
     private final ApplicationInfoHolder applicationInfoHolder;
+    private final SiblingApplicationCondition siblingApplicationCondition;
 
     @Value("${spring.application.name}")
     private String applicationName;
@@ -75,7 +77,9 @@ public class ZookeeperApplicationInfoManager implements ApplicationInfoManager {
         if (CollectionUtils.isEmpty(instanceInfos)) {
             return Collections.emptyList();
         }
-        return instanceInfos.stream().filter(info -> applicationInfoHolder.get().isSibling(info))
+        return instanceInfos.stream()
+                .filter(info -> siblingApplicationCondition
+                        .isSiblingApplication(applicationInfoHolder.get(), info))
                 .collect(Collectors.toList());
     }
 

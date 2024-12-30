@@ -11,6 +11,7 @@ import org.springframework.cloud.client.ServiceInstance;
 import com.github.doodler.common.cloud.ApplicationInfo;
 import com.github.doodler.common.cloud.ApplicationInfoHolder;
 import com.github.doodler.common.cloud.ApplicationInfoManager;
+import com.github.doodler.common.cloud.SiblingApplicationCondition;
 import com.github.doodler.common.utils.BeanCopyUtils;
 import lombok.RequiredArgsConstructor;
 
@@ -27,13 +28,14 @@ public class RedisApplicationInfoManager implements ApplicationInfoManager {
     private final String serviceName;
     private final ApplicationInfoHolder applicationInfoHolder;
     private final ServiceInstanceManager serviceInstanceManager;
+    private final SiblingApplicationCondition siblingApplicationCondition;
 
     @Override
-    public Map<String, Collection<ApplicationInfo>> getApplicationInfos(boolean includedSelf) {
+    public Map<String, Collection<ApplicationInfo>> getApplicationInfos(boolean includeSelf) {
         Map<String, List<ServiceInstance>> instances = serviceInstanceManager.getServices();
         Map<String, Collection<ApplicationInfo>> appInfoMap = new HashMap<>();
         instances.entrySet().forEach(e -> {
-            if (includedSelf || (!includedSelf && !e.getKey().equalsIgnoreCase(serviceName))) {
+            if (includeSelf || (!includeSelf && !e.getKey().equalsIgnoreCase(serviceName))) {
                 appInfoMap.put(e.getKey(),
                         BeanCopyUtils.copyBeanList(e.getValue(), ApplicationInfo.class));
             }
@@ -47,7 +49,9 @@ public class RedisApplicationInfoManager implements ApplicationInfoManager {
         if (CollectionUtils.isEmpty(instanceInfos)) {
             return Collections.emptyList();
         }
-        return instanceInfos.stream().filter(info -> applicationInfoHolder.get().isSibling(info))
+        return instanceInfos.stream()
+                .filter(info -> siblingApplicationCondition
+                        .isSiblingApplication(applicationInfoHolder.get(), info))
                 .collect(Collectors.toList());
     }
 

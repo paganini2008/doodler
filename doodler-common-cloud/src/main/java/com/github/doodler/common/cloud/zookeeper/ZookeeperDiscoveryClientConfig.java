@@ -17,6 +17,7 @@ import com.github.doodler.common.cloud.ApplicationInfoHolder;
 import com.github.doodler.common.cloud.ApplicationInfoManager;
 import com.github.doodler.common.cloud.DiscoveryClientRegistrar;
 import com.github.doodler.common.cloud.MetadataCollector;
+import com.github.doodler.common.cloud.SiblingApplicationCondition;
 
 /**
  * 
@@ -47,8 +48,10 @@ public class ZookeeperDiscoveryClientConfig {
     @Bean
     public ApplicationInfoManager applicationInfoManager(
             ZookeeperDiscoveryClient zookeeperDiscoveryClient,
-            ApplicationInfoHolder applicationInfoHolder) {
-        return new ZookeeperApplicationInfoManager(zookeeperDiscoveryClient, applicationInfoHolder);
+            ApplicationInfoHolder applicationInfoHolder,
+            SiblingApplicationCondition siblingApplicationCondition) {
+        return new ZookeeperApplicationInfoManager(zookeeperDiscoveryClient, applicationInfoHolder,
+                siblingApplicationCondition);
     }
 
     @ConditionalOnMissingBean

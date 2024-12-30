@@ -27,6 +27,8 @@ import lombok.SneakyThrows;
 @Data
 public class ApplicationInstance implements Cloneable, ServiceInstance {
 
+    private String clusterId;
+
     private String instanceId;
 
     @EqualsAndHashCode.Include
@@ -73,11 +75,11 @@ public class ApplicationInstance implements Cloneable, ServiceInstance {
                 port);
     }
 
-    public boolean isSibling(ServiceInstance other) {
-        return other.getServiceId().equals(getServiceId())
-                && (!other.getInstanceId().equals(getInstanceId())
-                        || !other.getHost().equals(getHost()) || other.getPort() != getPort());
-    }
+    // public boolean isSibling(ServiceInstance other) {
+    // return other.getServiceId().equals(getServiceId())
+    // && (!other.getInstanceId().equals(getInstanceId())
+    // || !other.getHost().equals(getHost()) || other.getPort() != getPort());
+    // }
 
     @SneakyThrows
     public URI createUri(boolean usePublicIp, String... paths) {

@@ -41,6 +41,7 @@ public class ServiceRegistrationFactoryBean implements FactoryBean<ServiceRegist
     public ServiceRegistration getObject() throws Exception {
         final ApplicationInfo applicationInfo = applicationInfoHolder.get();
         RedisRegistration redisRegistration = new RedisRegistration();
+        redisRegistration.setClusterId(applicationInfo.getClusterId());
         redisRegistration.setApplicationName(applicationInfo.getApplicationName());
         redisRegistration.setInstanceId(applicationInfo.getInstanceId());
         redisRegistration.setHost(applicationInfo.getHost());

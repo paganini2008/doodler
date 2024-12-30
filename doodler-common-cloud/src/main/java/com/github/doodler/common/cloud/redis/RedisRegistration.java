@@ -19,6 +19,7 @@ import lombok.Setter;
 @Setter
 public class RedisRegistration implements ServiceRegistration {
 
+    private String clusterId;
     private String instanceId;
     private String applicationName;
     private String host;

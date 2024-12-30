@@ -15,6 +15,7 @@ import com.github.doodler.common.cloud.ApplicationInfo;
 import com.github.doodler.common.cloud.ApplicationInfoHolder;
 import com.github.doodler.common.cloud.ApplicationInfoManager;
 import com.github.doodler.common.cloud.MetadataCollector;
+import com.github.doodler.common.cloud.SiblingApplicationCondition;
 import com.github.doodler.common.cloud.redis.CloudConstants;
 import com.github.doodler.common.context.ManagedBeanLifeCycle;
 import com.github.doodler.common.utils.JacksonUtils;
@@ -38,6 +39,7 @@ public class EurekaApplicationInfoManager implements ApplicationInfoManager, Man
     private final com.netflix.appinfo.ApplicationInfoManager appInfoManager;
     private final ApplicationInfoHolder applicationInfoHolder;
     private final List<MetadataCollector> metadataCollectors;
+    private final SiblingApplicationCondition siblingApplicationCondition;
 
     @Value("${spring.application.name}")
     private String applicationName;
@@ -120,7 +122,9 @@ public class EurekaApplicationInfoManager implements ApplicationInfoManager, Man
         if (CollectionUtils.isEmpty(instanceInfos)) {
             return Collections.emptyList();
         }
-        return instanceInfos.stream().filter(info -> applicationInfoHolder.get().isSibling(info))
+        return instanceInfos.stream()
+                .filter(info -> siblingApplicationCondition
+                        .isSiblingApplication(applicationInfoHolder.get(), info))
                 .collect(Collectors.toCollection(CopyOnWriteArrayList::new));
     }
 

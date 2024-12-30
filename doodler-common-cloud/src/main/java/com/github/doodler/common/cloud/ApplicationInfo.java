@@ -29,6 +29,8 @@ public class ApplicationInfo implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 5025375997544999194L;
 
+    private String clusterId;
+
     private String instanceId;
 
     private String serviceId;
@@ -55,6 +57,7 @@ public class ApplicationInfo implements Serializable, Cloneable {
         return serviceId;
     }
 
+    @Deprecated
     public boolean isSibling(ApplicationInfo other) {
         return other.getServiceId().equals(getServiceId())
                 && (!other.getInstanceId().equals(getInstanceId())

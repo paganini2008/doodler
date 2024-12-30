@@ -21,14 +21,17 @@ import lombok.Setter;
  */
 public class ApplicationInfoHolder implements InitializingBean {
 
-    @Value("${spring.application.weight:1}")
-    private int weight;
+    @Value("${spring.application.cluster-name:default}")
+    private String clusterName;
 
     @Value("${spring.application.name}")
     private String applicationName;
 
     @Value("${spring.application.hostname:}")
     private String hostName;
+
+    @Value("${spring.application.weight:1}")
+    private int weight;
 
     @Autowired
     private InstanceId instanceId;
@@ -52,8 +55,8 @@ public class ApplicationInfoHolder implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.info = new ApplicationInfo(instanceId.get(), applicationName, getHostAddress(),
-                NetUtils.getExternalIp(), serverProperties.getPort(),
+        this.info = new ApplicationInfo(clusterName, instanceId.get(), applicationName,
+                getHostAddress(), NetUtils.getExternalIp(), serverProperties.getPort(),
                 serverProperties.getSsl() != null ? serverProperties.getSsl().isEnabled() : false,
                 weight, contextPath.getContextPath(),
                 managementServerProperties.getPort() != null

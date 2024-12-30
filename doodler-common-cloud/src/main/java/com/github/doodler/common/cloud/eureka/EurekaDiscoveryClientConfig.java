@@ -11,6 +11,7 @@ import com.github.doodler.common.cloud.ApplicationInfoHolder;
 import com.github.doodler.common.cloud.ApplicationInfoManager;
 import com.github.doodler.common.cloud.DiscoveryClientService;
 import com.github.doodler.common.cloud.MetadataCollector;
+import com.github.doodler.common.cloud.SiblingApplicationCondition;
 import com.github.doodler.common.context.InstanceId;
 import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.EurekaClient;
@@ -29,10 +30,10 @@ public class EurekaDiscoveryClientConfig {
     @Bean
     public ApplicationInfoManager applicationInfoManager(EurekaClient eurekaClient,
             com.netflix.appinfo.ApplicationInfoManager appInfoManager,
-            ApplicationInfoHolder applicationInfoHolder,
-            List<MetadataCollector> metadataCollectors) {
+            ApplicationInfoHolder applicationInfoHolder, List<MetadataCollector> metadataCollectors,
+            SiblingApplicationCondition siblingApplicationCondition) {
         return new EurekaApplicationInfoManager(eurekaClient, appInfoManager, applicationInfoHolder,
-                metadataCollectors);
+                metadataCollectors, siblingApplicationCondition);
     }
 
     @ConditionalOnMissingBean

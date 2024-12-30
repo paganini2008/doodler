@@ -20,7 +20,7 @@ public interface ApplicationInfoManager {
         throw new UnsupportedOperationException("getMetadata");
     }
 
-    Map<String, Collection<ApplicationInfo>> getApplicationInfos(boolean includedSelf);
+    Map<String, Collection<ApplicationInfo>> getApplicationInfos(boolean includeSelf);
 
     default Collection<ApplicationInfo> getApplicationInfos(String applicationName) {
         Map<String, Collection<ApplicationInfo>> map = getApplicationInfos(true);

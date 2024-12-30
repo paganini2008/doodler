@@ -13,6 +13,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import com.github.doodler.common.cloud.ApplicationInfoHolder;
 import com.github.doodler.common.cloud.ApplicationInfoManager;
 import com.github.doodler.common.cloud.DiscoveryClientRegistrar;
+import com.github.doodler.common.cloud.SiblingApplicationCondition;
 
 /**
  * 
@@ -39,16 +40,19 @@ public class RedisDiscoveryAutoConfiguration {
 
     @Bean
     public ServiceInstanceManager defaultServiceInstanceManager(
-            RedisConnectionFactory redisConnectionFactory, Ping heartbeater) {
-        return new RedisServiceInstanceManager(redisConnectionFactory, 30, heartbeater);
+            RedisConnectionFactory redisConnectionFactory, Ping ping,
+            SiblingApplicationCondition siblingApplicationCondition) {
+        return new RedisServiceInstanceManager(redisConnectionFactory, 30, ping,
+                siblingApplicationCondition);
     }
 
     @Bean
     public ApplicationInfoManager redisApplicationInfoManager(
             ApplicationInfoHolder applicationInfoHolder,
-            ServiceInstanceManager serviceInstanceManager) {
+            ServiceInstanceManager serviceInstanceManager,
+            SiblingApplicationCondition siblingApplicationCondition) {
         return new RedisApplicationInfoManager(applicationName, applicationInfoHolder,
-                serviceInstanceManager);
+                serviceInstanceManager, siblingApplicationCondition);
     }
 
     @Bean

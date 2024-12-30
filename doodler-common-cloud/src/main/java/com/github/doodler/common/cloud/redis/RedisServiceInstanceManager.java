@@ -21,6 +21,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import com.github.doodler.common.cloud.SiblingApplicationCondition;
 import com.github.doodler.common.utils.MapUtils;
 import com.github.doodler.common.utils.SimpleTimer;
 import lombok.Setter;
@@ -40,12 +41,14 @@ public class RedisServiceInstanceManager extends SimpleTimer
 
     private final RedisTemplate<String, ApplicationInstance> redisTemplate;
     private final Ping ping;
+    private final SiblingApplicationCondition siblingApplicationCondition;
 
     private final Map<String, Set<String>> keepAliveMap = new HashMap<>();
     private final Map<String, Set<String>> maintainanceMap = new HashMap<>();
 
     public RedisServiceInstanceManager(RedisConnectionFactory redisConnectionFactory,
-            int keepAliveInterval, Ping ping) {
+            int keepAliveInterval, Ping ping,
+            SiblingApplicationCondition siblingApplicationCondition) {
         super(keepAliveInterval, keepAliveInterval, TimeUnit.SECONDS);
 
         Jackson2JsonRedisSerializer<ApplicationInstance> jackson2JsonRedisSerializer =
@@ -59,6 +62,7 @@ public class RedisServiceInstanceManager extends SimpleTimer
         redisTemplate.afterPropertiesSet();
 
         this.ping = ping;
+        this.siblingApplicationCondition = siblingApplicationCondition;
     }
 
     @Setter
@@ -193,7 +197,9 @@ public class RedisServiceInstanceManager extends SimpleTimer
         List<ApplicationInstance> applicationInstances =
                 redisTemplate.opsForList().range(key, 0, -1);
         applicationInstances.stream()
-                .filter(info -> ((ApplicationInstance) info).isSibling(instance)).forEach(info -> {
+                .filter(info -> siblingApplicationCondition
+                        .isSiblingApplication((ApplicationInstance) info, instance))
+                .forEach(info -> {
                     if (info.equals(instance) || !ping.isAlive(info)) {
                         deregisterInstance(info);
                         if (log.isInfoEnabled()) {
