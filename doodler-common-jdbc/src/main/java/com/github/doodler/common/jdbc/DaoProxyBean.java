@@ -1,17 +1,15 @@
 /**
  * Copyright 2017-2022 Fred Feng (paganini.fy@gmail.com)
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package com.github.doodler.common.jdbc;
 
@@ -27,9 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.sql.DataSource;
-
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.NotImplementedException;
@@ -66,7 +62,8 @@ import com.github.doodler.common.utils.MapUtils;
  * @Version 1.0.0
  */
 @SuppressWarnings("all")
-public class DaoProxyBean<T> extends EnhancedNamedParameterJdbcDaoSupport implements InvocationHandler {
+public class DaoProxyBean<T> extends EnhancedNamedParameterJdbcDaoSupport
+        implements InvocationHandler {
 
     private final Class<T> interfaceClass;
     protected final Logger log;
@@ -93,7 +90,8 @@ public class DaoProxyBean<T> extends EnhancedNamedParameterJdbcDaoSupport implem
         } else if (method.isAnnotationPresent(Batch.class)) {
             return doBatch(method, args);
         }
-        throw new NotImplementedException("Unknown target method: " + interfaceClass.getName() + "." + method.getName());
+        throw new NotImplementedException(
+                "Unknown target method: " + interfaceClass.getName() + "." + method.getName());
     }
 
     private Class<?> getMethodReturnTypeElementType(Method method) {
@@ -120,24 +118,28 @@ public class DaoProxyBean<T> extends EnhancedNamedParameterJdbcDaoSupport implem
         StringBuilder sqlBuilder = new StringBuilder(sql);
         SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args, sqlBuilder);
         for (Class<?> listenerClass : select.listeners()) {
-            DaoListener daoListener = (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
+            DaoListener daoListener =
+                    (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
             daoListener.beforeExecution(startTime, sqlBuilder, args, this);
         }
         sql = sqlBuilder.toString();
         try {
             if (select.singleColumn()) {
-                return getNamedParameterJdbcTemplate().queryForList(sql, sqlParameterSource, elementType);
+                return getNamedParameterJdbcTemplate().queryForList(sql, sqlParameterSource,
+                        elementType);
             } else {
                 if (Map.class.isAssignableFrom(elementType)) {
-                    return getNamedParameterJdbcTemplate().query(sql, sqlParameterSource, new NamedColumnMapRowMapper());
+                    return getNamedParameterJdbcTemplate().query(sql, sqlParameterSource,
+                            new NamedColumnMapRowMapper());
                 } else {
-                    return getNamedParameterJdbcTemplate().query(sql, sqlParameterSource, new BeanPropertyRowMapper<>(
-                            elementType));
+                    return getNamedParameterJdbcTemplate().query(sql, sqlParameterSource,
+                            new BeanPropertyRowMapper<>(elementType));
                 }
             }
         } finally {
             for (Class<?> listenerClass : select.listeners()) {
-                DaoListener daoListener = (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
+                DaoListener daoListener =
+                        (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
                 daoListener.afterExecution(startTime, sql, args, this);
             }
             printSql(sql, args, startTime);
@@ -147,32 +149,36 @@ public class DaoProxyBean<T> extends EnhancedNamedParameterJdbcDaoSupport implem
     private Object doPageQuery(Method method, Object[] args) throws Exception {
         long startTime = System.currentTimeMillis();
         if (!PageReader.class.isAssignableFrom(method.getReturnType())) {
-            throw new IllegalArgumentException("Return type is only for ResultSetSlice");
+            throw new IllegalArgumentException("Return type is only for PageReader");
         }
         Class<?> elementType = getMethodReturnTypeElementType(method);
         final PageQuery query = method.getAnnotation(PageQuery.class);
         StringBuilder sqlBuilder = new StringBuilder(query.value());
         SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args, sqlBuilder);
         for (Class<?> listenerClass : query.listeners()) {
-            DaoListener daoListener = (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
+            DaoListener daoListener =
+                    (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
             daoListener.beforeExecution(startTime, sqlBuilder, args, this);
         }
         String sql = sqlBuilder.toString();
         try {
             if (query.singleColumn()) {
-                return getNamedParameterJdbcTemplate().pageQuery(query.countSql(), query.value(), sqlParameterSource,
-                        elementType);
+                return getNamedParameterJdbcTemplate().pageQuery(query.countSql(), query.value(),
+                        sqlParameterSource, elementType);
             } else {
                 if (Map.class.isAssignableFrom(elementType)) {
-                    return getNamedParameterJdbcTemplate().pageQuery(query.countSql(), query.value(), sqlParameterSource);
+                    return getNamedParameterJdbcTemplate().pageQuery(query.countSql(),
+                            query.value(), sqlParameterSource);
                 } else {
-                    return getNamedParameterJdbcTemplate().pageQuery(query.countSql(), query.value(), sqlParameterSource,
+                    return getNamedParameterJdbcTemplate().pageQuery(query.countSql(),
+                            query.value(), sqlParameterSource,
                             new BeanPropertyRowMapper<>(elementType));
                 }
             }
         } finally {
             for (Class<?> listenerClass : query.listeners()) {
-                DaoListener daoListener = (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
+                DaoListener daoListener =
+                        (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
                 daoListener.afterExecution(startTime, sql, args, this);
             }
             printSql(sql, args, startTime);
@@ -183,20 +189,22 @@ public class DaoProxyBean<T> extends EnhancedNamedParameterJdbcDaoSupport implem
         long startTime = System.currentTimeMillis();
         Class<?> returnType = method.getReturnType();
         if (returnType == void.class || returnType == Void.class) {
-            throw new IllegalArgumentException("Return type is blank");
+            throw new IllegalArgumentException("Return type is " + returnType.getName());
         }
         Get getter = method.getAnnotation(Get.class);
         String sql = getter.value();
         StringBuilder sqlBuilder = new StringBuilder(sql);
         SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args, sqlBuilder);
         for (Class<?> listenerClass : getter.listeners()) {
-            DaoListener daoListener = (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
+            DaoListener daoListener =
+                    (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
             daoListener.beforeExecution(startTime, sqlBuilder, args, this);
         }
         sql = sqlBuilder.toString();
         try {
             if (getter.javaType()) {
-                return getNamedParameterJdbcTemplate().queryForObject(sql, sqlParameterSource, returnType);
+                return getNamedParameterJdbcTemplate().queryForObject(sql, sqlParameterSource,
+                        returnType);
             } else {
                 if (Map.class.isAssignableFrom(returnType)) {
                     return getNamedParameterJdbcTemplate().queryForObject(sql, sqlParameterSource,
@@ -208,7 +216,8 @@ public class DaoProxyBean<T> extends EnhancedNamedParameterJdbcDaoSupport implem
             }
         } finally {
             for (Class<?> listenerClass : getter.listeners()) {
-                DaoListener daoListener = (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
+                DaoListener daoListener =
+                        (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
                 daoListener.afterExecution(startTime, sql, args, this);
             }
             printSql(sql, args, startTime);
@@ -226,7 +235,8 @@ public class DaoProxyBean<T> extends EnhancedNamedParameterJdbcDaoSupport implem
         StringBuilder sqlBuilder = new StringBuilder(sql);
         SqlParameterSource[] sqlParameterSources = getSqlParameterSources(method, args, sqlBuilder);
         for (Class<?> listenerClass : batch.listeners()) {
-            DaoListener daoListener = (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
+            DaoListener daoListener =
+                    (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
             daoListener.beforeExecution(startTime, sqlBuilder, args, this);
         }
         sql = sqlBuilder.toString();
@@ -240,7 +250,8 @@ public class DaoProxyBean<T> extends EnhancedNamedParameterJdbcDaoSupport implem
             }
         } finally {
             for (Class<?> listenerClass : batch.listeners()) {
-                DaoListener daoListener = (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
+                DaoListener daoListener =
+                        (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
                 daoListener.afterExecution(startTime, sql, args, this);
             }
             printSql(sql, args, startTime);
@@ -258,15 +269,18 @@ public class DaoProxyBean<T> extends EnhancedNamedParameterJdbcDaoSupport implem
         StringBuilder sqlBuilder = new StringBuilder(sql);
         SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args, sqlBuilder);
         for (Class<?> listenerClass : insert.listeners()) {
-            DaoListener daoListener = (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
+            DaoListener daoListener =
+                    (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
             daoListener.beforeExecution(startTime, sqlBuilder, args, this);
         }
         sql = sqlBuilder.toString();
         try {
             KeyHolder keyHolder = new GeneratedKeyHolder();
-            int effected = getNamedParameterJdbcTemplate().update(sql, sqlParameterSource, keyHolder);
+            int effected =
+                    getNamedParameterJdbcTemplate().update(sql, sqlParameterSource, keyHolder);
             if (effected == 0) {
-                throw new InvalidDataAccessResourceUsageException("Failed to insert a new record by sql: " + sql);
+                throw new InvalidDataAccessResourceUsageException(
+                        "Failed to insert a new record by sql: " + sql);
             }
             Map<String, Object> keys = keyHolder.getKeys();
             if (MapUtils.isEmpty(keys)) {
@@ -280,7 +294,8 @@ public class DaoProxyBean<T> extends EnhancedNamedParameterJdbcDaoSupport implem
             }
         } finally {
             for (Class<?> listenerClass : insert.listeners()) {
-                DaoListener daoListener = (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
+                DaoListener daoListener =
+                        (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
                 daoListener.afterExecution(startTime, sql, args, this);
             }
             printSql(sql, args, startTime);
@@ -298,7 +313,8 @@ public class DaoProxyBean<T> extends EnhancedNamedParameterJdbcDaoSupport implem
         StringBuilder sqlBuilder = new StringBuilder(sql);
         SqlParameterSource sqlParameterSource = getSqlParameterSource(method, args, sqlBuilder);
         for (Class<?> listenerClass : update.listeners()) {
-            DaoListener daoListener = (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
+            DaoListener daoListener =
+                    (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
             daoListener.beforeExecution(startTime, sqlBuilder, args, this);
         }
         sql = sqlBuilder.toString();
@@ -311,7 +327,8 @@ public class DaoProxyBean<T> extends EnhancedNamedParameterJdbcDaoSupport implem
             }
         } finally {
             for (Class<?> listenerClass : update.listeners()) {
-                DaoListener daoListener = (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
+                DaoListener daoListener =
+                        (DaoListener) ApplicationContextUtils.getOrCreateBean(listenerClass);
                 daoListener.afterExecution(startTime, sql, args, this);
             }
             printSql(sql, args, startTime);
@@ -324,7 +341,8 @@ public class DaoProxyBean<T> extends EnhancedNamedParameterJdbcDaoSupport implem
         }
     }
 
-    private SqlParameterSource getSqlParameterSource(Method method, Object[] args, StringBuilder sqlBuilder) {
+    private SqlParameterSource getSqlParameterSource(Method method, Object[] args,
+            StringBuilder sqlBuilder) {
         Map<String, Object> parameters = new HashMap<String, Object>();
         Parameter[] methodParameters = method.getParameters();
         Parameter methodParameter;
@@ -366,7 +384,8 @@ public class DaoProxyBean<T> extends EnhancedNamedParameterJdbcDaoSupport implem
         return new MapSqlParameterSource(parameters);
     }
 
-    private SqlParameterSource[] getSqlParameterSources(Method method, Object[] args, StringBuilder sqlBuilder) {
+    private SqlParameterSource[] getSqlParameterSources(Method method, Object[] args,
+            StringBuilder sqlBuilder) {
         List<SqlParameterSource> sqlParameterList = new ArrayList<SqlParameterSource>();
         Parameter[] methodParameters = method.getParameters();
         Parameter methodParameter;
@@ -390,8 +409,8 @@ public class DaoProxyBean<T> extends EnhancedNamedParameterJdbcDaoSupport implem
                     }
                 }
             } else if (annotation instanceof Example) {
-                SqlParameterSource sqlParameterSource = getSqlParameterSource(args[i],
-                        ((Example) annotation).excludedProperties());
+                SqlParameterSource sqlParameterSource =
+                        getSqlParameterSource(args[i], ((Example) annotation).excludedProperties());
                 sqlParameterList.add(sqlParameterSource);
             } else if (annotation instanceof Sql) {
                 if (args[i] instanceof CharSequence) {

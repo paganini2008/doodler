@@ -29,7 +29,7 @@ public class HttpPing implements Ping {
         long startTime = System.currentTimeMillis();
         boolean testOk = testConnection(pingUri);
         if (log.isTraceEnabled()) {
-            log.trace("[Discovery Ping] Request to: {}, result: {}, take: {}", pingUri, testOk,
+            log.trace("[HttpPing] Request to url: {}, result: {}, take: {}", pingUri, testOk,
                     (System.currentTimeMillis() - startTime));
         }
         return testOk;
