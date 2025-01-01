@@ -4,14 +4,14 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.github.doodler.common.jdbc.page.EachPage;
-import com.github.doodler.common.jdbc.page.PageReader;
-import com.github.doodler.common.jdbc.page.PageRequest;
-import com.github.doodler.common.jdbc.page.PageResponse;
 import com.github.doodler.common.mybatis.utils.DefaultQueryPageReader;
 import com.github.doodler.common.mybatis.utils.GenericQueryPageReader;
 import com.github.doodler.common.mybatis.utils.MapQueryPageReader;
 import com.github.doodler.common.mybatis.utils.ScanHandler;
+import com.github.doodler.common.page.EachPage;
+import com.github.doodler.common.page.PageReader;
+import com.github.doodler.common.page.PageRequest;
+import com.github.doodler.common.page.PageResponse;
 import java.util.List;
 import java.util.Map;
 

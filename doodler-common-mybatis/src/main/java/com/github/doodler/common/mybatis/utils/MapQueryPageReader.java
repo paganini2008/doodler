@@ -5,9 +5,9 @@ import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.interfaces.Join;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.github.doodler.common.jdbc.page.DefaultPageContent;
-import com.github.doodler.common.jdbc.page.PageContent;
-import com.github.doodler.common.jdbc.page.PageReader;
+import com.github.doodler.common.page.DefaultPageContent;
+import com.github.doodler.common.page.PageContent;
+import com.github.doodler.common.page.PageReader;
 
 /**
  * @Description: MapQueryPageReader

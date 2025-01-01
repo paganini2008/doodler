@@ -1,6 +1,4 @@
-package com.github.doodler.common.jdbc.page;
-
-import java.sql.SQLException;
+package com.github.doodler.common.page;
 
 /**
  * 
@@ -31,7 +29,7 @@ public interface PageResponse<T> extends Iterable<EachPage<T>> {
 
     int getPageNumber();
 
-    PageContent<T> getContent() throws SQLException;
+    <E extends Exception> PageContent<T> getContent() throws E;
 
     PageResponse<T> setPage(int pageNumber);
 

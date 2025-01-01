@@ -3,10 +3,10 @@ package com.github.doodler.common.mybatis.utils;
 import static com.github.doodler.common.mybatis.StringPool.SQL_LIMIT_SYNTAX_FORMAT;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.interfaces.Join;
-import com.github.doodler.common.jdbc.page.DefaultPageContent;
-import com.github.doodler.common.jdbc.page.PageContent;
-import com.github.doodler.common.jdbc.page.PageReader;
 import com.github.doodler.common.mybatis.IEnhancedService;
+import com.github.doodler.common.page.DefaultPageContent;
+import com.github.doodler.common.page.PageContent;
+import com.github.doodler.common.page.PageReader;
 
 /**
  * @Description: GenericQueryPageReader

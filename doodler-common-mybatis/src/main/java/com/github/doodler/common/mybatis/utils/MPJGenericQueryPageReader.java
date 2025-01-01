@@ -2,9 +2,9 @@ package com.github.doodler.common.mybatis.utils;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.github.doodler.common.jdbc.page.DefaultPageContent;
-import com.github.doodler.common.jdbc.page.PageContent;
-import com.github.doodler.common.jdbc.page.PageReader;
+import com.github.doodler.common.page.DefaultPageContent;
+import com.github.doodler.common.page.PageContent;
+import com.github.doodler.common.page.PageReader;
 import com.github.yulichang.base.MPJBaseService;
 import com.github.yulichang.interfaces.MPJBaseJoin;
 

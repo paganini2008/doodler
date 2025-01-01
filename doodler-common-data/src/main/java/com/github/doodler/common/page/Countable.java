@@ -1,4 +1,4 @@
-package com.github.doodler.common.jdbc.page;
+package com.github.doodler.common.page;
 
 import java.sql.SQLException;
 

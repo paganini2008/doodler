@@ -15,7 +15,7 @@ import com.github.doodler.common.jdbc.JdbcUtils;
 import com.github.doodler.common.jdbc.SimpleConnectionFactory;
 import com.github.doodler.common.jdbc.impexp.DdlScripter.Catalog;
 import com.github.doodler.common.jdbc.impexp.DdlScripter.Schema;
-import com.github.doodler.common.jdbc.page.EachPage;
+import com.github.doodler.common.page.EachPage;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

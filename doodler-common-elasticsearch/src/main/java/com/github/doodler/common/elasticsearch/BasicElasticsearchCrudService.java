@@ -16,13 +16,13 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * 
- * @Description: BasicCrudService
+ * @Description: BasicElasticsearchCrudService
  * @Author: Fred Feng
  * @Date: 23/12/2024
  * @Version 1.0.0
  */
 @RequiredArgsConstructor
-public abstract class BasicCrudService<T> {
+public abstract class BasicElasticsearchCrudService<T> {
 
     private final ElasticsearchRestTemplate elasticsearchTemplate;
 

@@ -1,7 +1,6 @@
-package com.github.doodler.common.jdbc.page;
+package com.github.doodler.common.page;
 
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.Iterator;
 import org.apache.commons.collections4.CollectionUtils;
 import lombok.SneakyThrows;
@@ -134,7 +133,7 @@ public class SimplePageResponse<T> implements PageResponse<T>, Serializable {
     }
 
     @Override
-    public PageContent<T> getContent() throws SQLException {
+    public PageContent<T> getContent() throws Exception {
         Object nextToken = this.pageContent != null ? this.pageContent.getNextToken() : null;
         PageContent<T> pageContent = pageReader.list(pageRequest.getPageNumber(),
                 pageRequest.getOffset(), pageRequest.getPageSize(), nextToken);

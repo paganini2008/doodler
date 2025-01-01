@@ -12,11 +12,11 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import com.github.doodler.common.jdbc.page.DefaultPageContent;
-import com.github.doodler.common.jdbc.page.PageContent;
-import com.github.doodler.common.jdbc.page.PageReader;
-import com.github.doodler.common.jdbc.page.PageRequest;
-import com.github.doodler.common.jdbc.page.PageResponse;
+import com.github.doodler.common.page.DefaultPageContent;
+import com.github.doodler.common.page.PageContent;
+import com.github.doodler.common.page.PageReader;
+import com.github.doodler.common.page.PageRequest;
+import com.github.doodler.common.page.PageResponse;
 import lombok.RequiredArgsConstructor;
 
 /**

@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
-import com.github.doodler.common.jdbc.page.PageReader;
+import com.github.doodler.common.page.PageReader;
 
 /**
  * 

@@ -1,6 +1,6 @@
 package com.github.doodler.common.mybatis.utils;
 
-import com.github.doodler.common.jdbc.page.EachPage;
+import com.github.doodler.common.page.EachPage;
 
 /**
  * @Description: ScanHandler

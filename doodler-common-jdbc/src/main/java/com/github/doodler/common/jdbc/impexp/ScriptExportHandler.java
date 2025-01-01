@@ -17,7 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.github.doodler.common.jdbc.ConnectionFactory;
 import com.github.doodler.common.jdbc.JdbcUtils;
 import com.github.doodler.common.jdbc.impexp.DdlScripter.Catalog;
-import com.github.doodler.common.jdbc.page.EachPage;
+import com.github.doodler.common.page.EachPage;
 import lombok.extern.slf4j.Slf4j;
 
 /**

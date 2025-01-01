@@ -1,7 +1,6 @@
-package com.github.doodler.common.jdbc.page;
+package com.github.doodler.common.page;
 
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -319,7 +318,7 @@ public class PageBean<T> implements Serializable, Cloneable {
         return (page - 1 >= 1);
     }
 
-    public static <T> PageBean<T> wrap(PageResponse<T> pageResponse) throws SQLException {
+    public static <T> PageBean<T> wrap(PageResponse<T> pageResponse) throws Exception {
         PageBean<T> pageBean = new PageBean<T>();
         pageBean.setPage(pageResponse.getPageNumber());
         pageBean.setSize(pageResponse.getPageSize());

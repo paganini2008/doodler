@@ -8,6 +8,9 @@ import javax.sql.DataSource;
 import com.github.doodler.common.jdbc.ConnectionFactory;
 import com.github.doodler.common.jdbc.JdbcUtils;
 import com.github.doodler.common.jdbc.impexp.PooledConnectionFactory;
+import com.github.doodler.common.page.DefaultPageContent;
+import com.github.doodler.common.page.PageContent;
+import com.github.doodler.common.page.PageReader;
 
 /**
  * @Description: ObjectBasedPageReader

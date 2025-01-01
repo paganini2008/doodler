@@ -1,6 +1,5 @@
-package com.github.doodler.common.jdbc.page;
+package com.github.doodler.common.page;
 
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
@@ -13,16 +12,16 @@ import java.util.List;
  */
 public interface PageReader<T> extends Countable {
 
-    default List<T> list(int offset, int limit) throws SQLException {
+    default List<T> list(int offset, int limit) throws Exception {
         return list(1, offset, limit);
     }
 
-    default List<T> list(int pageNumber, int offset, int limit) throws SQLException {
+    default List<T> list(int pageNumber, int offset, int limit) throws Exception {
         PageContent<T> pageContent = list(pageNumber, offset, limit, null);
         return pageContent != null ? pageContent.getContent() : Collections.emptyList();
     }
 
-    PageContent<T> list(int pageNumber, int offset, int limit, Object nextToken) throws SQLException;
+    PageContent<T> list(int pageNumber, int offset, int limit, Object nextToken) throws Exception;
 
     default PageResponse<T> list(PageRequest pageRequest) {
         return new SimplePageResponse<T>(pageRequest, this);

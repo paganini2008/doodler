@@ -2,7 +2,7 @@ package com.github.doodler.common.jdbc.impexp;
 
 import java.util.Map;
 import com.github.doodler.common.jdbc.ConnectionFactory;
-import com.github.doodler.common.jdbc.page.EachPage;
+import com.github.doodler.common.page.EachPage;
 
 /**
  * @Description: ExportHandler
