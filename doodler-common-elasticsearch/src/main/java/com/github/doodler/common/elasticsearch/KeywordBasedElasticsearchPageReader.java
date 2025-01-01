@@ -1,13 +1,18 @@
 package com.github.doodler.common.elasticsearch;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.util.Assert;
+import com.github.doodler.common.utils.MapUtils;
 
 /**
  * 
@@ -20,7 +25,7 @@ public class KeywordBasedElasticsearchPageReader<D, V> extends BasicElasticsearc
 
     private final String keyword;
     private final String[] searchFields;
-    private String[] highlightTags = {"<font color=\"red\" class=\"searchKeyword\">", "</font>"};
+    private String[] highlightTags = {"<font color='red' class='searchKeyword'>", "</font>"};
 
     public KeywordBasedElasticsearchPageReader(ElasticsearchRestTemplate elasticsearchRestTemplate,
             Class<D> documentClass, Class<V> valueClass, String keyword, String[] searchFields) {
@@ -43,7 +48,7 @@ public class KeywordBasedElasticsearchPageReader<D, V> extends BasicElasticsearc
                         .map(f -> new HighlightBuilder.Field(f)).toList())
                 .withHighlightBuilder(
                         new HighlightBuilder().preTags(highlightTags[0]).postTags(highlightTags[1])
-                                .fragmentSize(120).numOfFragments(5).noMatchSize(120));
+                                .fragmentSize(150).numOfFragments(5).noMatchSize(150));
         return searchQueryBuilder;
     }
 
@@ -55,5 +60,28 @@ public class KeywordBasedElasticsearchPageReader<D, V> extends BasicElasticsearc
         }
         return queryBuilder;
     }
+
+    @Override
+    protected V convertValueObject(D document, SearchHit<D> hit) {
+        V vo = super.convertValueObject(document, hit);
+        Map<String, List<String>> map = hit.getHighlightFields();
+        if (MapUtils.isEmpty(map)) {
+            return vo;
+        }
+        String propertyName;
+        List<String> fragments;
+        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+            propertyName = entry.getKey();
+            fragments = entry.getValue();
+            try {
+                PropertyUtils.setProperty(vo, propertyName,
+                        String.join(" ", fragments.toArray(new String[0])));
+            } catch (Exception ingored) {
+            }
+        }
+        return vo;
+    }
+
+
 
 }

@@ -52,14 +52,19 @@ public abstract class AbstractElasticsearchPageReader<D, V> implements PageReade
         if (hits.isEmpty()) {
             return new DefaultPageContent<>(null, nextToken);
         }
-        List<V> dataList = new ArrayList<V>();
-        for (SearchHit<D> hit : hits.getSearchHits()) {
-            dataList.add(convertValueObject(hit.getContent()));
-        }
+        List<V> dataList = getContent(hits);
         return new DefaultPageContent<>(dataList, nextToken);
     }
 
-    protected V convertValueObject(D document) {
+    protected List<V> getContent(SearchHits<D> hits) {
+        List<V> dataList = new ArrayList<V>();
+        for (SearchHit<D> hit : hits.getSearchHits()) {
+            dataList.add(convertValueObject(hit.getContent(), hit));
+        }
+        return dataList;
+    }
+
+    protected V convertValueObject(D document, SearchHit<D> hit) {
         return BeanCopyUtils.copyBean(document, valueClass);
     }
 
