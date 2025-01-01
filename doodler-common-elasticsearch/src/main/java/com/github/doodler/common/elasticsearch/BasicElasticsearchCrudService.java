@@ -57,6 +57,14 @@ public abstract class BasicElasticsearchCrudService<T> {
         return delete(elasticsearchTemplate.matchAllQuery(), entityClass);
     }
 
+    public boolean exists(String id, String indexName) {
+        return elasticsearchTemplate.exists(id, IndexCoordinates.of(indexName));
+    }
+
+    public boolean exists(String id, Class<T> entityClass) {
+        return elasticsearchTemplate.exists(id, entityClass);
+    }
+
     public T getById(String id, Class<T> entityClass) {
         return elasticsearchTemplate.get(id, entityClass);
     }

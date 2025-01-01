@@ -1,6 +1,5 @@
 package com.github.doodler.common.elasticsearch;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -24,11 +23,12 @@ import com.github.doodler.common.utils.MapUtils;
 public class KeywordBasedElasticsearchPageReader<D, V> extends BasicElasticsearchPageReader<D, V> {
 
     private final String keyword;
-    private final String[] searchFields;
+    private final Map<String, String> searchFields;
     private String[] highlightTags = {"<font color='red' class='searchKeyword'>", "</font>"};
 
     public KeywordBasedElasticsearchPageReader(ElasticsearchRestTemplate elasticsearchRestTemplate,
-            Class<D> documentClass, Class<V> valueClass, String keyword, String[] searchFields) {
+            Class<D> documentClass, Class<V> valueClass, String keyword,
+            Map<String, String> searchFields) {
         super(elasticsearchRestTemplate, documentClass, valueClass);
         Assert.hasText(keyword, "No keyword specified");
         this.keyword = keyword;
@@ -40,23 +40,55 @@ public class KeywordBasedElasticsearchPageReader<D, V> extends BasicElasticsearc
         this.highlightTags = highlightTags;
     }
 
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public String[] getHighlightTags() {
+        return highlightTags;
+    }
+
+    public Map<String, String> getSearchFields() {
+        return searchFields;
+    }
+
     @Override
     protected NativeSearchQueryBuilder getNativeSearchQueryBuilder() {
         NativeSearchQueryBuilder searchQueryBuilder = super.getNativeSearchQueryBuilder();
         searchQueryBuilder
-                .withHighlightFields(Arrays.stream(searchFields)
+                .withHighlightFields(searchFields.keySet().stream()
                         .map(f -> new HighlightBuilder.Field(f)).toList())
                 .withHighlightBuilder(
                         new HighlightBuilder().preTags(highlightTags[0]).postTags(highlightTags[1])
-                                .fragmentSize(150).numOfFragments(5).noMatchSize(150));
+                                .fragmentSize(120).numOfFragments(5).noMatchSize(120));
         return searchQueryBuilder;
     }
 
     @Override
     protected QueryBuilder getQuery() {
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
-        for (String searchField : searchFields) {
-            queryBuilder.should(QueryBuilders.matchQuery(searchField, keyword));
+        String searchField, logic;
+        QueryBuilder qb;
+        for (Map.Entry<String, String> entry : searchFields.entrySet()) {
+            searchField = entry.getKey();
+            qb = QueryBuilders.matchQuery(searchField, keyword);
+            logic = entry.getValue();
+            switch (logic.toLowerCase()) {
+                case "should":
+                    queryBuilder.should(qb);
+                    break;
+                case "must":
+                    queryBuilder.must(qb);
+                    break;
+                case "must not":
+                    queryBuilder.mustNot(qb);
+                    break;
+                case "filter":
+                    queryBuilder.filter(qb);
+                    break;
+                default:
+                    break;
+            }
         }
         return queryBuilder;
     }
