@@ -1,17 +1,25 @@
 package com.github.doodler.common.retry;
 
+import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.retry.TerminatedRetryException;
+import org.springframework.retry.ExhaustedRetryException;
+import org.springframework.retry.RetryCallback;
+import org.springframework.retry.RetryContext;
+import org.springframework.retry.RetryListener;
+import org.springframework.retry.RetryPolicy;
+import org.springframework.retry.backoff.FixedBackOffPolicy;
+import org.springframework.retry.policy.NeverRetryPolicy;
+import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
-import org.springframework.retry.support.RetryTemplateBuilder;
 import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestClientException;
-import com.github.doodler.common.http.RetryTemplateUtils;
-import com.github.doodler.common.http.StringRestTemplate;
+import org.springframework.web.client.RestTemplate;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: RetryableRestTemplate
@@ -19,50 +27,93 @@ import com.github.doodler.common.http.StringRestTemplate;
  * @Date: 12/10/2023
  * @Version 1.0.0
  */
-public class RetryableRestTemplate extends StringRestTemplate {
+@Slf4j
+public class RetryableRestTemplate extends RestTemplate implements RetryListener, InitializingBean {
 
     private RetryTemplate retryTemplate;
-
-    public RetryableRestTemplate() {
-        super(StandardCharsets.UTF_8);
-        this.retryTemplate = RetryTemplateUtils.alwaysRetry();
-    }
-
-    public RetryableRestTemplate(int maxTimes) {
-        super(StandardCharsets.UTF_8);
-        this.retryTemplate = RetryTemplateUtils.retryWithMaxTimes(maxTimes);
-    }
-
-    public RetryableRestTemplate(ClientHttpRequestFactory requestFactory,
-            RetryTemplate retryTemplate) {
-        super(requestFactory, StandardCharsets.UTF_8);
-        this.retryTemplate = retryTemplate;
-    }
-
-    public RetryableRestTemplate(ClientHttpRequestFactory requestFactory,
-            RetryTemplateBuilder builder) {
-        super(requestFactory, StandardCharsets.UTF_8);
-        this.retryTemplate = builder != null ? builder.build() : RetryTemplateUtils.alwaysRetry();
-    }
-
-    public RetryTemplate getRetryTemplate() {
-        return retryTemplate;
-    }
+    private int maxAttempts = 3;
+    private Map<Class<? extends Throwable>, Boolean> retryableExceptions;
 
     public void setRetryTemplate(RetryTemplate retryTemplate) {
         this.retryTemplate = retryTemplate;
     }
 
+    public void setMaxAttempts(int maxAttempts) {
+        this.maxAttempts = maxAttempts;
+    }
+
+    public void setRetryableExceptions(
+            Map<Class<? extends Throwable>, Boolean> retryableExceptions) {
+        this.retryableExceptions = retryableExceptions;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        if (retryTemplate == null) {
+            retryTemplate = createRetryTemplate();
+        }
+    }
+
+    private RetryTemplate createRetryTemplate() {
+        RetryTemplate retryTemplate = new RetryTemplate();
+        if (retryableExceptions == null) {
+            retryableExceptions = new HashMap<>();
+            retryableExceptions.put(RestClientException.class, true);
+            retryableExceptions.put(IOException.class, true);
+        }
+        RetryPolicy retryPolicy =
+                maxAttempts > 0 ? new SimpleRetryPolicy(maxAttempts, retryableExceptions)
+                        : new NeverRetryPolicy();
+        retryTemplate.setRetryPolicy(retryPolicy);
+        retryTemplate.setBackOffPolicy(new FixedBackOffPolicy());
+        retryTemplate.setListeners(new RetryListener[] {this});
+        return retryTemplate;
+    }
+
     @Override
     protected <T> T doExecute(URI originalUri, HttpMethod method, RequestCallback requestCallback,
             ResponseExtractor<T> responseExtractor) throws RestClientException {
-        return getRetryTemplate().execute(context -> {
+        return retryTemplate.execute(context -> {
             return RetryableRestTemplate.super.doExecute(originalUri, method, requestCallback,
                     responseExtractor);
         }, context -> {
             Throwable e = context.getLastThrowable();
             throw e instanceof RestClientException ? (RestClientException) e
-                    : new TerminatedRetryException(e.getMessage(), e);
+                    : new ExhaustedRetryException(e.getMessage(), e);
         });
+    }
+
+    @Override
+    public <T, E extends Throwable> boolean open(RetryContext context,
+            RetryCallback<T, E> callback) {
+        if (log.isInfoEnabled()) {
+            log.info("Start to retry. Retry count: {}", context.getRetryCount());
+        }
+        return true;
+    }
+
+    @Override
+    public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback,
+            Throwable e) {
+        if (e != null) {
+            if (log.isErrorEnabled()) {
+                log.error("Complete to retry. Retry count: {}", context.getRetryCount(), e);
+            }
+        } else {
+            if (log.isInfoEnabled()) {
+                log.info("Complete to retry. Retry count: {}", context.getRetryCount());
+            }
+        }
+
+    }
+
+    @Override
+    public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback,
+            Throwable e) {
+        if (e != null) {
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
     }
 }

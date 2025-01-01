@@ -11,7 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import com.github.doodler.common.ApiResult;
-import com.github.doodler.common.cloud.lb.LoadBalancedRestTemplate;
+import com.github.doodler.common.cloud.lb.LbRestTemplate;
 import com.github.doodler.common.quartz.scheduler.JobOperations;
 import com.github.doodler.common.quartz.scheduler.JobOperationsException;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RestJobOperations implements JobOperations {
 
-    private final LoadBalancedRestTemplate restTemplate;
+    private final LbRestTemplate restTemplate;
     private final HttpHeaders defaultHttpHeaders;
 
     @Override

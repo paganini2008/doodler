@@ -6,6 +6,8 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -16,7 +18,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.RestTemplate;
+import com.github.doodler.common.retry.RetryTemplateCustomizer;
 import okhttp3.Authenticator;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
@@ -38,10 +42,10 @@ public class RestTemplateConfig {
 
     @ConditionalOnMissingBean(name = "defaultRestTemplateCustomizer")
     @Bean
-    public RestTemplateCustomizer defaultRestTemplateCustomizer(
-            ClientHttpRequestFactory clientHttpRequestFactory) {
+    public DefaultRestTemplateCustomizer defaultRestTemplateCustomizer(
+            ClientHttpRequestFactory clientHttpRequestFactory, RetryTemplate retryTemplate) {
         return new DefaultRestTemplateCustomizer(clientHttpRequestFactory,
-                Arrays.asList(new LoggingHttpRequestInterceptor()));
+                Arrays.asList(new LoggingHttpRequestInterceptor()), retryTemplate);
     }
 
     @ConditionalOnMissingBean
@@ -80,14 +84,26 @@ public class RestTemplateConfig {
     }
 
     @Bean
-    public RestTemplateHolder restTemplateHolder(RestTemplateCustomizer... customizers) {
-        return new RestTemplateHolder(customizers);
+    public RestTemplateHolder restTemplateHolder(
+            @Qualifier("defaultRestTemplateCustomizer") RestTemplateCustomizer customizer) {
+        return new RestTemplateHolder(customizer);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public RestTemplate defaultRestTemplate(RestTemplateHolder restTemplateHolder) {
-        return restTemplateHolder.getDefaultRestTemplate();
+        return restTemplateHolder.getRestTemplate();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public RetryTemplate defaultRetryTemplate(
+            @Autowired(required = false) RetryTemplateCustomizer retryTemplateCustomizer) {
+        RetryTemplate retryTemplate = RetryTemplateUtils.getRetryTemplate(3);
+        if (retryTemplateCustomizer != null) {
+            retryTemplateCustomizer.customize(retryTemplate);
+        }
+        return retryTemplate;
     }
 
 }

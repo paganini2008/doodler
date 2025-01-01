@@ -1,6 +1,5 @@
 package com.github.doodler.common.elasticsearch;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -44,7 +43,7 @@ public abstract class AbstractElasticsearchPageReader<D, V> implements PageReade
 
     @Override
     public PageContent<V> list(int pageNumber, int offset, int limit, Object nextToken)
-            throws SQLException {
+            throws Exception {
         NativeSearchQueryBuilder searchQueryBuilder = getNativeSearchQueryBuilder();
         searchQueryBuilder.withPageable(PageRequest.of(pageNumber - 1, limit));
         SearchHits<D> hits =

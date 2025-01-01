@@ -8,7 +8,7 @@ package com.github.doodler.common.quartz;
  */
 public interface JobConstants {
 
-    String DEFAULT_JOB_SERVICE_NAME = "crypto-job-service";
+    String DEFAULT_JOB_SERVICE_NAME = "doodler-quartz-service";
 
     String DEFAULT_JOB_GROUP_NAME = "DEFAULT-JOB-GROUP";
 

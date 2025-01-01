@@ -3,7 +3,6 @@ package com.github.doodler.common.id;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import com.github.doodler.common.context.ConditionalOnApplication;
 
 /**
  * 
@@ -12,7 +11,6 @@ import com.github.doodler.common.context.ConditionalOnApplication;
  * @Date: 07/11/2024
  * @Version 1.0.0
  */
-@ConditionalOnApplication("doodler-common-service")
 @Configuration(proxyBeanMethods = false)
 public class IdGeneratorConfig {
 

@@ -15,7 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import com.github.doodler.common.cloud.ApplicationInfoHolder;
 import com.github.doodler.common.cloud.DiscoveryClientService;
-import com.github.doodler.common.cloud.lb.LoadBalancedRestTemplate;
+import com.github.doodler.common.cloud.lb.LbRestTemplate;
 import com.github.doodler.common.quartz.scheduler.JobOperations;
 import com.github.doodler.common.retry.RetryOperations;
 
@@ -41,7 +41,7 @@ public class QuartzExecutorConfiguration {
     }
 
     @Bean
-    public JobOperations jobOperations(LoadBalancedRestTemplate restTemplate,
+    public JobOperations jobOperations(LbRestTemplate restTemplate,
                                        @Qualifier(JOB_EXECUTOR_HTTP_HEADERS) HttpHeaders httpHeaders) {
         return new RestJobOperations(restTemplate, httpHeaders);
     }
@@ -63,7 +63,7 @@ public class QuartzExecutorConfiguration {
     @Bean
     public JobService jobService(JobBeanFactory jobBeanFactory,
                                  ApplicationInfoHolder applicationInfoHolder,
-                                 LoadBalancedRestTemplate restTemplate) {
+                                 LbRestTemplate restTemplate) {
         return new JobService(jobBeanFactory, applicationInfoHolder, restTemplate);
     }
 
@@ -78,7 +78,7 @@ public class QuartzExecutorConfiguration {
     @ConditionalOnProperty(name = "management.health.quartz.enabled", havingValue = "true", matchIfMissing = true)
     @Bean
     public QuartzExecutorHealthIndicator quartzHealthIndicator(DiscoveryClientService discoveryClientService,
-                                                               LoadBalancedRestTemplate restTemplate,
+                                                               LbRestTemplate restTemplate,
                                                                @Qualifier(JOB_EXECUTOR_HTTP_HEADERS) HttpHeaders httpHeaders) {
         return new QuartzExecutorHealthIndicator(discoveryClientService, restTemplate, httpHeaders);
     }

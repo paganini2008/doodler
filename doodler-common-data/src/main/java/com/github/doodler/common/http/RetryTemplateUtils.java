@@ -1,10 +1,13 @@
 package com.github.doodler.common.http;
 
-import org.springframework.retry.backoff.NoBackOffPolicy;
-import org.springframework.retry.policy.AlwaysRetryPolicy;
-import org.springframework.retry.policy.MaxAttemptsRetryPolicy;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import org.springframework.retry.RetryPolicy;
+import org.springframework.retry.backoff.FixedBackOffPolicy;
+import org.springframework.retry.policy.NeverRetryPolicy;
+import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
-import org.springframework.retry.support.RetryTemplateBuilder;
 import org.springframework.web.client.RestClientException;
 import lombok.experimental.UtilityClass;
 
@@ -18,23 +21,22 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class RetryTemplateUtils {
 
-    public RetryTemplate alwaysRetry() {
-        return alwaysRetry(RestClientException.class);
+    public RetryTemplate getRetryTemplate(int maxAttempts) {
+        Map<Class<? extends Throwable>, Boolean> retryableExceptions = new HashMap<>();
+        retryableExceptions.put(RestClientException.class, true);
+        retryableExceptions.put(IOException.class, true);
+        return getRetryTemplate(maxAttempts, retryableExceptions);
     }
 
-    public RetryTemplate alwaysRetry(Class<? extends Exception> retryException) {
-        return new RetryTemplateBuilder().customPolicy(new AlwaysRetryPolicy())
-                .retryOn(retryException).customBackoff(new NoBackOffPolicy()).build();
-    }
-
-    public RetryTemplate retryWithMaxTimes(int maxAttempts) {
-        return retryWithMaxTimes(maxAttempts, RestClientException.class);
-    }
-
-    public RetryTemplate retryWithMaxTimes(int maxAttempts,
-            Class<? extends Exception> retryException) {
-        return new RetryTemplateBuilder().customPolicy(new MaxAttemptsRetryPolicy(maxAttempts))
-                .retryOn(retryException).customBackoff(new NoBackOffPolicy()).build();
+    public RetryTemplate getRetryTemplate(int maxAttempts,
+            Map<Class<? extends Throwable>, Boolean> retryableExceptions) {
+        RetryTemplate retryTemplate = new RetryTemplate();
+        RetryPolicy retryPolicy =
+                maxAttempts > 0 ? new SimpleRetryPolicy(maxAttempts, retryableExceptions)
+                        : new NeverRetryPolicy();
+        retryTemplate.setRetryPolicy(retryPolicy);
+        retryTemplate.setBackOffPolicy(new FixedBackOffPolicy());
+        return retryTemplate;
     }
 
 }

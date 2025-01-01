@@ -22,7 +22,7 @@ import com.github.doodler.common.ApiResult;
 import com.github.doodler.common.cloud.ApplicationInfo;
 import com.github.doodler.common.cloud.ApplicationInfoHolder;
 import com.github.doodler.common.cloud.DiscoveryClientService;
-import com.github.doodler.common.cloud.lb.LoadBalancedRestTemplate;
+import com.github.doodler.common.cloud.lb.LbRestTemplate;
 import com.github.doodler.common.quartz.executor.JobSignature;
 import com.github.doodler.common.quartz.executor.RpcJobBean;
 import com.github.doodler.common.utils.JacksonUtils;
@@ -42,7 +42,7 @@ public class InternalJobDispatcher implements JobDispatcher {
     private ApplicationInfoHolder applicationInfoHolder;
 
     @Autowired
-    private LoadBalancedRestTemplate restTemplate;
+    private LbRestTemplate restTemplate;
 
     @Autowired
     private DiscoveryClientService discoveryClientService;

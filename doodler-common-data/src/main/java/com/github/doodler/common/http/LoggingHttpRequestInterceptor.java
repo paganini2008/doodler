@@ -101,7 +101,8 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
         if (responseBodyString.length() <= maxLengthOfResponseBodyString) {
             return responseBodyString;
         }
-        return responseBodyString.substring(0, maxLengthOfResponseBodyString).concat(" Omit ...");
+        return responseBodyString.substring(0, maxLengthOfResponseBodyString)
+                .concat(" Omitted ...");
     }
 
     @Override

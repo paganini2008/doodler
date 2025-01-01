@@ -1,17 +1,9 @@
 package com.github.doodler.common.quartz.executor;
 
-import com.github.doodler.common.quartz.annotation.Job;
-import com.github.doodler.common.quartz.annotation.Trigger;
-import com.github.doodler.common.quartz.scheduler.JobOperations;
-import com.github.doodler.common.retry.RetryOperations;
-import com.github.doodler.common.utils.JacksonUtils;
-import com.github.doodler.common.utils.MutableObservable;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
@@ -27,6 +19,14 @@ import org.springframework.retry.RetryContext;
 import org.springframework.retry.RetryListener;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestClientException;
+import com.github.doodler.common.quartz.annotation.Job;
+import com.github.doodler.common.quartz.annotation.Trigger;
+import com.github.doodler.common.quartz.scheduler.JobOperations;
+import com.github.doodler.common.retry.RetryOperations;
+import com.github.doodler.common.utils.JacksonUtils;
+import com.github.doodler.common.utils.MutableObservable;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description: JobExecutionBeanProcessor
@@ -55,9 +55,11 @@ public class JobExecutionBeanProcessor implements BeanPostProcessor {
     private final MutableObservable observable = new MutableObservable(false);
 
     @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+    public Object postProcessAfterInitialization(Object bean, String beanName)
+            throws BeansException {
         Class<?> targetClass = AopProxyUtils.ultimateTargetClass(bean);
-        List<Method> annotatedMethods = MethodUtils.getMethodsListWithAnnotation(targetClass, Job.class);
+        List<Method> annotatedMethods =
+                MethodUtils.getMethodsListWithAnnotation(targetClass, Job.class);
         if (CollectionUtils.isNotEmpty(annotatedMethods)) {
             for (Method method : annotatedMethods) {
                 observable.addObserver((ob, arg) -> {
@@ -71,15 +73,12 @@ public class JobExecutionBeanProcessor implements BeanPostProcessor {
     private void declareJob(Method method) {
         final Job job = method.getAnnotation(Job.class);
         String jobName = job.name();
-        String jobGroup = StringUtils.isNotBlank(job.group()) ? job.group() : applicationName.toUpperCase();
+        String jobGroup =
+                StringUtils.isNotBlank(job.group()) ? job.group() : applicationName.toUpperCase();
         JobDefination.JobDefinationBuilder builder = JobDefination.builder();
-        builder.applicationName(applicationName)
-                .jobName(jobName)
-                .jobGroup(jobGroup)
-                .className(method.getDeclaringClass().getName())
-                .method(method.getName())
-                .description(job.description())
-                .maxRetryCount(job.maxRetryCount());
+        builder.applicationName(applicationName).jobName(jobName).jobGroup(jobGroup)
+                .className(method.getDeclaringClass().getName()).method(method.getName())
+                .description(job.description()).maxRetryCount(job.maxRetryCount());
         if (method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(String.class)) {
             builder.initialParameter("<NONE>");
         }
@@ -102,8 +101,8 @@ public class JobExecutionBeanProcessor implements BeanPostProcessor {
             triggerBuilder.period(TimeUnit.SECONDS.convert(trigger.period(), trigger.timeUnit()));
         }
         if (trigger.initialDelay() > 0) {
-            triggerBuilder.startTime(new Date(System.currentTimeMillis() +
-                    TimeUnit.MILLISECONDS.convert(trigger.initialDelay(), trigger.timeUnit())));
+            triggerBuilder.startTime(new Date(System.currentTimeMillis()
+                    + TimeUnit.MILLISECONDS.convert(trigger.initialDelay(), trigger.timeUnit())));
         }
         triggerBuilder.repeatCount(trigger.repeatCount());
         triggerBuilder.description(trigger.description());
@@ -134,31 +133,37 @@ public class JobExecutionBeanProcessor implements BeanPostProcessor {
             }, maxRetryCount, retryPeriod, RestClientException.class, new RetryListener() {
 
                 @Override
-                public <T, E extends Throwable> boolean open(RetryContext context, RetryCallback<T, E> callback) {
+                public <T, E extends Throwable> boolean open(RetryContext context,
+                        RetryCallback<T, E> callback) {
+                    if (log.isInfoEnabled()) {
+                        log.info("Start retrying to sync JobDetail:{} , updated: {}",
+                                JacksonUtils.toJsonString(jobDefination), updated);
+                    }
                     return true;
                 }
 
                 @Override
-                public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback,
-                                                           Throwable e) {
+                public <T, E extends Throwable> void close(RetryContext context,
+                        RetryCallback<T, E> callback, Throwable e) {
                     if (log.isWarnEnabled()) {
-                        log.warn(marker, "[Retried {}] Failed to sync job detail: {}, updated: {}", context.getRetryCount(),
-                                JacksonUtils.toJsonString(jobDefination), updated);
+                        log.warn(marker, "[Retried {}] Failed to sync JobDetail:{}, updated: {}",
+                                context.getRetryCount(), JacksonUtils.toJsonString(jobDefination),
+                                updated);
                     }
                 }
 
                 @Override
-                public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback,
-                                                             Throwable e) {
+                public <T, E extends Throwable> void onError(RetryContext context,
+                        RetryCallback<T, E> callback, Throwable e) {
                     if (log.isWarnEnabled()) {
-                        log.warn("[Retrying {}] Unable to sync job detail by reason: {}", context.getRetryCount(),
-                                e.getMessage());
+                        log.warn("[Retrying {}] Failed to sync JobDetail by reason:{}",
+                                context.getRetryCount(), e.getMessage());
                     }
                 }
             });
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
-                log.error("Unable to sync job detail by reason: {}", e.getMessage());
+                log.error("Finally being unable to sync JobDetail:{}", e.getMessage());
             }
         }
     }
@@ -173,8 +178,9 @@ public class JobExecutionBeanProcessor implements BeanPostProcessor {
                     firstFiredDate = jobOperations.modifyJob(jobDefination);
                 }
                 if (log.isInfoEnabled()) {
-                    log.info(marker, "Job {}.{} is updated and first fired date will at {}", jobDefination.getJobGroup(),
-                            jobDefination.getJobName(), (firstFiredDate != null ? firstFiredDate.toString() : "<NONE>"));
+                    log.info(marker, "Job {}.{} is updated and first fired date will at {}",
+                            jobDefination.getJobGroup(), jobDefination.getJobName(),
+                            (firstFiredDate != null ? firstFiredDate.toString() : "<NONE>"));
                 }
             }
         } else {
@@ -185,8 +191,9 @@ public class JobExecutionBeanProcessor implements BeanPostProcessor {
                 firstFiredDate = jobOperations.addJob(jobDefination);
             }
             if (log.isInfoEnabled()) {
-                log.info(marker, "Job {}.{} is added and first fired date will at {}", jobDefination.getJobGroup(),
-                        jobDefination.getJobName(), (firstFiredDate != null ? firstFiredDate.toString() : "<NONE>"));
+                log.info(marker, "Job {}.{} is added and first fired date will at {}",
+                        jobDefination.getJobGroup(), jobDefination.getJobName(),
+                        (firstFiredDate != null ? firstFiredDate.toString() : "<NONE>"));
             }
         }
     }

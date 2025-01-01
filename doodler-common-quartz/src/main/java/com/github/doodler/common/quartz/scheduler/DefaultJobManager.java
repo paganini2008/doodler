@@ -47,6 +47,7 @@ import com.github.doodler.common.quartz.executor.JobSignature;
 import com.github.doodler.common.quartz.executor.TriggerDefination;
 import com.github.doodler.common.quartz.statistics.CountingStatisticsService;
 import com.github.doodler.common.quartz.statistics.RuntimeCounter;
+import com.github.doodler.timeseries.Sampler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -921,10 +922,13 @@ public class DefaultJobManager implements JobManager, DisposableBean {
             JobGroupStatusVo vo = new JobGroupStatusVo();
             vo.setJobGroup(jobGroup);
             vo.setJobCount(countOfJobs(jobGroup, null));
-            RuntimeCounter counter = statisticsService.summarize("all", jobGroup).getSample();
-            vo.setCompletedJobCount(counter.getCount());
-            vo.setRunningJobCount(counter.getRunningCount());
-            vo.setErrorCount(counter.getErrorCount());
+            Sampler<RuntimeCounter> sampler = statisticsService.summarize("all", jobGroup);
+            if (sampler != null) {
+                RuntimeCounter counter = sampler.getSample();
+                vo.setCompletedJobCount(counter.getCount());
+                vo.setRunningJobCount(counter.getRunningCount());
+                vo.setErrorCount(counter.getErrorCount());
+            }
             list.add(vo);
         }
         return list;

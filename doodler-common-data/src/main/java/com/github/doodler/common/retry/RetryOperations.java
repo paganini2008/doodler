@@ -2,10 +2,9 @@ package com.github.doodler.common.retry;
 
 import java.util.Arrays;
 import java.util.concurrent.Callable;
-
+import org.springframework.retry.ExhaustedRetryException;
 import org.springframework.retry.RetryListener;
 import org.springframework.retry.RetryPolicy;
-import org.springframework.retry.TerminatedRetryException;
 import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.retry.support.RetryTemplateBuilder;
@@ -20,18 +19,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class RetryOperations {
 
-    public Object execute(Runnable task, int maxRetryCount, long interval, Class<? extends Throwable> retryOnClass,
-                          RetryListener... retryListeners) throws Exception {
-        RetryTemplate retryTemplate = new RetryTemplateBuilder().maxAttempts(maxRetryCount).fixedBackoff(interval).retryOn(
-                retryOnClass).withListeners(Arrays.asList(retryListeners)).build();
+    public Object execute(Runnable task, int maxRetryCount, long interval,
+            Class<? extends Throwable> retryOnClass, RetryListener... retryListeners)
+            throws Exception {
+        RetryTemplate retryTemplate =
+                new RetryTemplateBuilder().maxAttempts(maxRetryCount).fixedBackoff(interval)
+                        .retryOn(retryOnClass).withListeners(Arrays.asList(retryListeners)).build();
         return execute(task, retryTemplate);
     }
 
     public Object execute(Runnable task, RetryPolicy retryPolicy, BackOffPolicy backOffPolicy,
-                          Class<? extends Throwable> retryOnClass,
-                          RetryListener... retryListeners) throws Exception {
-        RetryTemplate retryTemplate = new RetryTemplateBuilder().customPolicy(retryPolicy).customBackoff(
-                backOffPolicy).retryOn(retryOnClass).withListeners(Arrays.asList(retryListeners)).build();
+            Class<? extends Throwable> retryOnClass, RetryListener... retryListeners)
+            throws Exception {
+        RetryTemplate retryTemplate =
+                new RetryTemplateBuilder().customPolicy(retryPolicy).customBackoff(backOffPolicy)
+                        .retryOn(retryOnClass).withListeners(Arrays.asList(retryListeners)).build();
         return execute(task, retryTemplate);
     }
 
@@ -41,22 +43,25 @@ public class RetryOperations {
             return null;
         }, context -> {
             Throwable e = context.getLastThrowable();
-            throw new TerminatedRetryException(e.getMessage(), e);
+            throw new ExhaustedRetryException(e.getMessage(), e);
         });
     }
 
-    public <T> T execute(Callable<T> task, int maxRetryCount, long interval, Class<? extends Throwable> retryOnClass,
-                         RetryListener... retryListeners) throws Exception {
-        RetryTemplate retryTemplate = new RetryTemplateBuilder().maxAttempts(maxRetryCount).fixedBackoff(interval).retryOn(
-                retryOnClass).withListeners(Arrays.asList(retryListeners)).build();
+    public <T> T execute(Callable<T> task, int maxRetryCount, long interval,
+            Class<? extends Throwable> retryOnClass, RetryListener... retryListeners)
+            throws Exception {
+        RetryTemplate retryTemplate =
+                new RetryTemplateBuilder().maxAttempts(maxRetryCount).fixedBackoff(interval)
+                        .retryOn(retryOnClass).withListeners(Arrays.asList(retryListeners)).build();
         return execute(task, retryTemplate);
     }
 
     public <T> T execute(Callable<T> task, RetryPolicy retryPolicy, BackOffPolicy backOffPolicy,
-                         Class<? extends Throwable> retryOnClass,
-                         RetryListener... retryListeners) throws Exception {
-        RetryTemplate retryTemplate = new RetryTemplateBuilder().customPolicy(retryPolicy).customBackoff(
-                backOffPolicy).retryOn(retryOnClass).withListeners(Arrays.asList(retryListeners)).build();
+            Class<? extends Throwable> retryOnClass, RetryListener... retryListeners)
+            throws Exception {
+        RetryTemplate retryTemplate =
+                new RetryTemplateBuilder().customPolicy(retryPolicy).customBackoff(backOffPolicy)
+                        .retryOn(retryOnClass).withListeners(Arrays.asList(retryListeners)).build();
         return execute(task, retryTemplate);
     }
 
@@ -65,7 +70,7 @@ public class RetryOperations {
             return task.call();
         }, context -> {
             Throwable e = context.getLastThrowable();
-            throw new TerminatedRetryException(e.getMessage(), e);
+            throw new ExhaustedRetryException(e.getMessage(), e);
         });
     }
 }

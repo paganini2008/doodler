@@ -10,7 +10,9 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.RestTemplate;
+import com.github.doodler.common.retry.RetryableRestTemplate;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -25,6 +27,7 @@ public class DefaultRestTemplateCustomizer implements RestTemplateCustomizer, Or
 
     private final ClientHttpRequestFactory clientHttpRequestFactory;
     private final List<ClientHttpRequestInterceptor> interceptors;
+    private final RetryTemplate retryTemplate;
 
     private Charset charset = StandardCharsets.UTF_8;
 
@@ -52,11 +55,10 @@ public class DefaultRestTemplateCustomizer implements RestTemplateCustomizer, Or
                 break;
             }
         }
-
-        applySettings(restTemplate);
+        if (restTemplate instanceof RetryableRestTemplate) {
+            ((RetryableRestTemplate) restTemplate).setRetryTemplate(retryTemplate);
+        }
     }
-
-    protected void applySettings(RestTemplate restTemplate) {}
 
     @Override
     public int getOrder() {

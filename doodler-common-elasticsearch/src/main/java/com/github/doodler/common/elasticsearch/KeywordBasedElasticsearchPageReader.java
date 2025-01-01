@@ -15,7 +15,7 @@ import com.github.doodler.common.utils.MapUtils;
 
 /**
  * 
- * @Description: AbstractElasticsearchPageReader
+ * @Description: KeywordBasedElasticsearchPageReader
  * @Author: Fred Feng
  * @Date: 23/12/2024
  * @Version 1.0.0

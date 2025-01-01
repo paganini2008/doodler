@@ -19,7 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import com.github.doodler.common.ApiResult;
 import com.github.doodler.common.cloud.ApplicationInfoHolder;
-import com.github.doodler.common.cloud.lb.LoadBalancedRestTemplate;
+import com.github.doodler.common.cloud.lb.LbRestTemplate;
 import com.github.doodler.common.quartz.scheduler.JobSchedulingException;
 import com.github.doodler.common.utils.ExceptionUtils;
 import com.github.doodler.common.utils.MapUtils;
@@ -38,7 +38,7 @@ public class JobService {
 
     private final JobBeanFactory jobBeanFactory;
     private final ApplicationInfoHolder applicationInfoHolder;
-    private final LoadBalancedRestTemplate restTemplate;
+    private final LbRestTemplate restTemplate;
 
     @Value("${discovery.client.ping.usePublicIp:false}")
     private boolean usePublicIp;

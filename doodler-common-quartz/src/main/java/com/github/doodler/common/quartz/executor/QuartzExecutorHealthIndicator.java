@@ -17,7 +17,7 @@ import org.springframework.web.client.RestClientException;
 import com.github.doodler.common.ApiResult;
 import com.github.doodler.common.cloud.ApplicationInfo;
 import com.github.doodler.common.cloud.DiscoveryClientService;
-import com.github.doodler.common.cloud.lb.LoadBalancedRestTemplate;
+import com.github.doodler.common.cloud.lb.LbRestTemplate;
 import com.github.doodler.common.quartz.scheduler.JobGroupStatusVo;
 import com.github.doodler.common.quartz.scheduler.JobOperationsException;
 import com.github.doodler.common.quartz.scheduler.TriggerGroupStatusVo;
@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 public class QuartzExecutorHealthIndicator extends AbstractHealthIndicator {
 
     private final DiscoveryClientService discoveryClientService;
-    private final LoadBalancedRestTemplate restTemplate;
+    private final LbRestTemplate restTemplate;
     private final HttpHeaders defaultHttpHeaders;
 
     @Value("${spring.application.name}")
