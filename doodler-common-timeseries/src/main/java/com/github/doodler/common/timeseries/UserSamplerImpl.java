@@ -13,9 +13,11 @@ public class UserSamplerImpl<T extends UserMetric<T>> implements UserSampler<T> 
 
     private final AtomicStampedReference<T> ref = new AtomicStampedReference<T>(null, 0);
     private long timestamp;
+    private T NULL;
 
-    public UserSamplerImpl(long timestamp) {
+    public UserSamplerImpl(long timestamp, T NULL) {
         this.timestamp = timestamp;
+        this.NULL = NULL;
     }
 
     @Override
@@ -49,7 +51,11 @@ public class UserSamplerImpl<T extends UserMetric<T>> implements UserSampler<T> 
 
     @Override
     public T getSample() {
-        return ref.getReference();
+        T t = ref.getReference();
+        if (t == null) {
+            t = NULL;
+        }
+        return t;
     }
 
 }

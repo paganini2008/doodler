@@ -1,6 +1,7 @@
 package com.github.doodler.common.timeseries;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,10 +13,12 @@ import java.util.Map;
  */
 public interface OverflowDataManager {
 
-    Map<Instant, Object> retrive(String category, String dimension);
+    Map<Instant, Object> retrieve(String category, String dimension, int N);
 
     void clean(String category);
 
     void clean(String category, String dimension);
+
+    List<String> getDays(String category, String dimension);
 
 }

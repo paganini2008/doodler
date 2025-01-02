@@ -17,12 +17,24 @@ import lombok.ToString;
  */
 public abstract class NumberMetrics {
 
+    public static LongMetric nullLongMetric(long timestamp) {
+        return new LongMetric(timestamp);
+    }
+
     public static LongMetric valueOf(long value, long timestamp) {
         return new LongMetric(value, timestamp);
     }
 
+    public static DoubleMetric nullDoubleMetric(long timestamp) {
+        return new DoubleMetric(timestamp);
+    }
+
     public static DoubleMetric valueOf(double value, long timestamp) {
         return new DoubleMetric(value, timestamp);
+    }
+
+    public static DecimalMetric nullDecimalMetric(long timestamp) {
+        return new DecimalMetric(timestamp);
     }
 
     public static DecimalMetric valueOf(BigDecimal value, long timestamp) {
@@ -43,6 +55,10 @@ public abstract class NumberMetrics {
 
     @ToString
     public static class DoubleMetric implements NumberMetric<Double> {
+
+        DoubleMetric(long timestamp) {
+            this.timestamp = timestamp;
+        }
 
         DoubleMetric(double value, long timestamp) {
             this(value, value, timestamp);
@@ -169,6 +185,10 @@ public abstract class NumberMetrics {
     @ToString
     public static class LongMetric implements NumberMetric<Long> {
 
+        LongMetric(long timestamp) {
+            this.timestamp = timestamp;
+        }
+
         LongMetric(long value, long timestamp) {
             this(value, value, timestamp);
         }
@@ -199,9 +219,9 @@ public abstract class NumberMetrics {
         private Long lowestValue;
         private Long totalValue;
         private Long baseValue;
-        private Long count;
-        private Long baseCount;
-        private Long timestamp;
+        private long count;
+        private long baseCount;
+        private long timestamp;
 
         @Override
         public Long getHighestValue() {
@@ -235,7 +255,9 @@ public abstract class NumberMetrics {
 
         @Override
         public Double getAverageValue() {
-            return count > 0 ? (double) totalValue / count : 0D;
+            return count > 0
+                    ? Double.valueOf(new DecimalFormat("0.0000").format(totalValue / count))
+                    : 0D;
         }
 
         @Override
@@ -290,6 +312,10 @@ public abstract class NumberMetrics {
 
     @ToString
     public static class DecimalMetric implements NumberMetric<BigDecimal> {
+
+        DecimalMetric(long timestamp) {
+            this.timestamp = timestamp;
+        }
 
         DecimalMetric(BigDecimal value, long timestamp) {
             this(value, value, timestamp);

@@ -1,8 +1,12 @@
 package com.github.doodler.common.timeseries;
 
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.function.Consumer;
 import com.github.doodler.common.utils.TimeWindowUnit;
 
@@ -30,6 +34,12 @@ public abstract class SimpleUserSamplerService<C, D, E extends UserMetric<E>>
         this.dataHandlers = dataHandlers;
     }
 
+    protected TimeZone timeZone = TimeZone.getDefault();
+
+    public void setTimeZone(TimeZone timeZone) {
+        this.timeZone = timeZone;
+    }
+
     @Override
     protected SampleCollector<E, UserSampler<E>> getSampleCollector(C category, D dimension,
             long timestamp) {
@@ -38,16 +48,19 @@ public abstract class SimpleUserSamplerService<C, D, E extends UserMetric<E>>
                 new OverflowDataStore<C, D, E, UserSampler<E>>(category, dimension, dataHandlers));
     }
 
-    @Override
-    protected Map<String, Object> render(C category, D dimension, Map<String, Object> data) {
-        if (data.size() < maxSize) {
-            Map<String, Object> emptyMap = timeWindowUnit.initializeMap(new Date(), span, maxSize,
-                    timeZone, dateTimeFormatter,
-                    time -> getEmptySampler(category, dimension, time).getSample().represent());
-            emptyMap.putAll(data);
-            return emptyMap;
-        }
-        return data;
+    public Map<String, Object> sequence(C category, D dimension,
+            DateTimeFormatter dateTimeFormatter) {
+        DateTimeFormatter dtf = dateTimeFormatter != null ? dateTimeFormatter
+                : TimeSeriesConstants.DEFAULT_DATE_TIME_FORMATTER;
+        Map<Instant, Object> data = super.sequence(category, dimension);
+        Map<String, Object> results = data.entrySet().stream().collect(LinkedHashMap::new,
+                (m, e) -> m.put(e.getKey().atZone(timeZone.toZoneId()).format(dtf), e.getValue()),
+                LinkedHashMap::putAll);
+        Map<String, Object> emptyMap =
+                timeWindowUnit.initializeMap(new Date(), span, maxSize, timeZone, dtf,
+                        time -> getEmptySampler(category, dimension, time).getSample().represent());
+        emptyMap.putAll(results);
+        return emptyMap;
     }
 
     public void update(C category, D dimension, long timestamp, Consumer<UserSampler<E>> consumer) {

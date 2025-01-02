@@ -1,18 +1,14 @@
 package com.github.doodler.common.timeseries;
 
-import static com.github.doodler.common.timeseries.TimeSeriesConstants.DEFAULT_DATE_TIME_FORMATTER;
-import static com.github.doodler.common.timeseries.TimeSeriesConstants.DEFAULT_TIMEZONE;
-import java.time.format.DateTimeFormatter;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-
 import com.github.doodler.common.utils.MapUtils;
 
 /**
@@ -27,27 +23,16 @@ public abstract class SamplerService<C, D, E extends Metric, T extends Sampler<E
     private final Map<C, Map<D, SampleCollector<E, T>>> data = new ConcurrentHashMap<>();
     private final Map<C, Map<D, T>> total = new ConcurrentHashMap<>();
 
-    protected TimeZone timeZone = DEFAULT_TIMEZONE;
-
-    protected DateTimeFormatter dateTimeFormatter = DEFAULT_DATE_TIME_FORMATTER;
-
-    public void setTimeZone(TimeZone timeZone) {
-        this.timeZone = timeZone;
-    }
-
-    public void setDateTimeFormatter(DateTimeFormatter dateTimeFormatter) {
-        this.dateTimeFormatter = dateTimeFormatter;
-    }
-
     protected void collect(C category, D dimension, long timestamp, Consumer<T> consumer) {
-        Map<D, SampleCollector<E, T>> collectors = MapUtils.getOrCreate(data, category, ConcurrentHashMap::new);
+        Map<D, SampleCollector<E, T>> collectors =
+                MapUtils.getOrCreate(data, category, ConcurrentHashMap::new);
         SampleCollector<E, T> sampleCollector = MapUtils.getOrCreate(collectors, dimension,
                 () -> getSampleCollector(category, dimension, timestamp));
         consumer.accept(sampleCollector.sampler(timestamp));
 
         Map<D, T> samplers = MapUtils.getOrCreate(total, category, ConcurrentHashMap::new);
-        T sampler = MapUtils.getOrCreate(samplers, dimension, () -> getEmptySampler(category, dimension,
-                timestamp));
+        T sampler = MapUtils.getOrCreate(samplers, dimension,
+                () -> getEmptySampler(category, dimension, timestamp));
         consumer.accept(sampler);
     }
 
@@ -56,19 +41,19 @@ public abstract class SamplerService<C, D, E extends Metric, T extends Sampler<E
     }
 
     public Collection<D> dimensions(C category) {
-        return Collections.unmodifiableCollection(Optional.ofNullable(data.get(category)).orElseGet(
-                () -> Collections.emptyMap()).keySet());
+        return Collections.unmodifiableCollection(Optional.ofNullable(data.get(category))
+                .orElseGet(() -> Collections.emptyMap()).keySet());
     }
 
-    public Map<String, Object> sequence(C category, D dimension, boolean full) {
-        SampleCollector<E, T> sampleCollector = Optional.ofNullable(data.get(category)).orElseGet(
-                () -> Collections.emptyMap()).get(dimension);
-        Map<String, Object> data = sampleCollector != null ? sampleCollector.samplers(timeZone,
-                dateTimeFormatter).entrySet().stream().collect(
-                        LinkedHashMap::new, (m, e) -> m.put(e.getKey(), e.getValue().getSample().represent()),
-                        LinkedHashMap::putAll) :
-                Collections.emptyMap();
-        return full ? render(category, dimension, data) : data;
+    public Map<Instant, Object> sequence(C category, D dimension) {
+        SampleCollector<E, T> sampleCollector = Optional.ofNullable(data.get(category))
+                .orElseGet(() -> Collections.emptyMap()).get(dimension);
+        Map<Instant, Object> data = sampleCollector != null
+                ? sampleCollector.samplers().entrySet().stream().collect(LinkedHashMap::new,
+                        (m, e) -> m.put(e.getKey(), e.getValue().getSample().represent()),
+                        LinkedHashMap::putAll)
+                : Collections.emptyMap();
+        return data;
     }
 
     public Map<D, Object> rank(C category, Comparator<T> comparator, int topN) {
@@ -78,7 +63,8 @@ public abstract class SamplerService<C, D, E extends Metric, T extends Sampler<E
                     (m, e) -> m.put(e.getKey(), e.getValue().sampler(now)), LinkedHashMap::putAll);
             return map.entrySet().stream().sorted((a, b) -> {
                 return comparator.compare(a.getValue(), b.getValue());
-            }).limit(topN).collect(LinkedHashMap::new, (m, e) -> m.put(e.getKey(), e.getValue().getSample().represent()),
+            }).limit(topN).collect(LinkedHashMap::new,
+                    (m, e) -> m.put(e.getKey(), e.getValue().getSample().represent()),
                     LinkedHashMap::putAll);
         }
         return Collections.emptyMap();
@@ -89,8 +75,8 @@ public abstract class SamplerService<C, D, E extends Metric, T extends Sampler<E
     }
 
     public T sampler(C category, D dimension, long timestamp) {
-        SampleCollector<E, T> sampleCollector = Optional.ofNullable(data.get(category)).orElseGet(
-                () -> Collections.emptyMap()).get(dimension);
+        SampleCollector<E, T> sampleCollector = Optional.ofNullable(data.get(category))
+                .orElseGet(() -> Collections.emptyMap()).get(dimension);
         return sampleCollector != null ? sampleCollector.sampler(timestamp) : null;
     }
 
@@ -105,16 +91,13 @@ public abstract class SamplerService<C, D, E extends Metric, T extends Sampler<E
     }
 
     public T summarize(C category, D dimension) {
-        return Optional.ofNullable(total.get(category)).orElseGet(() -> Collections.emptyMap()).get(
-                dimension);
+        return Optional.ofNullable(total.get(category)).orElseGet(() -> Collections.emptyMap())
+                .get(dimension);
     }
 
-    protected abstract SampleCollector<E, T> getSampleCollector(C category, D dimension, long timestamp);
+    protected abstract SampleCollector<E, T> getSampleCollector(C category, D dimension,
+            long timestamp);
 
     protected abstract T getEmptySampler(C category, D dimension, long timestamp);
-
-    protected Map<String, Object> render(C category, D dimension, Map<String, Object> data) {
-        return data;
-    }
 
 }

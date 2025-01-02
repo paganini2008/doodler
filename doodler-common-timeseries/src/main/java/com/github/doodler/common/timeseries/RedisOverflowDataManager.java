@@ -2,11 +2,19 @@ package com.github.doodler.common.timeseries;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
@@ -26,39 +34,59 @@ import lombok.RequiredArgsConstructor;
 public class RedisOverflowDataManager<T extends Metric>
         extends LoggingOverflowDataHandler<String, String, T> implements OverflowDataManager {
 
-    private static final long RETAIN_MAXIMUM_SIZE = 7L * 24 * 60;
-    private static final String REDIS_KEY_PATTERN = "%s:%s:%s";
+    private static final DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
+    private static final int RETAIN_MAXIMUM_DAYS = 7;
+    private static final String REDIS_KEY_PATTERN = "%s:%s:%s:%s";
     private final String namespace;
     private final RedisTemplate<String, Object> redisOperations;
 
     @Override
     public void persist(String category, String dimension, Instant instant, T data) {
         super.persist(category, dimension, instant, data);
-        String key = String.format(REDIS_KEY_PATTERN, namespace, category, dimension);
-        Long size = redisOperations.opsForHash().size(key);
-        if (size == null) {
-            size = 0L;
+        if (getDays(category, dimension).size() > RETAIN_MAXIMUM_DAYS) {
+            return;
         }
-        if (size < RETAIN_MAXIMUM_SIZE) {
-            redisOperations.opsForHash().put(key, String.valueOf(instant.toEpochMilli()),
-                    data.represent());
-        }
+        String date = instant.atZone(ZoneId.systemDefault()).toLocalDate().format(dtf);
+        String key = String.format(REDIS_KEY_PATTERN, namespace, category, dimension, date);
+        redisOperations.opsForHash().put(key, String.valueOf(instant.toEpochMilli()),
+                data.represent());
+
     }
 
     @Override
-    public Map<Instant, Object> retrive(String category, String dimension) {
-        String key = String.format(REDIS_KEY_PATTERN, namespace, category, dimension);
-        Map<Object, Object> entries = redisOperations.opsForHash().entries(key);
-        Map<Instant, Object> results = entries.entrySet().stream()
-                .collect(Collectors.toMap(
-                        a -> Instant.ofEpochMilli(Long.valueOf(a.getKey().toString())),
-                        Map.Entry::getValue, (a, b) -> a, TreeMap::new));
+    public List<String> getDays(String category, String dimension) {
+        String keyPattern = String.format(REDIS_KEY_PATTERN, namespace, category, dimension, "*");
+        Set<String> keys = redisOperations.keys(keyPattern);
+        if (CollectionUtils.isEmpty(keys)) {
+            return Collections.emptyList();
+        }
+        return keys.stream().map(k -> k.split(":")[3]).toList();
+    }
+
+    @Override
+    public Map<Instant, Object> retrieve(String category, String dimension, int N) {
+        String keyPattern = String.format(REDIS_KEY_PATTERN, namespace, category, dimension, "*");
+        RedisKeyIterator iterator =
+                new RedisKeyIterator(keyPattern, redisOperations.getConnectionFactory());
+        Map<Instant, Object> results = new TreeMap<>(Comparator.reverseOrder());
+        while (iterator.hasNext()) {
+            String key = iterator.next();
+            Map<Object, Object> entries = redisOperations.opsForHash().entries(key);
+            Map<Instant, Object> map = entries.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            a -> Instant.ofEpochMilli(Long.valueOf(a.getKey().toString())),
+                            Map.Entry::getValue, (a, b) -> a, HashMap::new));
+            results.putAll(map);
+        }
+        results = results.entrySet().stream().limit(Integer.min(results.size(), N))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a,
+                        LinkedHashMap::new));
         return Collections.unmodifiableMap(results);
     }
 
     @Override
     public void clean(String category) {
-        String keyPattern = String.format(REDIS_KEY_PATTERN, namespace, category, "*");
+        String keyPattern = String.format("%s:%s:%s", namespace, category, "*");
         RedisKeyIterator iterator =
                 new RedisKeyIterator(keyPattern, redisOperations.getConnectionFactory());
         while (iterator.hasNext()) {
@@ -69,8 +97,13 @@ public class RedisOverflowDataManager<T extends Metric>
 
     @Override
     public void clean(String category, String dimension) {
-        String key = String.format(REDIS_KEY_PATTERN, namespace, category, dimension);
-        redisOperations.delete(key);
+        String keyPattern = String.format(REDIS_KEY_PATTERN, namespace, category, dimension, "*");
+        RedisKeyIterator iterator =
+                new RedisKeyIterator(keyPattern, redisOperations.getConnectionFactory());
+        while (iterator.hasNext()) {
+            String key = iterator.next();
+            redisOperations.delete(key);
+        }
     }
 
     public String getNamespace() {

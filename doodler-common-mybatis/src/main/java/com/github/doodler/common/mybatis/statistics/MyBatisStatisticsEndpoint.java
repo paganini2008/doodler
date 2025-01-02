@@ -2,12 +2,10 @@ package com.github.doodler.common.mybatis.statistics;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.web.annotation.RestControllerEndpoint;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
 import com.github.doodler.common.ApiResult;
 import com.github.doodler.common.timeseries.Sampler;
 
@@ -25,13 +23,14 @@ public class MyBatisStatisticsEndpoint {
 
     @GetMapping("/sampler")
     public ApiResult<SqlSample> sampler(@RequestParam("identifier") String identifier) {
-        Sampler<SqlSample> sampler = statisticsService.sampler("sql_command", identifier, System.currentTimeMillis());
+        Sampler<SqlSample> sampler =
+                statisticsService.sampler("sql_command", identifier, System.currentTimeMillis());
         return ApiResult.<SqlSample>ok(sampler.getSample());
     }
 
     @GetMapping("/sequence")
     public ApiResult<Map<String, Object>> sequence(@RequestParam("identifier") String identifier) {
-        Map<String, Object> data = statisticsService.sequence("sql_command", identifier, false);
+        Map<String, Object> data = statisticsService.sequence("sql_command", identifier, null);
         return ApiResult.ok(data);
     }
 
