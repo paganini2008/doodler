@@ -1,8 +1,7 @@
-package com.github.doodler.timeseries;
+package com.github.doodler.common.timeseries;
 
-import static com.github.doodler.timeseries.TimeSeriesConstants.DEFAULT_DATE_TIME_FORMATTER;
-import static com.github.doodler.timeseries.TimeSeriesConstants.DEFAULT_TIMEZONE;
-
+import static com.github.doodler.common.timeseries.TimeSeriesConstants.DEFAULT_DATE_TIME_FORMATTER;
+import static com.github.doodler.common.timeseries.TimeSeriesConstants.DEFAULT_TIMEZONE;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Collections;

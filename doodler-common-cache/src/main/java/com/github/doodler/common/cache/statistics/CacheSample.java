@@ -3,8 +3,7 @@ package com.github.doodler.common.cache.statistics;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.concurrent.atomic.LongAdder;
-
-import com.github.doodler.timeseries.Metric;
+import com.github.doodler.common.timeseries.Metric;
 
 /**
  * @Description: CacheSample

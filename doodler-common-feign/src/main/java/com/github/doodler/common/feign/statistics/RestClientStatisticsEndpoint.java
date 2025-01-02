@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.github.doodler.common.ApiResult;
-import com.github.doodler.timeseries.Sampler;
+import com.github.doodler.common.timeseries.Sampler;
 
 /**
  * @Description: RestClientStatisticEndpoint

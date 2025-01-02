@@ -53,6 +53,7 @@ public class LbRestTemplate extends RestTemplate {
             throw HttpServerErrorException.create(HttpStatus.SERVICE_UNAVAILABLE, message, null,
                     null, null);
         }
+        log.info("Switch to service instance: {}", instance);
         URI reconstructedUri = loadBalancerClient.reconstructURI(instance, originalUri);
         try {
             return super.doExecute(reconstructedUri, method, requestCallback, responseExtractor);

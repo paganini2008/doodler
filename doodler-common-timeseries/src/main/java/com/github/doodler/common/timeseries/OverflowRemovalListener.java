@@ -1,4 +1,4 @@
-package com.github.doodler.timeseries;
+package com.github.doodler.common.timeseries;
 
 import com.github.doodler.common.utils.RemovalListener;
 

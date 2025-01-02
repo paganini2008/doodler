@@ -3,10 +3,10 @@ package com.github.doodler.common.feign.statistics;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import com.github.doodler.common.timeseries.Sampler;
+import com.github.doodler.common.timeseries.StringSamplerService;
 import com.github.doodler.common.utils.MapUtils;
 import com.github.doodler.common.utils.SimpleTimer;
-import com.github.doodler.timeseries.Sampler;
-import com.github.doodler.timeseries.StringSamplerService;
 
 /**
  * @Description: TpsCalculator

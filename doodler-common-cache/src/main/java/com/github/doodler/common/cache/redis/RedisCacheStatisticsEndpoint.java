@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.github.doodler.common.ApiResult;
 import com.github.doodler.common.cache.statistics.CacheSample;
 import com.github.doodler.common.cache.statistics.CacheStatisticsService;
-import com.github.doodler.timeseries.Sampler;
+import com.github.doodler.common.timeseries.Sampler;
 
 /**
  * @Description: RedisCacheStatisticsEndpoint

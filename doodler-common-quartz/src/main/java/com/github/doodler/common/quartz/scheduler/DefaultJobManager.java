@@ -47,7 +47,7 @@ import com.github.doodler.common.quartz.executor.JobSignature;
 import com.github.doodler.common.quartz.executor.TriggerDefination;
 import com.github.doodler.common.quartz.statistics.CountingStatisticsService;
 import com.github.doodler.common.quartz.statistics.RuntimeCounter;
-import com.github.doodler.timeseries.Sampler;
+import com.github.doodler.common.timeseries.Sampler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

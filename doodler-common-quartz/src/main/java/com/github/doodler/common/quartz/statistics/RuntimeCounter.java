@@ -1,8 +1,7 @@
 package com.github.doodler.common.quartz.statistics;
 
 import java.util.concurrent.atomic.AtomicLong;
-
-import com.github.doodler.timeseries.Metric;
+import com.github.doodler.common.timeseries.Metric;
 
 /**
  * @Description: RuntimeCounter

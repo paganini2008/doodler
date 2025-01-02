@@ -2,13 +2,12 @@ package com.github.doodler.common.cache.statistics;
 
 import java.util.Arrays;
 import java.util.List;
-
+import com.github.doodler.common.timeseries.LoggingOverflowDataHandler;
+import com.github.doodler.common.timeseries.OverflowDataHandler;
+import com.github.doodler.common.timeseries.Sampler;
+import com.github.doodler.common.timeseries.SamplerImpl;
+import com.github.doodler.common.timeseries.StringSamplerService;
 import com.github.doodler.common.utils.TimeWindowUnit;
-import com.github.doodler.timeseries.LoggingOverflowDataHandler;
-import com.github.doodler.timeseries.OverflowDataHandler;
-import com.github.doodler.timeseries.Sampler;
-import com.github.doodler.timeseries.SamplerImpl;
-import com.github.doodler.timeseries.StringSamplerService;
 
 /**
  * @Description: CacheStatisticsService

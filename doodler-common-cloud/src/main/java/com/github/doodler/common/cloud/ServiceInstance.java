@@ -1,7 +1,9 @@
 package com.github.doodler.common.cloud;
 
 import org.springframework.lang.Nullable;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * 
@@ -10,7 +12,9 @@ import lombok.Data;
  * @Date: 13/08/2024
  * @Version 1.0.0
  */
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"serviceDetail"})
 public class ServiceInstance {
 
     private String serviceId;

@@ -1,12 +1,11 @@
 
-package com.github.doodler.timeseries;
+package com.github.doodler.common.timeseries;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
-
 import lombok.ToString;
 
 /**
@@ -18,27 +17,27 @@ import lombok.ToString;
  */
 public abstract class NumberMetrics {
 
-    public static NumberMetric<Long> valueOf(long value, long timestamp) {
+    public static LongMetric valueOf(long value, long timestamp) {
         return new LongMetric(value, timestamp);
     }
 
-    public static NumberMetric<Double> valueOf(double value, long timestamp) {
+    public static DoubleMetric valueOf(double value, long timestamp) {
         return new DoubleMetric(value, timestamp);
     }
 
-    public static NumberMetric<BigDecimal> valueOf(BigDecimal value, long timestamp) {
+    public static DecimalMetric valueOf(BigDecimal value, long timestamp) {
         return new DecimalMetric(value, timestamp);
     }
 
-    public static NumberMetric<Long> valueOf(long value, long baseValue, long timestamp) {
+    public static LongMetric valueOf(long value, long baseValue, long timestamp) {
         return new LongMetric(value, baseValue, timestamp);
     }
 
-    public static NumberMetric<Double> valueOf(double value, double baseValue, long timestamp) {
+    public static DoubleMetric valueOf(double value, double baseValue, long timestamp) {
         return new DoubleMetric(value, baseValue, timestamp);
     }
 
-    public static NumberMetric<BigDecimal> valueOf(BigDecimal value, BigDecimal baseValue, long timestamp) {
+    public static DecimalMetric valueOf(BigDecimal value, BigDecimal baseValue, long timestamp) {
         return new DecimalMetric(value, baseValue, timestamp);
     }
 
@@ -59,8 +58,8 @@ public abstract class NumberMetrics {
             this.timestamp = timestamp;
         }
 
-        public DoubleMetric(double highestValue, double lowestValue, double totalValue, double baseValue, long count,
-                            long baseCount, long timestamp) {
+        public DoubleMetric(double highestValue, double lowestValue, double totalValue,
+                double baseValue, long count, long baseCount, long timestamp) {
             this.highestValue = highestValue;
             this.lowestValue = lowestValue;
             this.totalValue = totalValue;
@@ -110,7 +109,9 @@ public abstract class NumberMetrics {
 
         @Override
         public Double getAverageValue() {
-            return count > 0 ? Double.valueOf(new DecimalFormat("0.0000").format(totalValue / count)) : 0D;
+            return count > 0
+                    ? Double.valueOf(new DecimalFormat("0.0000").format(totalValue / count))
+                    : 0D;
         }
 
         @Override
@@ -120,26 +121,34 @@ public abstract class NumberMetrics {
 
         @Override
         public NumberMetric<Double> reset(NumberMetric<Double> currentMetric) {
-            double highestValue = Double.max(this.highestValue, currentMetric.getHighestValue().doubleValue());
-            double lowestValue = this.lowestValue != null ? Double.min(this.lowestValue.doubleValue(),
-                    currentMetric.getLowestValue().doubleValue()) : currentMetric.getLowestValue().doubleValue();
+            double highestValue =
+                    Double.max(this.highestValue, currentMetric.getHighestValue().doubleValue());
+            double lowestValue = this.lowestValue != null
+                    ? Double.min(this.lowestValue.doubleValue(),
+                            currentMetric.getLowestValue().doubleValue())
+                    : currentMetric.getLowestValue().doubleValue();
             double totalValue = this.totalValue - currentMetric.getTotalValue().doubleValue();
             long count = this.count - currentMetric.getCount();
             long baseCount = this.baseCount - currentMetric.getBaseCount();
             long timestamp = Long.max(this.timestamp, currentMetric.getTimestamp());
-            return new DoubleMetric(highestValue, lowestValue, totalValue, baseValue, count, baseCount, timestamp);
+            return new DoubleMetric(highestValue, lowestValue, totalValue, baseValue, count,
+                    baseCount, timestamp);
         }
 
         @Override
         public NumberMetric<Double> merge(NumberMetric<Double> currentMetric) {
-            double highestValue = Double.max(this.highestValue, currentMetric.getHighestValue().doubleValue());
-            double lowestValue = this.lowestValue != null ? Double.min(this.lowestValue.doubleValue(),
-                    currentMetric.getLowestValue().doubleValue()) : currentMetric.getLowestValue().doubleValue();
+            double highestValue =
+                    Double.max(this.highestValue, currentMetric.getHighestValue().doubleValue());
+            double lowestValue = this.lowestValue != null
+                    ? Double.min(this.lowestValue.doubleValue(),
+                            currentMetric.getLowestValue().doubleValue())
+                    : currentMetric.getLowestValue().doubleValue();
             double totalValue = this.totalValue + currentMetric.getTotalValue().doubleValue();
             long count = this.count + currentMetric.getCount();
             long baseCount = this.baseCount + currentMetric.getBaseCount();
             long timestamp = currentMetric.getTimestamp();
-            return new DoubleMetric(highestValue, lowestValue, totalValue, baseValue, count, baseCount, timestamp);
+            return new DoubleMetric(highestValue, lowestValue, totalValue, baseValue, count,
+                    baseCount, timestamp);
         }
 
         @Override
@@ -174,8 +183,8 @@ public abstract class NumberMetrics {
             this.timestamp = timestamp;
         }
 
-        public LongMetric(long highestValue, long lowestValue, long totalValue, long baseValue, long count, long baseCount,
-                          long timestamp) {
+        public LongMetric(long highestValue, long lowestValue, long totalValue, long baseValue,
+                long count, long baseCount, long timestamp) {
             this.highestValue = highestValue;
             this.lowestValue = lowestValue;
             this.totalValue = totalValue;
@@ -236,26 +245,32 @@ public abstract class NumberMetrics {
 
         @Override
         public NumberMetric<Long> reset(NumberMetric<Long> currentMetric) {
-            long highestValue = Long.max(this.highestValue, currentMetric.getHighestValue().longValue());
-            long lowestValue = this.lowestValue != null ? Long.min(this.lowestValue,
-                    currentMetric.getLowestValue().longValue()) : currentMetric.getLowestValue().longValue();
+            long highestValue =
+                    Long.max(this.highestValue, currentMetric.getHighestValue().longValue());
+            long lowestValue = this.lowestValue != null
+                    ? Long.min(this.lowestValue, currentMetric.getLowestValue().longValue())
+                    : currentMetric.getLowestValue().longValue();
             long totalValue = this.totalValue - currentMetric.getTotalValue().longValue();
             long count = this.count - currentMetric.getCount();
             long baseCount = this.baseCount - currentMetric.getBaseCount();
             long timestamp = Long.max(this.timestamp, currentMetric.getTimestamp());
-            return new LongMetric(highestValue, lowestValue, totalValue, baseValue, count, baseCount, timestamp);
+            return new LongMetric(highestValue, lowestValue, totalValue, baseValue, count,
+                    baseCount, timestamp);
         }
 
         @Override
         public NumberMetric<Long> merge(NumberMetric<Long> currentMetric) {
-            long highestValue = Long.max(this.highestValue, currentMetric.getHighestValue().longValue());
-            long lowestValue = this.lowestValue != null ? Long.min(this.lowestValue,
-                    currentMetric.getLowestValue().longValue()) : currentMetric.getLowestValue().longValue();
+            long highestValue =
+                    Long.max(this.highestValue, currentMetric.getHighestValue().longValue());
+            long lowestValue = this.lowestValue != null
+                    ? Long.min(this.lowestValue, currentMetric.getLowestValue().longValue())
+                    : currentMetric.getLowestValue().longValue();
             long totalValue = this.totalValue + currentMetric.getTotalValue().longValue();
             long count = this.count + currentMetric.getCount();
             long baseCount = this.baseCount + currentMetric.getBaseCount();
             long timestamp = currentMetric.getTimestamp();
-            return new LongMetric(highestValue, lowestValue, totalValue, baseValue, count, baseCount, timestamp);
+            return new LongMetric(highestValue, lowestValue, totalValue, baseValue, count,
+                    baseCount, timestamp);
         }
 
         @Override
@@ -290,13 +305,8 @@ public abstract class NumberMetrics {
             this.timestamp = timestamp;
         }
 
-        public DecimalMetric(BigDecimal highestValue,
-                             BigDecimal lowestValue,
-                             BigDecimal totalValue,
-                             BigDecimal baseValue,
-                             long count,
-                             long baseCount,
-                             long timestamp) {
+        public DecimalMetric(BigDecimal highestValue, BigDecimal lowestValue, BigDecimal totalValue,
+                BigDecimal baseValue, long count, long baseCount, long timestamp) {
             this.highestValue = highestValue;
             this.lowestValue = lowestValue;
             this.totalValue = totalValue;
@@ -335,7 +345,10 @@ public abstract class NumberMetrics {
 
         @Override
         public Double getAverageValue() {
-            return count > 0 ? totalValue.divide(BigDecimal.valueOf(count), 4, RoundingMode.HALF_UP).doubleValue() : 0D;
+            return count > 0
+                    ? totalValue.divide(BigDecimal.valueOf(count), 4, RoundingMode.HALF_UP)
+                            .doubleValue()
+                    : 0D;
         }
 
         @Override
@@ -345,26 +358,33 @@ public abstract class NumberMetrics {
 
         @Override
         public NumberMetric<BigDecimal> reset(NumberMetric<BigDecimal> currentMetric) {
-            BigDecimal highestValue = this.highestValue.max((BigDecimal) currentMetric.getHighestValue());
-            BigDecimal lowestValue = this.lowestValue != null ? this.lowestValue.min(
-                    (BigDecimal) currentMetric.getLowestValue()) : (BigDecimal) currentMetric.getLowestValue();
-            BigDecimal totalValue = this.totalValue.subtract((BigDecimal) currentMetric.getTotalValue());
+            BigDecimal highestValue =
+                    this.highestValue.max((BigDecimal) currentMetric.getHighestValue());
+            BigDecimal lowestValue = this.lowestValue != null
+                    ? this.lowestValue.min((BigDecimal) currentMetric.getLowestValue())
+                    : (BigDecimal) currentMetric.getLowestValue();
+            BigDecimal totalValue =
+                    this.totalValue.subtract((BigDecimal) currentMetric.getTotalValue());
             long count = this.count - currentMetric.getCount();
             long baseCount = this.baseCount - currentMetric.getBaseCount();
             long timestamp = Long.max(this.timestamp, currentMetric.getTimestamp());
-            return new DecimalMetric(highestValue, lowestValue, totalValue, baseValue, count, baseCount, timestamp);
+            return new DecimalMetric(highestValue, lowestValue, totalValue, baseValue, count,
+                    baseCount, timestamp);
         }
 
         @Override
         public NumberMetric<BigDecimal> merge(NumberMetric<BigDecimal> currentMetric) {
-            BigDecimal highestValue = this.highestValue.max((BigDecimal) currentMetric.getHighestValue());
-            BigDecimal lowestValue = this.lowestValue != null ? this.lowestValue.min(
-                    (BigDecimal) currentMetric.getLowestValue()) : (BigDecimal) currentMetric.getLowestValue();
+            BigDecimal highestValue =
+                    this.highestValue.max((BigDecimal) currentMetric.getHighestValue());
+            BigDecimal lowestValue = this.lowestValue != null
+                    ? this.lowestValue.min((BigDecimal) currentMetric.getLowestValue())
+                    : (BigDecimal) currentMetric.getLowestValue();
             BigDecimal totalValue = this.totalValue.add((BigDecimal) currentMetric.getTotalValue());
             long count = this.count + currentMetric.getCount();
             long baseCount = this.baseCount + currentMetric.getBaseCount();
             long timestamp = currentMetric.getTimestamp();
-            return new DecimalMetric(highestValue, lowestValue, totalValue, baseValue, count, baseCount, timestamp);
+            return new DecimalMetric(highestValue, lowestValue, totalValue, baseValue, count,
+                    baseCount, timestamp);
         }
 
         @Override

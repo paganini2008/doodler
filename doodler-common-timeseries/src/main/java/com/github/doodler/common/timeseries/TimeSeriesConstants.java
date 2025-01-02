@@ -1,4 +1,4 @@
-package com.github.doodler.timeseries;
+package com.github.doodler.common.timeseries;
 
 import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;

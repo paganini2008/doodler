@@ -3,18 +3,12 @@ package com.github.doodler.common.mybatis.config;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.slf4j.Marker;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
-import com.github.doodler.common.enums.BonusType;
-import com.github.doodler.common.enums.PaymentSource;
-import com.github.doodler.common.enums.PaymentStatus;
-import com.github.doodler.common.enums.TransType;
 import com.github.doodler.common.mybatis.SimpleEnumTypeHandler;
 import com.github.doodler.common.mybatis.statistics.MyBatisStatisticsService;
 import com.github.doodler.common.mybatis.statistics.SqlTraceInterceptor;
@@ -29,13 +23,13 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class DefaultConfigurationCustomizer implements ConfigurationCustomizer {
-	
-	@Autowired
-	private MyBatisStatisticsService myBatisStatisticsService;
-	
-	@Autowired
-	private Marker marker;
-	
+
+    @Autowired
+    private MyBatisStatisticsService myBatisStatisticsService;
+
+    @Autowired
+    private Marker marker;
+
     @Override
     public void customize(MybatisConfiguration configuration) {
         configuration.setDefaultEnumTypeHandler(SimpleEnumTypeHandler.class);
@@ -49,13 +43,9 @@ public class DefaultConfigurationCustomizer implements ConfigurationCustomizer {
 
     protected void registerTypeHandler(TypeHandlerRegistry typeHandlerRegistry) {
         typeHandlerRegistry.register(Timestamp.class, TimestampLocalDateTimeTypeHandler.class);
-        typeHandlerRegistry.register(BonusType.class, new SimpleEnumTypeHandler<>(BonusType.class));
-        typeHandlerRegistry.register(PaymentSource.class, new SimpleEnumTypeHandler<>(PaymentSource.class));
-        typeHandlerRegistry.register(PaymentStatus.class, new SimpleEnumTypeHandler<>(PaymentStatus.class));
-        typeHandlerRegistry.register(TransType.class, new SimpleEnumTypeHandler<>(TransType.class));
     }
 
     protected void addInterceptor(List<Interceptor> interceptors) {
-    	interceptors.add(new SqlTraceInterceptor(myBatisStatisticsService, marker));
+        interceptors.add(new SqlTraceInterceptor(myBatisStatisticsService, marker));
     }
 }
