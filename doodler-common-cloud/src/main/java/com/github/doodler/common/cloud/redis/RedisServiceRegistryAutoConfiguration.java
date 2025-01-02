@@ -8,6 +8,7 @@ import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationC
 import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 /**
@@ -37,6 +38,7 @@ public class RedisServiceRegistryAutoConfiguration {
         return new ServiceRegistrationFactoryBean();
     }
 
+    @Primary
     @Bean
     public RedisAutoServiceRegistry redisAutoServiceRegistry(
             RedisServiceRegistry redisServiceRegistry,

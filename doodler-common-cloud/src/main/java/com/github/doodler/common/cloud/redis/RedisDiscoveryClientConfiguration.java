@@ -29,7 +29,8 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 public class RedisDiscoveryClientConfiguration {
 
     @Bean
-    public RedisDiscoveryClient discoveryClient(ServiceInstanceManager serviceInstanceManager) {
+    public RedisDiscoveryClient redisDiscoveryClient(
+            ServiceInstanceManager serviceInstanceManager) {
         return new RedisDiscoveryClient(serviceInstanceManager);
     }
 }

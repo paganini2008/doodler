@@ -11,7 +11,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <springboot.version>2.7.18</springboot.version>
         <springcloud.version>2021.0.8</springcloud.version>
         <fastjson.version>1.2.74</fastjson.version>
@@ -55,6 +55,9 @@
 		<module>doodler-common-elasticsearch</module>
 		<module>doodler-common-aws</module>
         <module>doodler-common-webflux</module>
+        <module>doodler-common-scheduler</module>
+		<module>doodler-common-openfeign</module>
+        <module>doodler-common-grpc</module>
 		<module>doodler-example-client</module>
     </modules>
 
@@ -267,6 +270,24 @@
             <dependency>
                 <groupId>com.github.doodler</groupId>
                 <artifactId>doodler-common-webflux</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-openfeign</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-grpc</artifactId>
+                <version>${doodler.backend.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.github.doodler</groupId>
+                <artifactId>doodler-common-scheduler</artifactId>
                 <version>${doodler.backend.version}</version>
             </dependency>
 

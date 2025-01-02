@@ -170,6 +170,7 @@ public abstract class NumberMetrics {
         @Override
         public Map<String, Object> represent() {
             Map<String, Object> data = new HashMap<String, Object>();
+            data.put("totalValue", getTotalValue());
             data.put("highestValue", getHighestValue());
             data.put("lowestValue", getLowestValue());
             data.put("averageValue", getAverageValue());
@@ -298,6 +299,7 @@ public abstract class NumberMetrics {
         @Override
         public Map<String, Object> represent() {
             Map<String, Object> data = new HashMap<String, Object>();
+            data.put("totalValue", getTotalValue());
             data.put("highestValue", getHighestValue());
             data.put("lowestValue", getLowestValue());
             data.put("averageValue", getAverageValue());
@@ -416,6 +418,7 @@ public abstract class NumberMetrics {
         @Override
         public Map<String, Object> represent() {
             Map<String, Object> data = new HashMap<String, Object>();
+            data.put("totalValue", getTotalValue());
             data.put("highestValue", getHighestValue());
             data.put("lowestValue", getLowestValue());
             data.put("averageValue", getAverageValue());

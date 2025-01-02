@@ -8,7 +8,7 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<artifactId>doodler-common-hazelcast</artifactId>
+	<artifactId>doodler-common-scheduler</artifactId>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -19,27 +19,20 @@
 			<groupId>com.github.doodler</groupId>
 			<artifactId>doodler-common-data</artifactId>
 		</dependency>
-
+		
 		<dependency>
-			<groupId>com.hazelcast</groupId>
-			<artifactId>hazelcast</artifactId>
+			<groupId>com.github.doodler</groupId>
+			<artifactId>doodler-common-cloud</artifactId>
 		</dependency>
-
+		
 		<dependency>
-			<groupId>com.hazelcast</groupId>
-			<artifactId>hazelcast-spring</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
 
 	</dependencies>
 
 	<build>
-		<extensions>
-			<extension>
-				<groupId>kr.motd.maven</groupId>
-				<artifactId>os-maven-plugin</artifactId>
-				<version>1.7.1</version>
-			</extension>
-		</extensions>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
