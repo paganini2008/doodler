@@ -13,9 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CircuitBreakerUtils {
 
-    /**
-     * @Description: 获取熔断器的状态
-     */
     public static void getCircuitBreakerStatus(String time, CircuitBreaker circuitBreaker) {
         CircuitBreaker.Metrics metrics = circuitBreaker.getMetrics();
         // Returns the failure rate in percentage.
@@ -34,9 +31,6 @@ public class CircuitBreakerUtils {
                 + " ]");
     }
 
-    /**
-     * @Description: 监听熔断器事件
-     */
     public static void addCircuitBreakerListener(CircuitBreaker circuitBreaker) {
         circuitBreaker.getEventPublisher()
                 .onSuccess(event -> log.info("服务调用成功：" + event.toString()))

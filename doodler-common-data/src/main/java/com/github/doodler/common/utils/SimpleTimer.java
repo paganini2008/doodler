@@ -111,7 +111,7 @@ public abstract class SimpleTimer
         if (quickStart.get()) {
             start();
         } else {
-            log.info("{} will start working after application being ready");
+            log.info("{} will start working after application being ready", getClass().getName());
         }
     }
 

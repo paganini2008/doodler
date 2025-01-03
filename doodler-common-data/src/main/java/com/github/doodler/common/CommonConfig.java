@@ -27,6 +27,7 @@ public class CommonConfig {
         return new DefaultExceptionTransformer();
     }
 
+    @ConditionalOnMissingBean
     @Bean
     public BeanReflectionService beanReflectionService() {
         return new BeanReflectionService();
