@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
@@ -213,13 +214,13 @@ public class NetUtils {
         return defaultValue;
     }
 
-    public InetSocketAddress parse(String serverLocation) {
-        int index = serverLocation.indexOf(":");
+    public SocketAddress parse(String serviceLocation) {
+        int index = serviceLocation.indexOf(":");
         if (index == -1) {
-            throw new IllegalArgumentException("Cannot parse: " + serverLocation);
+            throw new IllegalArgumentException("Cannot parse: " + serviceLocation);
         }
-        String hostName = serverLocation.substring(0, index);
-        int port = Integer.parseInt(serverLocation.substring(index + 1));
+        String hostName = serviceLocation.substring(0, index);
+        int port = Integer.parseInt(serviceLocation.substring(index + 1));
         return new InetSocketAddress(hostName, port);
     }
 
