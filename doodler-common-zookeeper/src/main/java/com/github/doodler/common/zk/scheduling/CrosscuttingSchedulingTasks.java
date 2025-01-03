@@ -1,4 +1,4 @@
-package com.github.doodler.common.scheduling;
+package com.github.doodler.common.zk.scheduling;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -6,13 +6,13 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import com.github.doodler.common.election.LeaderElectionContext;
+import com.github.doodler.common.zk.election.LeaderElectionContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * @Description: MultiSchedulingCrossCutting
+ * @Description: CrosscuttingSchedulingTasks
  * @Author: Fred Feng
  * @Date: 14/08/2024
  * @Version 1.0.0
@@ -21,13 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 @Aspect
 @Component
 @RequiredArgsConstructor
-public class MultiSchedulingCrossCutting {
+public class CrosscuttingSchedulingTasks {
 
     private final LeaderElectionContext leaderElectionContext;
 
     @Pointcut("execution(public * *(..))")
-    public void signature() {
-    }
+    public void signature() {}
 
     @Around("signature() && @annotation(scheduled)")
     public Object arround(ProceedingJoinPoint pjp, Scheduled scheduled) throws Throwable {
@@ -39,7 +38,8 @@ public class MultiSchedulingCrossCutting {
                 return pjp.proceed();
             }
             if (log.isTraceEnabled()) {
-                log.trace("Waiting for running @Scheduled execution {}", pjp.getSignature().toString());
+                log.trace("Waiting for running @Scheduled execution {}",
+                        pjp.getSignature().toString());
             }
             return null;
         } catch (Throwable e) {

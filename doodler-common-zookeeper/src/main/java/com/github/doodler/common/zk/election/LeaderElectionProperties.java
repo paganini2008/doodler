@@ -1,7 +1,6 @@
-package com.github.doodler.common.election;
+package com.github.doodler.common.zk.election;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +13,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@ConfigurationProperties("spring.application.election")
+@ConfigurationProperties("spring.application.zookeeper")
 public class LeaderElectionProperties {
 
     private String zkNodes = "localhost:2181";

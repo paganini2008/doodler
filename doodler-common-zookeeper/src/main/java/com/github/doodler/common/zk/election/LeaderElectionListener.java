@@ -1,4 +1,4 @@
-package com.github.doodler.common.election;
+package com.github.doodler.common.zk.election;
 
 /**
  * 

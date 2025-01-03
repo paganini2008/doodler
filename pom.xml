@@ -43,7 +43,7 @@
 		<module>doodler-common-upms</module>
 		<module>doodler-common-cloud</module>
 		<module>doodler-common-cache</module>
-		<module>doodler-common-election</module>
+		<module>doodler-common-zookeeper</module>
 		<module>doodler-common-quartz</module>
         <module>doodler-common-config</module>
 		<module>doodler-common-gateway</module>
@@ -221,7 +221,7 @@
             
             <dependency>
                 <groupId>com.github.doodler</groupId>
-                <artifactId>doodler-common-election</artifactId>
+                <artifactId>doodler-common-zookeeper</artifactId>
                 <version>${doodler.backend.version}</version>
             </dependency>
             

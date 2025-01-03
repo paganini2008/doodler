@@ -10,7 +10,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>doodler-common-election</artifactId>
+    <artifactId>doodler-common-zookeeper</artifactId>
     <packaging>jar</packaging>
     
     <properties>

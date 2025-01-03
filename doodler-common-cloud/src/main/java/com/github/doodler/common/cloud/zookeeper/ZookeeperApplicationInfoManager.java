@@ -63,7 +63,6 @@ public class ZookeeperApplicationInfoManager implements ApplicationInfoManager {
             return null;
         }
         Map<String, String> copy = new HashMap<>(serviceInstance.getMetadata());
-        copy.remove(CloudConstants.METADATA_APPLICATION_INFO);
         appInfoString = new String(Base64.decodeBase64(appInfoString));
         ApplicationInfo applicationInfo =
                 JacksonUtils.parseJson(appInfoString, ApplicationInfo.class);

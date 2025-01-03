@@ -1,4 +1,4 @@
-package com.github.doodler.common.election;
+package com.github.doodler.common.zk.election;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;

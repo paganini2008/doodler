@@ -13,14 +13,14 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * @Description: CrosscuttingScheduling
+ * @Description: CrosscuttingSchedulingTasks
  * @Author: Fred Feng
  * @Date: 03/01/2025
  * @Version 1.0.0
  */
 @Slf4j
 @Aspect
-public class CrosscuttingScheduling {
+public class CrosscuttingSchedulingTasks {
 
     private final AtomicBoolean started = new AtomicBoolean(false);
 

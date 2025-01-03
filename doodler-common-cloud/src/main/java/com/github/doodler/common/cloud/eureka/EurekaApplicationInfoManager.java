@@ -110,7 +110,6 @@ public class EurekaApplicationInfoManager implements ApplicationInfoManager, Man
             return null;
         }
         Map<String, String> copy = new HashMap<>(info.getMetadata());
-        copy.remove(CloudConstants.METADATA_APPLICATION_INFO);
         ApplicationInfo applicationInfo = JacksonUtils.parseJson(json, ApplicationInfo.class);
         applicationInfo.setMetadata(copy);
         return applicationInfo;

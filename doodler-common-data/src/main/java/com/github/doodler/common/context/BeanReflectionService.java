@@ -21,11 +21,13 @@ public class BeanReflectionService implements ApplicationContextAware {
 
     public Object invokeTargetMethod(String className, String beanName, String methodName,
             Object[] arguments) {
-        Class<?> clz;
-        try {
-            clz = ClassUtils.forName(className, Thread.currentThread().getContextClassLoader());
-        } catch (Throwable e) {
-            throw new IllegalStateException(e.getMessage(), e);
+        Class<?> clz = null;
+        if (StringUtils.isNotBlank(className)) {
+            try {
+                clz = ClassUtils.forName(className, Thread.currentThread().getContextClassLoader());
+            } catch (Throwable e) {
+                throw new IllegalStateException(e.getMessage(), e);
+            }
         }
         return invokeTargetMethod(clz, beanName, methodName, arguments);
     }
@@ -42,11 +44,13 @@ public class BeanReflectionService implements ApplicationContextAware {
 
     public Object invokeTargetMethod(String className, String beanName, String methodName,
             Object[] arguments, Class<?>[] argumentClasses) {
-        Class<?> clz;
-        try {
-            clz = ClassUtils.forName(className, Thread.currentThread().getContextClassLoader());
-        } catch (Throwable e) {
-            throw new IllegalStateException(e.getMessage(), e);
+        Class<?> clz = null;
+        if (StringUtils.isNotBlank(className)) {
+            try {
+                clz = ClassUtils.forName(className, Thread.currentThread().getContextClassLoader());
+            } catch (Throwable e) {
+                throw new IllegalStateException(e.getMessage(), e);
+            }
         }
         return invokeTargetMethod(clz, beanName, methodName, arguments, argumentClasses);
     }
@@ -62,7 +66,7 @@ public class BeanReflectionService implements ApplicationContextAware {
         }
     }
 
-    protected Object lookupTargetBean(Class<?> clz, String beanName) {
+    private Object lookupTargetBean(Class<?> clz, String beanName) {
         if (clz != null && StringUtils.isNotBlank(beanName)) {
             return applicationContext.getBean(beanName, clz);
         } else if (clz != null && StringUtils.isBlank(beanName)) {
@@ -70,6 +74,10 @@ public class BeanReflectionService implements ApplicationContextAware {
         } else if (clz == null && StringUtils.isNotBlank(beanName)) {
             return applicationContext.getBean(beanName);
         }
+        return lookupTargetBeanIfNecessary(clz, beanName);
+    }
+
+    protected Object lookupTargetBeanIfNecessary(Class<?> clz, String beanName) {
         throw new NoSuchBeanDefinitionException("Null", "Null className or beanName");
     }
 

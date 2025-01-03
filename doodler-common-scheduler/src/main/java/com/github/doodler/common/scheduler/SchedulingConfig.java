@@ -14,8 +14,8 @@ import org.springframework.context.annotation.Configuration;
 public class SchedulingConfig {
 
     @Bean
-    public CrosscuttingScheduling crosscuttingScheduling() {
-        return new CrosscuttingScheduling();
+    public CrosscuttingSchedulingTasks crosscuttingScheduling() {
+        return new CrosscuttingSchedulingTasks();
     }
 
 }
