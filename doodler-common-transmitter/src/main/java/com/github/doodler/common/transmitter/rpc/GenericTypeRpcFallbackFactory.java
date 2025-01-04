@@ -1,4 +1,4 @@
-package com.github.doodler.common.feign;
+package com.github.doodler.common.transmitter.rpc;
 
 import java.lang.reflect.Method;
 import org.springframework.cglib.proxy.Enhancer;
@@ -7,41 +7,42 @@ import org.springframework.cglib.proxy.MethodProxy;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @Description: GenericTypeFallbackFactory
+ * 
+ * @Description: GenericTypeRpcFallbackFactory
  * @Author: Fred Feng
- * @Date: 02/02/2023
+ * @Date: 04/01/2025
  * @Version 1.0.0
  */
 @Slf4j
-public class GenericTypeFallbackFactory<API> implements FallbackFactory<API>, MethodInterceptor {
+public class GenericTypeRpcFallbackFactory<T> implements RpcFallbackFactory<T>, MethodInterceptor {
 
-    private final Class<API> apiInterfaceClass;
+    private final Class<T> apiInterfaceClass;
 
-    public GenericTypeFallbackFactory(Class<API> apiInterfaceClass) {
+    public GenericTypeRpcFallbackFactory(Class<T> apiInterfaceClass) {
         this.apiInterfaceClass = apiInterfaceClass;
     }
 
-    private API restClientProxy;
+    private T rpcClientProxy;
 
     @Override
-    public API createFallback(Throwable e) {
+    public T createFallback(Throwable e) {
         if (e != null) {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
             }
         }
-        if (restClientProxy == null) {
-            restClientProxy = createProxyObject();
+        if (rpcClientProxy == null) {
+            rpcClientProxy = createProxyObject();
         }
-        return restClientProxy;
+        return rpcClientProxy;
     }
 
     @SuppressWarnings("unchecked")
-    private API createProxyObject() {
+    private T createProxyObject() {
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(apiInterfaceClass);
         enhancer.setCallback(this);
-        return (API) enhancer.create();
+        return (T) enhancer.create();
     }
 
     @Override

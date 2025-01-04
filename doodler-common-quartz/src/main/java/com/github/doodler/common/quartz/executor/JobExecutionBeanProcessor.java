@@ -35,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
  * @Version 1.0.0
  */
 @Slf4j
+@SuppressWarnings("all")
 @RequiredArgsConstructor
 public class JobExecutionBeanProcessor implements BeanPostProcessor {
 
@@ -125,42 +126,45 @@ public class JobExecutionBeanProcessor implements BeanPostProcessor {
         }
     }
 
+
     private void doRetry(JobDefination jobDefination, boolean updated) {
         try {
             retryOperations.execute(() -> {
                 doPersistJob(jobDefination, updated);
                 return jobDefination;
-            }, maxRetryCount, retryPeriod, RestClientException.class, new RetryListener() {
+            }, maxRetryCount, retryPeriod, new Class[] {RestClientException.class},
+                    new RetryListener() {
 
-                @Override
-                public <T, E extends Throwable> boolean open(RetryContext context,
-                        RetryCallback<T, E> callback) {
-                    if (log.isInfoEnabled()) {
-                        log.info("Start retrying to sync JobDetail:{} , updated: {}",
-                                JacksonUtils.toJsonString(jobDefination), updated);
-                    }
-                    return true;
-                }
+                        @Override
+                        public <T, E extends Throwable> boolean open(RetryContext context,
+                                RetryCallback<T, E> callback) {
+                            if (log.isInfoEnabled()) {
+                                log.info("Start retrying to sync JobDetail:{} , updated: {}",
+                                        JacksonUtils.toJsonString(jobDefination), updated);
+                            }
+                            return true;
+                        }
 
-                @Override
-                public <T, E extends Throwable> void close(RetryContext context,
-                        RetryCallback<T, E> callback, Throwable e) {
-                    if (log.isWarnEnabled()) {
-                        log.warn(marker, "[Retried {}] Failed to sync JobDetail:{}, updated: {}",
-                                context.getRetryCount(), JacksonUtils.toJsonString(jobDefination),
-                                updated);
-                    }
-                }
+                        @Override
+                        public <T, E extends Throwable> void close(RetryContext context,
+                                RetryCallback<T, E> callback, Throwable e) {
+                            if (log.isWarnEnabled()) {
+                                log.warn(marker,
+                                        "[Retried {}] Failed to sync JobDetail:{}, updated: {}",
+                                        context.getRetryCount(),
+                                        JacksonUtils.toJsonString(jobDefination), updated);
+                            }
+                        }
 
-                @Override
-                public <T, E extends Throwable> void onError(RetryContext context,
-                        RetryCallback<T, E> callback, Throwable e) {
-                    if (log.isWarnEnabled()) {
-                        log.warn("[Retrying {}] Failed to sync JobDetail by reason:{}",
-                                context.getRetryCount(), e.getMessage());
-                    }
-                }
-            });
+                        @Override
+                        public <T, E extends Throwable> void onError(RetryContext context,
+                                RetryCallback<T, E> callback, Throwable e) {
+                            if (log.isWarnEnabled()) {
+                                log.warn("[Retrying {}] Failed to sync JobDetail by reason:{}",
+                                        context.getRetryCount(), e.getMessage());
+                            }
+                        }
+                    });
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error("Finally being unable to sync JobDetail:{}", e.getMessage());
