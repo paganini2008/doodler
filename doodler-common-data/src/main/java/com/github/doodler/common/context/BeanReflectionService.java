@@ -7,6 +7,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.ClassUtils;
+import com.github.doodler.common.utils.ExceptionUtils;
 
 /**
  * 
@@ -37,7 +38,8 @@ public class BeanReflectionService implements ApplicationContextAware {
         Object targetBean = lookupTargetBean(clz, beanName);
         try {
             return MethodUtils.invokeExactMethod(targetBean, methodName, arguments);
-        } catch (Exception e) {
+        } catch (Throwable e) {
+            e = ExceptionUtils.getOriginalException(e);
             throw new MethodInvocationException(e.getMessage(), e);
         }
     }
@@ -61,7 +63,8 @@ public class BeanReflectionService implements ApplicationContextAware {
         try {
             return MethodUtils.invokeExactMethod(targetBean, methodName, arguments,
                     argumentClasses);
-        } catch (Exception e) {
+        } catch (Throwable e) {
+            e = ExceptionUtils.getOriginalException(e);
             throw new MethodInvocationException(e.getMessage(), e);
         }
     }

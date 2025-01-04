@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
@@ -69,6 +70,13 @@ public abstract class ExceptionUtils {
         return false;
     }
 
+    public static Throwable getOriginalException(Throwable e) {
+        if (e instanceof InvocationTargetException) {
+            return ((InvocationTargetException) e).getTargetException();
+        }
+        return e;
+    }
+
     static class StringArrayWriter extends Writer {
 
         private final List<String> lines = new ArrayList<String>();
@@ -84,8 +92,7 @@ public abstract class ExceptionUtils {
         }
 
         @Override
-        public void flush() throws IOException {
-        }
+        public void flush() throws IOException {}
 
         @Override
         public void close() throws IOException {

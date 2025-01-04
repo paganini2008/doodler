@@ -132,7 +132,7 @@ public class JobExecutionBeanProcessor implements BeanPostProcessor {
             retryOperations.execute(() -> {
                 doPersistJob(jobDefination, updated);
                 return jobDefination;
-            }, maxRetryCount, retryPeriod, new Class[] {RestClientException.class},
+            }, maxRetryCount, retryPeriod, new Class[] {RestClientException.class}, null,
                     new RetryListener() {
 
                         @Override
@@ -148,11 +148,13 @@ public class JobExecutionBeanProcessor implements BeanPostProcessor {
                         @Override
                         public <T, E extends Throwable> void close(RetryContext context,
                                 RetryCallback<T, E> callback, Throwable e) {
-                            if (log.isWarnEnabled()) {
-                                log.warn(marker,
-                                        "[Retried {}] Failed to sync JobDetail:{}, updated: {}",
-                                        context.getRetryCount(),
-                                        JacksonUtils.toJsonString(jobDefination), updated);
+                            if (e != null) {
+                                if (log.isWarnEnabled()) {
+                                    log.warn(marker,
+                                            "[Retried {}] Failed to sync JobDetail:{}, updated: {}",
+                                            context.getRetryCount(),
+                                            JacksonUtils.toJsonString(jobDefination), updated);
+                                }
                             }
                         }
 
